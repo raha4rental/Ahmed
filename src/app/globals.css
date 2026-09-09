@@ -150,11 +150,35 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 14px 4px;
+  padding: 10px 10px 4px;
   color: #e8d5a8;
   font-size: 15px;
   font-weight: 650;
   letter-spacing: 0.04em;
+}
+
+.app-topbar-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 32px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #e8d5a8;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.app-topbar-action:active {
+  background: #c4a57428;
+}
+
+.app-topbar-logout {
+  margin-inline-start: auto;
+  color: #f3e6c8;
 }
 
 .app-topbar-mark {

@@ -6,8 +6,11 @@ import { useEffect } from "react";
 import {
   Building2,
   CalendarDays,
+  ChevronLeft,
+  ChevronRight,
   CircleEllipsis,
   Home,
+  LogOut,
   Receipt,
   Sparkles,
   Wrench,
@@ -28,7 +31,7 @@ const icons: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const { user, ready, lang, t } = useStore();
+  const { user, ready, lang, t, logout } = useStore();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -46,13 +49,38 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   const items = bottomNav(user.role);
   const dir = lang === "ar" ? "rtl" : "ltr";
+  const atHome = pathname === "/dashboard";
+  const BackIcon = lang === "ar" ? ChevronRight : ChevronLeft;
+
+  function goBack() {
+    if (atHome) {
+      logout();
+      router.replace("/");
+      return;
+    }
+    if (typeof window !== "undefined" && window.history.length > 1) router.back();
+    else router.push("/dashboard");
+  }
+
+  function signOut() {
+    logout();
+    router.replace("/");
+  }
 
   return (
     <div dir={dir} className="app-device">
       <header className="app-topbar">
         <div className="app-topbar-brand">
+          <button type="button" className="app-topbar-action" onClick={goBack}>
+            <BackIcon className="size-5" />
+            <span>{t("back")}</span>
+          </button>
           <span className="app-topbar-mark">أ</span>
           <span>Ahmed</span>
+          <button type="button" className="app-topbar-action app-topbar-logout" onClick={signOut}>
+            <LogOut className="size-4" />
+            <span>{t("logout")}</span>
+          </button>
         </div>
         <nav className="app-tabbar">
           {items.map((item) => {

@@ -47,7 +47,7 @@ export default function DashboardPage() {
         <div className="flex size-12 items-center justify-center rounded-2xl bg-[#1b3d34] text-[#c4a574] text-lg font-semibold">
           {isAdmin ? "أ" : "ر"}
         </div>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="text-xs text-[#8a7048]">{isAdmin ? t("management") : t("operationsRole")}</p>
           <h1 className="truncate text-xl font-semibold text-[#1b3d34]">
             {isAdmin ? t("welcomeAhmed") : t("welcomeStaff")}
