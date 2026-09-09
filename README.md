@@ -39,9 +39,15 @@ The iPhone build:
 - Fills the screen under the notch / Dynamic Island
 - Is portrait-only
 
-Codemagic still needs your App Store Connect key named **Ahmed** and the App Store certificate + profile for `com.ahmed.app`. After that, every push to `main` builds TestFlight.
+App Store Connect cannot be finished from this agent — Apple blocks creating the app via API, and the `.p8` key never leaves your account.
 
-See `store/github-codemagic.md` and `store/app-store-connect.md`.
+Do this once: `store/app-store-connect.md`
+
+1. Create API key **Ahmed** (App Manager) in App Store Connect
+2. Create the iOS app **Ahmed** / `com.ahmed.app`
+3. Paste that key into Codemagic Team integrations as **Ahmed**
+
+Then every push to `main` uploads TestFlight.
 
 ## GitHub + Codemagic
 

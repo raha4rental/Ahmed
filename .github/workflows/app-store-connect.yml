@@ -1,0 +1,27 @@
+name: App Store Connect
+
+on:
+  workflow_dispatch:
+
+jobs:
+  register-bundle-id:
+    name: Register com.ahmed.app
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Codemagic CLI
+        run: pip install codemagic-cli-tools
+      - name: Create bundle ID if missing
+        env:
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }}
+          APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+        run: |
+          if [ -z "$APP_STORE_CONNECT_ISSUER_ID" ] || [ -z "$APP_STORE_CONNECT_KEY_IDENTIFIER" ] || [ -z "$APP_STORE_CONNECT_PRIVATE_KEY" ]; then
+            echo "Add GitHub secrets APP_STORE_CONNECT_ISSUER_ID, APP_STORE_CONNECT_KEY_IDENTIFIER, APP_STORE_CONNECT_PRIVATE_KEY"
+            echo "Or connect the key named Ahmed in Codemagic instead — see store/app-store-connect.md"
+            exit 1
+          fi
+          app-store-connect bundle-ids create com.ahmed.app --name "Ahmed" --platform IOS || true
+          echo "--- apps already in App Store Connect ---"
+          app-store-connect apps list --json || app-store-connect apps list

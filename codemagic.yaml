@@ -20,6 +20,7 @@ workflows:
         BUNDLE_ID: com.ahmed.app
         XCODE_WORKSPACE: ios/App/App.xcworkspace
         XCODE_SCHEME: App
+        APP_STORE_APPLE_ID: com.ahmed.app
       xcode: latest
       node: 22
       cocoapods: default
@@ -28,13 +29,20 @@ workflows:
         script: |
           npm ci
           npx prisma generate
+      - name: Register bundle ID on Apple
+        script: |
+          app-store-connect bundle-ids create com.ahmed.app \
+            --name "Ahmed" \
+            --platform IOS || true
       - name: Native web + Capacitor iOS
         script: |
           npm run build:native
           cd ios/App
           pod install
       - name: Set up code signing
-        script: xcode-project use-profiles
+        script: |
+          xcode-project use-profiles \
+            --custom-export-options '{"testFlightInternalTestingOnly": true}'
       - name: Increment build number
         script: |
           cd "$CM_BUILD_DIR/ios/App"
@@ -52,6 +60,7 @@ workflows:
       app_store_connect:
         auth: integration
         submit_to_testflight: true
+        copyright: 2026 Ahmed Al-Saadi
 
   android-internal:
     name: Ahmed Android
