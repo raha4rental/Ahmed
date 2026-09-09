@@ -19,7 +19,7 @@ workflows:
         XCODE_SCHEME: App
         APP_STORE_APPLE_ID: 6810042737
         APP_STORE_CONNECT_ISSUER_ID: c46c0b74-7d00-42b2-9786-333b76dacf91
-        APP_STORE_CONNECT_KEY_IDENTIFIER: R46D76UXCH
+        APP_STORE_CONNECT_KEY_IDENTIFIER: 8LM6C7D787
       xcode: latest
       node: 22
       cocoapods: default
@@ -44,7 +44,7 @@ workflows:
           if "BEGIN" not in raw:
               raise SystemExit("APP_STORE_CONNECT_PRIVATE_KEY is not a PEM .p8 key")
           text = raw + "\n"
-          kid = os.environ.get("APP_STORE_CONNECT_KEY_IDENTIFIER", "R46D76UXCH")
+          kid = os.environ.get("APP_STORE_CONNECT_KEY_IDENTIFIER", "8LM6C7D787")
           for folder in (
               Path.home() / ".appstoreconnect/private_keys",
               Path.home() / "private_keys",
@@ -105,7 +105,7 @@ workflows:
     publishing:
       app_store_connect:
         api_key: $APP_STORE_CONNECT_PRIVATE_KEY
-        key_id: R46D76UXCH
+        key_id: 8LM6C7D787
         issuer_id: c46c0b74-7d00-42b2-9786-333b76dacf91
         submit_to_testflight: true
 

@@ -4,18 +4,20 @@
 
 The app on Apple is **السعدي**.
 
-## خطأ التوكن / Bearer token error
+## المفتاح الحالي / Current API key
 
-Codemagic must have the `.p8` file, not only the Issuer ID. The key name must be exactly **`ahmed`**.
+- Issuer ID: `c46c0b74-7d00-42b2-9786-333b76dacf91`
+- Key ID: **`8LM6C7D787`**
+- File: `AuthKey_8LM6C7D787.p8`
+- Codemagic key name: **`ahmed`** (all lowercase)
 
-في Codemagic:
+This agent cannot click Upload in the Codemagic website. You must attach the `.p8` there.
+
+## في Codemagic / In Codemagic
 
 1. Team settings → Team integrations → **Developer Portal**
-2. Key name: **`ahmed`** (كل الحروف صغيرة / all lowercase)
+2. Open the key named **`ahmed`** (or add one with that exact name)
 3. Issuer ID: `c46c0b74-7d00-42b2-9786-333b76dacf91`
-4. Key ID: `R46D76UXCH`
-5. Upload the file `AuthKey_R46D76UXCH.p8` (the download from Apple — not a screenshot, not the YAML)
-
-Then start **Ahmed iOS — App Store**.
-
-If the name in Codemagic is `Ahmed` with a capital A, rename it to `ahmed` or the token will fail.
+4. Key ID: **`8LM6C7D787`** (not the old `R46D76UXCH`)
+5. Upload **`AuthKey_8LM6C7D787.p8`**
+6. Save → Start **Ahmed iOS — App Store**
