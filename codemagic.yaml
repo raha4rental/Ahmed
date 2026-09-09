@@ -1,4 +1,32 @@
 workflows:
+  android-internal:
+    name: Ahmed Android
+    instance_type: linux
+    max_build_duration: 60
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
+          source: true
+    environment:
+      java: 17
+      node: 22
+    scripts:
+      - name: Install
+        script: |
+          npm ci
+          npx prisma generate
+          npm run build:native
+      - name: Assemble debug APK
+        script: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+    artifacts:
+      - android/app/build/outputs/apk/debug/*.apk
+
   ios-app-store:
     name: Ahmed iOS — App Store
     instance_type: mac_mini_m2
@@ -9,9 +37,7 @@ workflows:
       ios_signing:
         bundle_identifier: com.ahmed.app
       vars:
-        XCODE_PROJECT: ios/App/App.xcodeproj
         XCODE_SCHEME: App
-        APP_STORE_APPLE_ID: "REPLACE_AFTER_CONNECT"
       node: 22
       cocoapods: default
     scripts:
@@ -37,24 +63,3 @@ workflows:
       app_store_connect:
         auth: integration
         submit_to_testflight: true
-
-  android-internal:
-    name: Ahmed Android
-    instance_type: linux
-    max_build_duration: 60
-    environment:
-      java: 17
-      node: 22
-    scripts:
-      - name: Install
-        script: |
-          npm ci
-          npx prisma generate
-          npm run build:native
-      - name: Assemble debug APK
-        script: |
-          cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug
-    artifacts:
-      - android/app/build/outputs/apk/debug/*.apk
