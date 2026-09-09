@@ -40,6 +40,7 @@ export interface User {
   role: Role;
   title: string;
   titleAr: string;
+  passwordHash?: string;
 }
 
 export interface Building {

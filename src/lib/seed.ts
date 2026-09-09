@@ -15,6 +15,7 @@ import type {
 } from "./types";
 import { generateHotelChecklist } from "./hotel-checklist";
 import { TODAY } from "./format";
+import { AHMED_EMAIL, AHMED_PASSWORD_SHA256 } from "./auth";
 
 const PHOTOS = [
   "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1400&q=80",
@@ -417,7 +418,7 @@ function buildSeed(): AppData {
 
   const data: AppData = {
     users: [
-      { id: "u-ahmed", name: "Ahmed Al-Saadi", nameAr: "أحمد السعدي", email: "ahmed@ahmed.app", phone: "+1 216 555 0100", role: "SUPER_ADMIN", title: "Management", titleAr: "إدارة" },
+      { id: "u-ahmed", name: "Ahmed Al-Saadi", nameAr: "أحمد السعدي", email: AHMED_EMAIL, phone: "+1 216 555 0100", role: "SUPER_ADMIN", title: "Management", titleAr: "إدارة", passwordHash: AHMED_PASSWORD_SHA256 },
       { id: "u-ryan", name: "Ryan", nameAr: "رايان", email: "ryan@ahmed.app", phone: "+1 216 555 0101", role: "EMPLOYEE", title: "Operations", titleAr: "تشغيل" },
       { id: "u-omar", name: "Omar Saleh", nameAr: "عمر صالح", email: "omar@ahmed.app", phone: "+1 216 555 0102", role: "CLEANER", title: "Cleaner", titleAr: "تنظيف" },
       { id: "u-khalid", name: "Khalid Mansour", nameAr: "خالد منصور", email: "khalid@ahmed.app", phone: "+1 216 555 0103", role: "MAINTENANCE", title: "Maintenance", titleAr: "صيانة" },

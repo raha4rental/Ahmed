@@ -28,9 +28,10 @@ import { createSeed } from "./seed";
 import { TODAY, uid } from "./format";
 import { copy, type CopyKey } from "./i18n";
 import { can } from "./permissions";
+import { AHMED_EMAIL, AHMED_PASSWORD_SHA256, sha256Hex } from "./auth";
 
 const KEY = "ahmed-app-v5";
-const SESSION = "ahmed-session-v3";
+const SESSION = "ahmed-session-v4";
 
 type Store = {
   ready: boolean;
@@ -38,7 +39,7 @@ type Store = {
   user: User | null;
   lang: Lang;
   t: (key: CopyKey) => string;
-  login: (userId: string) => void;
+  login: (userId: string, password?: string) => Promise<boolean>;
   logout: () => void;
   toggleLang: () => void;
   reset: () => void;
@@ -116,6 +117,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       const hasRent = expenses.some((e) => e.category === "rent");
       const migrated: AppData = {
         ...next,
+        users: (next.users?.length ? next.users : seed.users).map((u) =>
+          u.id === "u-ahmed"
+            ? { ...u, email: AHMED_EMAIL, passwordHash: AHMED_PASSWORD_SHA256 }
+            : u
+        ),
         expenses: hasRent
           ? expenses
           : [
@@ -129,7 +135,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         }),
       };
       setData(migrated);
-      if (!hasRent) persist(migrated);
+      persist(migrated);
       let sid = localStorage.getItem(SESSION);
       if (sid === "u-rayan") sid = "u-ryan";
       if (sid) setUser(migrated.users.find((x) => x.id === sid) ?? null);
@@ -153,10 +159,17 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const t = useCallback((key: CopyKey) => copy[lang][key], [lang]);
 
   const login = useCallback(
-    (userId: string) => {
+    async (userId: string, password?: string) => {
       const u = data.users.find((x) => x.id === userId) ?? null;
+      if (!u) return false;
+      if (u.passwordHash) {
+        if (!password) return false;
+        const hex = await sha256Hex(password);
+        if (hex !== u.passwordHash) return false;
+      }
       setUser(u);
-      if (u) localStorage.setItem(SESSION, u.id);
+      localStorage.setItem(SESSION, u.id);
+      return true;
     },
     [data.users]
   );
