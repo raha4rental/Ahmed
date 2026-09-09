@@ -23,13 +23,13 @@ import type {
   Role,
   User,
 } from "./types";
-import { DEFAULT_CHECKLIST } from "./types";
+import { generateHotelChecklist, hotelReady, ensureHotelChecklist } from "./hotel-checklist";
 import { createSeed } from "./seed";
 import { TODAY, uid } from "./format";
 import { copy, type CopyKey } from "./i18n";
 import { can } from "./permissions";
 
-const KEY = "ahmed-app-v3";
+const KEY = "ahmed-app-v4";
 const SESSION = "ahmed-session-v3";
 
 type Store = {
@@ -106,11 +106,19 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     if (lg === "ar" || lg === "en") setLang(lg);
 
     const apply = (next: AppData) => {
-      setData(next);
-      localStorage.setItem(KEY, JSON.stringify(next));
+      const migrated: AppData = {
+        ...next,
+        tasks: next.tasks.map((task) => {
+          const apt = next.apartments.find((a) => a.id === task.apartmentId);
+          if (!apt || !task.checklist.length) return task;
+          return { ...task, checklist: ensureHotelChecklist(task.checklist, apt) };
+        }),
+      };
+      setData(migrated);
+      persist(migrated);
       let sid = localStorage.getItem(SESSION);
       if (sid === "u-rayan") sid = "u-ryan";
-      if (sid) setUser(next.users.find((x) => x.id === sid) ?? null);
+      if (sid) setUser(migrated.users.find((x) => x.id === sid) ?? null);
     };
 
     fetch("/api/state")
@@ -247,6 +255,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           bookingId,
           apartmentId: bk.apartmentId,
         };
+        const apt = d.apartments.find((a) => a.id === bk.apartmentId);
         const task: OpsTask = {
           id: uid("t"),
           apartmentId: bk.apartmentId,
@@ -254,7 +263,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           status: "pending",
           assignedTo: "u-omar",
           date: TODAY,
-          checklist: DEFAULT_CHECKLIST.map((c) => ({ ...c, passed: null })),
+          checklist: generateHotelChecklist(apt ?? { bedrooms: 2, bathrooms: 2 }),
           score: null,
           notes: "Auto-created after checkout",
         };
@@ -289,42 +298,46 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const completeCleaning = useCallback(
     (taskId: string) => {
       if (!user || !can.completeCleaning(user.role)) return false;
+      const task = data.tasks.find((t) => t.id === taskId);
+      if (!task) return false;
+      const gate = hotelReady(task.checklist);
+      if (!gate.ok) return false;
       commit((d) => {
-        const task = d.tasks.find((t) => t.id === taskId);
-        if (!task) return d;
+        const current = d.tasks.find((t) => t.id === taskId);
+        if (!current) return d;
         const inspect: OpsTask = {
           id: uid("t"),
-          apartmentId: task.apartmentId,
+          apartmentId: current.apartmentId,
           type: "inspection",
           status: "pending",
           assignedTo: "u-ryan",
           date: TODAY,
-          checklist: DEFAULT_CHECKLIST.map((c) => ({ ...c, passed: null })),
-          score: null,
-          notes: "Auto after cleaning",
+          checklist: current.checklist,
+          score: gate.score,
+          notes: "Inspection after hotel-standard clean",
         };
         const next = {
           ...d,
           tasks: [
             ...d.tasks.map((t) =>
-              t.id === taskId ? { ...t, status: "completed" as const } : t
+              t.id === taskId ? { ...t, status: "completed" as const, score: gate.score } : t
             ),
             inspect,
           ],
         };
-        return setStatus(next, task.apartmentId, "inspection");
+        return setStatus(next, current.apartmentId, "inspection");
       });
       return true;
     },
-    [commit, user]
+    [commit, data.tasks, user]
   );
 
   const completeInspection = useCallback(
     (taskId: string, checklist: OpsTask["checklist"], notes: string) => {
       if (!user || !can.inspect(user.role)) return false;
-      const failed = checklist.some((c) => c.passed === false);
-      const passed = checklist.filter((c) => c.passed === true).length;
-      const score = checklist.length ? Math.round((passed / checklist.length) * 100) : 0;
+      const gate = hotelReady(checklist);
+      const failed = !gate.ok;
+      const score = gate.score;
       commit((d) => {
         const task = d.tasks.find((t) => t.id === taskId);
         if (!task) return d;
@@ -357,14 +370,18 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       const latestInspect = [...aptTasks]
         .reverse()
         .find((t) => t.type === "inspection" || t.type === "final_inspection");
+      const latestClean = [...aptTasks].reverse().find((t) => t.type === "cleaning" || t.type === "turnover");
       if (latestInspect) {
-        const failed = latestInspect.checklist.some((c) => c.passed === false);
-        if (failed || latestInspect.status === "failed") {
-          return { ok: false, reason: "failed" };
+        const gate = hotelReady(latestInspect.checklist);
+        if (!gate.ok || latestInspect.status === "failed") {
+          return { ok: false, reason: gate.reason === "photos" ? "photos" : "failed" };
         }
         if (latestInspect.status !== "completed") {
           return { ok: false, reason: "pending" };
         }
+      } else if (latestClean) {
+        const gate = hotelReady(latestClean.checklist);
+        if (!gate.ok) return { ok: false, reason: "failed" };
       }
       const openMaint = data.maintenance.some(
         (m) => m.apartmentId === apartmentId && m.status !== "completed"

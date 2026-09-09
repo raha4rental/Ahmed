@@ -13,7 +13,7 @@ import type {
   UtilityStatus,
   ChecklistItem,
 } from "./types";
-import { DEFAULT_CHECKLIST } from "./types";
+import { generateHotelChecklist } from "./hotel-checklist";
 import { TODAY } from "./format";
 
 const PHOTOS = [
@@ -107,11 +107,21 @@ function priceFor(beds: number): Apartment["pricing"] {
   };
 }
 
-function checklist(allPass = true, failId?: string): ChecklistItem[] {
-  return DEFAULT_CHECKLIST.map((item) => ({
-    ...item,
-    passed: failId ? item.id !== failId : allPass ? true : null,
-  }));
+function hotelList(beds: number, baths: number, mode: "empty" | "pass" | "failKitchen"): ChecklistItem[] {
+  const list = generateHotelChecklist({ bedrooms: beds, bathrooms: baths });
+  if (mode === "empty") return list;
+  return list.map((item) => {
+    if (mode === "failKitchen" && item.zone === "kitchen" && item.id.endsWith("stone")) {
+      return { ...item, passed: false, note: "Kitchen not hotel standard — grease / not restocked" };
+    }
+    if (item.kind === "photo") {
+      return { ...item, passed: true, photo: mode === "pass" ? "seed://ready" : item.photo };
+    }
+    if (item.kind === "inventory") {
+      return { ...item, passed: true, actual: item.expected };
+    }
+    return { ...item, passed: true };
+  });
 }
 
 export function createSeed(): AppData {
@@ -149,12 +159,12 @@ export function createSeed(): AppData {
   ];
 
   const tasks: OpsTask[] = [
-    { id: "t-1", apartmentId: "apt-aster-405", type: "cleaning", status: "pending", assignedTo: "u-omar", date: TODAY, checklist: checklist(false), score: null, notes: "Turnover after Ahmed Al-Farsi." },
-    { id: "t-2", apartmentId: "apt-vantage-302", type: "inspection", status: "in_progress", assignedTo: "u-ryan", date: TODAY, checklist: checklist(true, "kitchen"), score: 88, notes: "Kitchen not restocked." },
-    { id: "t-3", apartmentId: "apt-lumos-210", type: "final_inspection", status: "completed", assignedTo: "u-ryan", date: "2026-09-07", checklist: checklist(true), score: 98, notes: "READY." },
-    { id: "t-4", apartmentId: "apt-vantage-415", type: "cleaning", status: "pending", assignedTo: "u-omar", date: TODAY, checklist: checklist(false), score: null, notes: "" },
-    { id: "t-5", apartmentId: "apt-lumos-304", type: "cleaning", status: "pending", assignedTo: "u-omar", date: TODAY, checklist: checklist(false), score: null, notes: "" },
-    { id: "t-6", apartmentId: "apt-lumos-401", type: "inspection", status: "pending", assignedTo: "u-ryan", date: TODAY, checklist: checklist(false), score: null, notes: "Final inspection." },
+    { id: "t-1", apartmentId: "apt-aster-405", type: "cleaning", status: "pending", assignedTo: "u-omar", date: TODAY, checklist: hotelList(2, 2, "empty"), score: null, notes: "Turnover after Ahmed Al-Farsi." },
+    { id: "t-2", apartmentId: "apt-vantage-302", type: "inspection", status: "in_progress", assignedTo: "u-ryan", date: TODAY, checklist: hotelList(2, 2, "failKitchen"), score: 88, notes: "Kitchen not restocked." },
+    { id: "t-3", apartmentId: "apt-lumos-210", type: "final_inspection", status: "completed", assignedTo: "u-ryan", date: "2026-09-07", checklist: hotelList(2, 2, "pass"), score: 98, notes: "READY." },
+    { id: "t-4", apartmentId: "apt-vantage-415", type: "cleaning", status: "pending", assignedTo: "u-omar", date: TODAY, checklist: hotelList(3, 2, "empty"), score: null, notes: "" },
+    { id: "t-5", apartmentId: "apt-lumos-304", type: "cleaning", status: "pending", assignedTo: "u-omar", date: TODAY, checklist: hotelList(2, 2, "empty"), score: null, notes: "" },
+    { id: "t-6", apartmentId: "apt-lumos-401", type: "inspection", status: "pending", assignedTo: "u-ryan", date: TODAY, checklist: hotelList(1, 1, "empty"), score: null, notes: "Final inspection." },
     { id: "t-7", apartmentId: "apt-vantage-302", type: "restock", status: "pending", assignedTo: "u-omar", date: TODAY, checklist: [], score: null, notes: "Coffee + paper towels." },
     { id: "t-8", apartmentId: "apt-aster-405", type: "turnover", status: "completed", assignedTo: "u-ryan", date: TODAY, checklist: [], score: null, notes: "Checkout walkthrough done." },
   ];

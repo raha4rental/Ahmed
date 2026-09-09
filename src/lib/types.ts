@@ -112,11 +112,24 @@ export interface CheckoutRecord {
   notes: string;
 }
 
+export type CheckKind = "check" | "photo" | "inventory";
+
 export interface ChecklistItem {
   id: string;
   label: string;
   labelAr: string;
   passed: boolean | null;
+  zone?: string;
+  zoneLabel?: string;
+  zoneLabelAr?: string;
+  section?: string;
+  sectionAr?: string;
+  kind?: CheckKind;
+  note?: string;
+  photo?: string | null;
+  requiredPhoto?: boolean;
+  expected?: number;
+  actual?: number;
 }
 
 export interface OpsTask {
@@ -197,13 +210,4 @@ export interface AppData {
   inventory: InventoryItem[];
 }
 
-export const DEFAULT_CHECKLIST: Omit<ChecklistItem, "passed">[] = [
-  { id: "beds", label: "Beds made & linens fresh", labelAr: "السرير مرتب والمفروشات جديدة" },
-  { id: "bath", label: "Bathroom sanitized", labelAr: "الحمام معقم" },
-  { id: "kitchen", label: "Kitchen clean & stocked", labelAr: "المطبخ نظيف ومجهز" },
-  { id: "floors", label: "Floors vacuumed / mopped", labelAr: "الأرضيات مكنسة وممسوحة" },
-  { id: "trash", label: "Trash emptied", labelAr: "القمامة أُفرغت" },
-  { id: "supplies", label: "Toiletries restocked", labelAr: "مستلزمات الضيف مكتملة" },
-  { id: "appliances", label: "Appliances working", labelAr: "الأجهزة تعمل" },
-  { id: "odors", label: "No odors or stains", labelAr: "لا روائح ولا بقع" },
-];
+export const DEFAULT_CHECKLIST: Omit<ChecklistItem, "passed">[] = [];

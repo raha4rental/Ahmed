@@ -12,7 +12,8 @@ import { useStore } from "@/lib/store";
 import { can } from "@/lib/permissions";
 import { fmtDate, money, nights } from "@/lib/format";
 import { activeStay, currentBooking, guestName, remaining, statusLabel, userName } from "@/lib/lookups";
-import type { ApartmentStatus } from "@/lib/types";
+import type { ApartmentStatus, ChecklistItem, Lang } from "@/lib/types";
+import { hotelReady, hotelZones, zoneProgress } from "@/lib/hotel-checklist";
 
 export default function ApartmentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -43,7 +44,7 @@ export default function ApartmentDetailPage({ params }: { params: Promise<{ id: 
   const inv = data.inventory.filter((x) => x.apartmentId === apt.id);
   const history = data.bookings.filter((b) => b.apartmentId === apt.id);
   const expenses = data.expenses.filter((e) => e.apartmentId === apt.id);
-  const failed = lastInspect?.checklist.some((c) => c.passed === false);
+  const failed = lastInspect ? !hotelReady(lastInspect.checklist).ok : false;
 
   return (
     <div className="space-y-8">
@@ -246,14 +247,9 @@ export default function ApartmentDetailPage({ params }: { params: Promise<{ id: 
           <Meta k={t("score")} v={lastInspect?.score != null ? `${lastInspect.score}` : "—"} />
         </div>
         {lastInspect?.checklist.length ? (
-          <ul className="mt-4 grid gap-2 sm:grid-cols-2 text-sm">
-            {lastInspect.checklist.map((c) => (
-              <li key={c.id} className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2">
-                <span>{lang === "ar" ? c.labelAr : c.label}</span>
-                <span>{c.passed === false ? "🔴" : c.passed === true ? "🟢" : "⚪"}</span>
-              </li>
-            ))}
-          </ul>
+          <ZoneSummary list={lastInspect.checklist} bedrooms={apt.bedrooms} bathrooms={apt.bathrooms} lang={lang} />
+        ) : lastClean?.checklist.length ? (
+          <ZoneSummary list={lastClean.checklist} bedrooms={apt.bedrooms} bathrooms={apt.bathrooms} lang={lang} />
         ) : null}
       </section>
 
@@ -327,6 +323,36 @@ function Meta({ k, v }: { k: string; v: string }) {
 
 function Price({ k, v, lang }: { k: string; v: number; lang: "ar" | "en" }) {
   return <Meta k={k} v={money(v, lang)} />;
+}
+
+function ZoneSummary({
+  list,
+  bedrooms,
+  bathrooms,
+  lang,
+}: {
+  list: ChecklistItem[];
+  bedrooms: number;
+  bathrooms: number;
+  lang: Lang;
+}) {
+  const zones = hotelZones({ bedrooms, bathrooms });
+  return (
+    <ul className="mt-4 space-y-2 text-sm">
+      {zones.map((z) => {
+        const p = zoneProgress(list, z.id);
+        return (
+          <li key={z.id} className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2">
+            <span>{z.icon} {lang === "ar" ? z.ar : z.en}</span>
+            <span>
+              {p.problems ? "❌ " : p.done === p.total && p.total ? "🟢 " : "🟡 "}
+              {p.done}/{p.total}
+            </span>
+          </li>
+        );
+      })}
+    </ul>
+  );
 }
 
 function UtilBlock({
