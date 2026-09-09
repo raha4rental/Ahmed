@@ -123,7 +123,6 @@ workflows:
     publishing:
       app_store_connect:
         api_key: $APP_STORE_CONNECT_PRIVATE_KEY
-        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
-        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        key_id: 8LM6C7D787
+        issuer_id: c46c0b74-7d00-42b2-9786-333b76dacf91
         submit_to_testflight: true
-        submit_to_app_store: false

@@ -85,7 +85,7 @@ Group **`appstore_credentials`** is not required. Apple auth is in `codemagic.ya
 - Auth: API key **`8LM6C7D787`** (issuer `c46c0b74-7d00-42b2-9786-333b76dacf91`)
 - Script upload: `app-store-connect publish --path <ipa>`
 - `submit_to_testflight: true` (Codemagic Magic Actions after Apple processes the build)
-- `submit_to_app_store: false` (do not Add for Review until App Privacy + screenshots)
+- Do not set `submit_to_app_store`, `copyright`, or `cancel_previous_submissions` until Add for Review is ready
 
 ## What the iOS workflow does
 

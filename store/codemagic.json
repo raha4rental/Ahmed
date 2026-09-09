@@ -40,5 +40,5 @@
     "distributionCert": "scripts/ci/ios_distribution.cer",
     "provisioningProfile": "scripts/ci/Ahmed_App_Store_Codemagic.mobileprovision"
   },
-  "note": "Codemagic uploads the IPA with scripts/ci/publish-ipa.sh and api_key 8LM6C7D787. A website Developer Portal integration named Ahmed is optional. submit_to_app_store stays false until App Privacy and screenshots are done."
+  "note": "Codemagic uploads the IPA with scripts/ci/publish-ipa.sh plus yaml publishing (api_key 8LM6C7D787, submit_to_testflight). Do not set copyright or cancel_previous_submissions unless submit_to_app_store is true."
 }
