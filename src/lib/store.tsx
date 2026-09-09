@@ -136,6 +136,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           id: g.id,
           name: g.name,
           phone: g.phone,
+          address: g.address ?? "",
           idPhoto: g.idPhoto ?? "",
         })),
         expenses: hasRent

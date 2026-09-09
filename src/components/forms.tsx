@@ -407,7 +407,7 @@ export function BookingDialog({
             onClick={() => {
               let gid = guestId;
               if (newName.trim()) {
-                gid = addGuest({ name: newName.trim(), phone: "" });
+                gid = addGuest({ name: newName.trim(), phone: "", address: "" });
               }
               addBooking({
                 guestId: gid,
@@ -636,12 +636,14 @@ export function GuestDialog({
   const fileRef = useRef<HTMLInputElement>(null);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
   const [idPhoto, setIdPhoto] = useState("");
   const [busyPhoto, setBusyPhoto] = useState(false);
 
   function reset() {
     setName("");
     setPhone("");
+    setAddress("");
     setIdPhoto("");
     setBusyPhoto(false);
     if (fileRef.current) fileRef.current.value = "";
@@ -667,6 +669,10 @@ export function GuestDialog({
           <div className={field}>
             <Label>{t("phone")}</Label>
             <Input value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" />
+          </div>
+          <div className={field}>
+            <Label>{t("address")}</Label>
+            <Input value={address} onChange={(e) => setAddress(e.target.value)} />
           </div>
           <div className={field}>
             <Label>{t("idPhoto")}</Label>
@@ -717,7 +723,7 @@ export function GuestDialog({
           <Button
             onClick={() => {
               if (!name.trim()) return;
-              addGuest({ name: name.trim(), phone: phone.trim(), idPhoto });
+              addGuest({ name: name.trim(), phone: phone.trim(), address: address.trim(), idPhoto });
               toast.success(t("created"));
               onOpenChange(false);
               reset();

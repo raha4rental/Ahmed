@@ -19,7 +19,7 @@ export default function GuestsPage() {
 
   const list = useMemo(() => {
     return data.guests.filter((g) => {
-      const s = `${g.name} ${g.phone}`.toLowerCase();
+      const s = `${g.name} ${g.phone} ${g.address}`.toLowerCase();
       return !q || s.includes(q.toLowerCase());
     });
   }, [data.guests, q]);
@@ -54,6 +54,9 @@ export default function GuestsPage() {
                 <span className="min-w-0 flex-1">
                   <span className="block font-medium">{g.name}</span>
                   <span className="mt-0.5 block text-sm text-muted-foreground">{g.phone || "—"}</span>
+                  {g.address ? (
+                    <span className="mt-0.5 block truncate text-sm text-muted-foreground">{g.address}</span>
+                  ) : null}
                   <span className="mt-1 block text-xs text-[#8a7048]">
                     {latest ? aptName(data, latest.apartmentId) : "—"}
                     {can.viewFinancials(user.role) && latest

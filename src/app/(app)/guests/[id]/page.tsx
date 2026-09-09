@@ -34,6 +34,10 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
             <div className="font-medium">{guest.phone || "—"}</div>
           </div>
           <div>
+            <div className="text-xs text-muted-foreground">{t("address")}</div>
+            <div className="font-medium">{guest.address || "—"}</div>
+          </div>
+          <div>
             <div className="text-xs text-muted-foreground">{t("previousBookings")}</div>
             <div className="font-medium">{stays.length}</div>
           </div>
