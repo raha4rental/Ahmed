@@ -29,7 +29,8 @@ Existing apps on this Apple team: **DAR RAHA** (`com.darraha.rahaApp`), **voya**
    - Issuer ID `c46c0b74-7d00-42b2-9786-333b76dacf91`
    - Key ID `R46D76UXCH`
    - Upload the same `.p8`
-3. Start **Ahmed iOS — App Store**
+3. Codemagic → App **Ahmed** → Environment variables → add **secret** `CERTIFICATE_PRIVATE_KEY` (the iOS distribution RSA key — not the `.p8`)
+4. Start **Ahmed iOS — App Store**
 
 Add Ahmed Al-Saadi and Ryan in TestFlight → Internal Testing.
 

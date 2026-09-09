@@ -8,6 +8,8 @@
   "keyId": "R46D76UXCH",
   "teamId": "VPT9SWM94A",
   "bundleIdResource": "UKH9ZQF978",
-  "appStoreProfileId": "358JN62MY3",
+  "distributionCertificateId": "JRU86YL2BU",
+  "appStoreProfileId": "S9V76LJWYB",
+  "appStoreProfileName": "Ahmed App Store Codemagic",
   "note": "com.ahmed.app is not available on Apple globally. Registered com.darraha.ahmed instead. App record still must be created in the App Store Connect website."
 }

@@ -13,14 +13,10 @@ workflows:
     integrations:
       app_store_connect: Ahmed
     environment:
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.darraha.ahmed
       vars:
         BUNDLE_ID: com.darraha.ahmed
         XCODE_WORKSPACE: ios/App/App.xcworkspace
         XCODE_SCHEME: App
-        APP_STORE_APPLE_ID: com.darraha.ahmed
         APP_STORE_CONNECT_ISSUER_ID: c46c0b74-7d00-42b2-9786-333b76dacf91
         APP_STORE_CONNECT_KEY_IDENTIFIER: R46D76UXCH
       xcode: latest
@@ -33,7 +29,7 @@ workflows:
           npx prisma generate
       - name: Register bundle ID on Apple
         script: |
-          app-store-connect bundle-ids create com.darraha.ahmed \
+          app-store-connect bundle-ids create "$BUNDLE_ID" \
             --name "Ahmed" \
             --platform IOS || true
       - name: Native web + Capacitor iOS
@@ -41,10 +37,19 @@ workflows:
           npm run build:native
           cd ios/App
           pod install
+      - name: Set up keychain
+        script: keychain initialize
+      - name: Fetch signing files from App Store Connect
+        script: |
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create
+      - name: Add certificates to keychain
+        script: keychain add-certificates
       - name: Set up code signing
         script: |
           xcode-project use-profiles \
-            --custom-export-options '{"testFlightInternalTestingOnly": true}'
+            --custom-export-options='{"testFlightInternalTestingOnly": true}'
       - name: Increment build number
         script: |
           cd "$CM_BUILD_DIR/ios/App"
