@@ -28,10 +28,10 @@ import { createSeed } from "./seed";
 import { TODAY, uid } from "./format";
 import { copy, type CopyKey } from "./i18n";
 import { can } from "./permissions";
-import { AHMED_PASSWORD_SHA256, sha256Hex } from "./auth";
+import { AHMED_PASSWORD_SHA256, RYAN_EMAIL_SHA256, RYAN_PASSWORD_SHA256, sha256Hex } from "./auth";
 
 const KEY = "ahmed-app-v5";
-const SESSION = "ahmed-session-v4";
+const SESSION = "ahmed-session-v5";
 
 type Store = {
   ready: boolean;
@@ -39,7 +39,7 @@ type Store = {
   user: User | null;
   lang: Lang;
   t: (key: CopyKey) => string;
-  login: (userId: string, password?: string) => Promise<boolean>;
+  login: (userId: string, password?: string, email?: string) => Promise<boolean>;
   logout: () => void;
   toggleLang: () => void;
   reset: () => void;
@@ -117,11 +117,21 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       const hasRent = expenses.some((e) => e.category === "rent");
       const migrated: AppData = {
         ...next,
-        users: (next.users?.length ? next.users : seed.users).map((u) =>
-          u.id === "u-ahmed"
-            ? { ...u, email: "", passwordHash: AHMED_PASSWORD_SHA256 }
-            : u
-        ),
+        users: (next.users?.length ? next.users : seed.users).map((u) => {
+          if (u.id === "u-ahmed") {
+            return { ...u, email: "", passwordHash: AHMED_PASSWORD_SHA256 };
+          }
+          if (u.id === "u-ryan" || u.id === "u-rayan") {
+            return {
+              ...u,
+              id: "u-ryan",
+              email: "",
+              passwordHash: RYAN_PASSWORD_SHA256,
+              emailHash: RYAN_EMAIL_SHA256,
+            };
+          }
+          return u;
+        }),
         expenses: hasRent
           ? expenses
           : [
@@ -159,9 +169,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const t = useCallback((key: CopyKey) => copy[lang][key], [lang]);
 
   const login = useCallback(
-    async (userId: string, password?: string) => {
+    async (userId: string, password?: string, email?: string) => {
       const u = data.users.find((x) => x.id === userId) ?? null;
       if (!u) return false;
+      if (u.emailHash) {
+        if (!email) return false;
+        const emailHex = await sha256Hex(email.trim().toLowerCase());
+        if (emailHex !== u.emailHash) return false;
+      }
       if (u.passwordHash) {
         if (!password) return false;
         const hex = await sha256Hex(password);

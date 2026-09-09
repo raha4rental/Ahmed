@@ -41,6 +41,7 @@ export interface User {
   title: string;
   titleAr: string;
   passwordHash?: string;
+  emailHash?: string;
 }
 
 export interface Building {

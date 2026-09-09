@@ -12,7 +12,8 @@ import { useStore } from "@/lib/store";
 export default function LoginPage() {
   const { data, login, user, ready, lang, t } = useStore();
   const router = useRouter();
-  const [ahmedOpen, setAhmedOpen] = useState(false);
+  const [open, setOpen] = useState<"ahmed" | "ryan" | null>(null);
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -24,10 +25,9 @@ export default function LoginPage() {
   const ryan =
     data.users.find((u) => u.id === "u-ryan") ?? data.users.find((u) => u.id === "u-rayan");
 
-  async function enterRyan() {
-    if (!ryan) return;
-    await login(ryan.id);
-    router.push("/dashboard");
+  function resetFields() {
+    setEmail("");
+    setPassword("");
   }
 
   async function enterAhmed(e: React.FormEvent) {
@@ -36,13 +36,31 @@ export default function LoginPage() {
     setBusy(true);
     const ok = await login(ahmed.id, password);
     setBusy(false);
-    setPassword("");
     if (!ok) {
       toast.error(t("wrongPassword"));
+      setPassword("");
       return;
     }
+    resetFields();
     router.push("/dashboard");
   }
+
+  async function enterRyan(e: React.FormEvent) {
+    e.preventDefault();
+    if (!ryan) return;
+    setBusy(true);
+    const ok = await login(ryan.id, password, email);
+    setBusy(false);
+    if (!ok) {
+      toast.error(t("wrongLogin"));
+      setPassword("");
+      return;
+    }
+    resetFields();
+    router.push("/dashboard");
+  }
+
+  const fieldCls = "bg-[#1a2c26] text-[#fffdf8] border-[#c4a57466]";
 
   return (
     <div dir={lang === "ar" ? "rtl" : "ltr"} className="app-device login-screen">
@@ -57,7 +75,10 @@ export default function LoginPage() {
           <button
             type="button"
             className="staff-card staff-card-admin"
-            onClick={() => setAhmedOpen(true)}
+            onClick={() => {
+              resetFields();
+              setOpen("ahmed");
+            }}
           >
             <span className="staff-icon">
               <Crown className="size-6" />
@@ -69,7 +90,7 @@ export default function LoginPage() {
             </span>
           </button>
 
-          {ahmedOpen ? (
+          {open === "ahmed" ? (
             <form className="login-ahmed-form" onSubmit={enterAhmed} autoComplete="off">
               <div className="grid gap-1.5">
                 <Label className="text-[#e8d5a8]">{t("password")}</Label>
@@ -78,7 +99,7 @@ export default function LoginPage() {
                   autoComplete="off"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="bg-[#1a2c26] text-[#fffdf8] border-[#c4a57466]"
+                  className={fieldCls}
                 />
               </div>
               <Button type="submit" className="w-full" disabled={busy}>
@@ -88,7 +109,14 @@ export default function LoginPage() {
           ) : null}
 
           {ryan ? (
-            <button type="button" className="staff-card" onClick={() => void enterRyan()}>
+            <button
+              type="button"
+              className="staff-card"
+              onClick={() => {
+                resetFields();
+                setOpen("ryan");
+              }}
+            >
               <span className="staff-icon">
                 <UserRound className="size-6" />
               </span>
@@ -98,6 +126,45 @@ export default function LoginPage() {
                 <span className="staff-role">Operations</span>
               </span>
             </button>
+          ) : null}
+
+          {open === "ryan" ? (
+            <form className="login-ahmed-form" onSubmit={enterRyan} autoComplete="off">
+              <div className="grid gap-1.5">
+                <Label className="text-[#e8d5a8]">{t("loginEmail")}</Label>
+                <Input
+                  type="email"
+                  inputMode="email"
+                  name="staff-mail"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  data-form-type="other"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className={fieldCls}
+                />
+              </div>
+              <div className="grid gap-1.5">
+                <Label className="text-[#e8d5a8]">{t("password")}</Label>
+                <Input
+                  type="password"
+                  name="unlock-code"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck={false}
+                  data-form-type="other"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={fieldCls}
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={busy}>
+                {t("loginBtn")}
+              </Button>
+            </form>
           ) : null}
         </div>
       </div>

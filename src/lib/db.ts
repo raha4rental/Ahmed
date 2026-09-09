@@ -32,13 +32,24 @@ export async function saveAppState(data: AppData) {
 
 async function syncUsers(data: AppData) {
   for (const u of data.users) {
+    const email = u.email.trim() || `${u.id}@local`;
     await prisma.user.upsert({
       where: { id: u.id },
-      create: { ...u, pin: "1234" },
+      create: {
+        id: u.id,
+        name: u.name,
+        nameAr: u.nameAr,
+        email,
+        phone: u.phone,
+        role: u.role,
+        title: u.title,
+        titleAr: u.titleAr,
+        pin: "1234",
+      },
       update: {
         name: u.name,
         nameAr: u.nameAr,
-        email: u.email,
+        email,
         phone: u.phone,
         role: u.role,
         title: u.title,
