@@ -41,14 +41,27 @@ echo "  ipa: $IPA"
 echo "  key: $KEY_ID"
 ls -lh "$IPA"
 
-app-store-connect publish \
-  --path "$IPA" \
-  --issuer-id "$ISSUER" \
-  --key-id "$KEY_ID" \
-  --private-key "@file:$KEY_FILE" \
-  --skip-package-validation \
-  --altool-retries 3 \
-  --max-build-processing-wait 20
+publish_ok=0
+for attempt in 1 2 3; do
+  echo "Transporter attempt $attempt"
+  if app-store-connect publish \
+    --path "$IPA" \
+    --issuer-id "$ISSUER" \
+    --key-id "$KEY_ID" \
+    --private-key "@file:$KEY_FILE" \
+    --skip-package-validation \
+    --altool-retries 3 \
+    --max-build-processing-wait 20; then
+    publish_ok=1
+    break
+  fi
+  echo "Upload attempt $attempt failed; waiting before retry"
+  sleep $((attempt * 20))
+done
+
+if [ "$publish_ok" -ne 1 ]; then
+  echo "IPA upload failed after retries. Linking any build already on Apple."
+fi
 
 # Let yaml publishing run TestFlight Magic Actions without uploading twice.
 if [ -n "${CM_ENV:-}" ]; then

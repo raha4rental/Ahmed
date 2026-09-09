@@ -170,8 +170,11 @@ def main() -> int:
         print(f"  https://appstoreconnect.apple.com/apps/{APP_ID}/testflight/ios")
         return 0
 
-    _link(build_id)
-    print(f"Linked build {build_id} to App Store version 1.0.1")
+    try:
+        _link(build_id)
+        print(f"Linked build {build_id} to App Store version 1.0.1")
+    except SystemExit as exc:
+        print(f"IPA is on Apple; attaching to version 1.0.1 can finish in App Store Connect ({exc})")
     print(f"  https://appstoreconnect.apple.com/apps/{APP_ID}/appstore/ios/version/inflight")
     print(f"  https://appstoreconnect.apple.com/apps/{APP_ID}/testflight/ios")
     return 0

@@ -27,12 +27,12 @@ Arabic + English copy, privacy URL, Business category, and review notes are set 
 
 ## Before Add for Review
 
-1. **Build:** **1.0.1 (5)** is **VALID** and attached to the iOS version. Run it on iPhone via TestFlight (not the public App Store):
+1. **Build:** **1.0.1 (8)** is **VALID** and attached to the iOS version. It includes Ahmed/Ryan alerts. Run it on iPhone via TestFlight (not the public App Store):
 
    - Internal now: iPhone → TestFlight → sign in as `allaasheikh@icloud.com` → **السعدي** → Install
    - Public TestFlight link (after Beta Review): https://testflight.apple.com/join/j1NHueWR
    - TestFlight console: https://appstoreconnect.apple.com/apps/6810042737/testflight/ios
-   - GitHub archive: https://github.com/raha4rental/Ahmed/actions/runs/34392282672
+   - GitHub archive: https://github.com/raha4rental/Ahmed/actions/runs/34394599036
 2. **App Privacy:** an Admin must publish answers. Steps: `store/APP_PRIVACY.md`  
    https://appstoreconnect.apple.com/apps/6810042737/appPrivacy  
    Choose **No, we do not collect data from this app** → Save → Publish.
