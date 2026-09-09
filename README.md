@@ -10,6 +10,16 @@ Private staff app. No guest login. No customer booking.
 
 Bundle ID: `com.darraha.ahmed`
 
+## Install on iPhone (TestFlight)
+
+The iPhone app is **السعدي 1.0.1 (5)** on Apple. It is not in the public App Store yet.
+
+**Internal (works now):** on the iPhone, install [TestFlight](https://apps.apple.com/app/testflight/id899247664), sign in as **allaasheikh@icloud.com**, open **السعدي**, tap **Install**. On the first screen tap **Ahmed Al-Saadi** and enter the staff password.
+
+**Anyone else (after Apple Beta Review):** https://testflight.apple.com/join/j1NHueWR
+
+App Store listing stays blocked until an Admin publishes App Privacy: https://appstoreconnect.apple.com/apps/6810042737/appPrivacy
+
 ## Run (phone preview)
 
 ```bash
