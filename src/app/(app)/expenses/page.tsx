@@ -148,56 +148,46 @@ export default function ExpensesPage() {
         ))}
       </div>
 
-      <div className="overflow-x-auto raha-card p-0">
-        <table className="w-full min-w-[620px] text-sm">
-          <thead className="bg-[#14241f] text-[#e8d5a8]">
-            <tr>
-              <th className="px-3 py-2 text-start font-medium">{t("dueDate")}</th>
-              <th className="px-3 py-2 text-start font-medium">{t("building")}</th>
-              <th className="px-3 py-2 text-start font-medium">{t("apartment")}</th>
-              <th className="px-3 py-2 text-start font-medium">{t("category")}</th>
-              <th className="px-3 py-2 text-start font-medium">{t("amount")}</th>
-              <th className="px-3 py-2 text-start font-medium">{t("paidStatus")}</th>
-              <th className="px-3 py-2" />
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((e) => {
-              const st = payState(e);
-              const unit = data.apartments.find((a) => a.id === e.apartmentId);
-              return (
-                <tr key={e.id} className="border-t border-border">
-                  <td className="px-3 py-2.5 whitespace-nowrap">{fmtDate(e.dueDate ?? e.date, lang)}</td>
-                  <td className="px-3 py-2.5">{buildingName(data, e.buildingId)}</td>
-                  <td className="px-3 py-2.5">{unit ? unit.number : t("wholeBuilding")}</td>
-                  <td className="px-3 py-2.5 whitespace-nowrap">
+      <div className="grid gap-2">
+        {rows.map((e) => {
+          const st = payState(e);
+          const unit = data.apartments.find((a) => a.id === e.apartmentId);
+          return (
+            <article key={e.id} className="raha-card p-3">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-[#1b3d34]">
                     {icons[e.category] ?? "•"} {labelCat(e.category, t)}
-                    {e.description ? (
-                      <div className="text-[11px] text-muted-foreground">{e.description}</div>
-                    ) : null}
-                  </td>
-                  <td className="px-3 py-2.5 font-medium">{money(e.amount, lang)}</td>
-                  <td className="px-3 py-2.5">
-                    <PayBadge status={st} paid={t("billPaid")} unpaid={t("unpaid")} soon={t("dueSoon")} />
-                  </td>
-                  <td className="px-3 py-2.5 whitespace-nowrap">
-                    {st !== "paid" && can.payBills(user.role) ? (
-                      <Button size="sm" variant="outline" onClick={() => markExpensePaid(e.id)}>
-                        {t("markPaid")}
-                      </Button>
-                    ) : null}
-                    {can.deleteExpense(user.role) ? (
-                      <Button size="sm" variant="ghost" onClick={() => deleteExpense(e.id)}>
-                        {t("delete")}
-                      </Button>
-                    ) : null}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        {rows.length === 0 ? <p className="p-6 text-sm text-muted-foreground">{t("empty")}</p> : null}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {buildingName(data, e.buildingId)} · {unit ? unit.number : t("wholeBuilding")}
+                  </p>
+                  {e.description ? <p className="mt-1 text-xs text-muted-foreground">{e.description}</p> : null}
+                </div>
+                <div className="text-end">
+                  <p className="text-base font-semibold text-[#1b3d34]">{money(e.amount, lang)}</p>
+                  <PayBadge status={st} paid={t("billPaid")} unpaid={t("unpaid")} soon={t("dueSoon")} />
+                </div>
+              </div>
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                {t("dueDate")}: {fmtDate(e.dueDate ?? e.date, lang)}
+              </p>
+              <div className="mt-2 flex gap-2">
+                {st !== "paid" && can.payBills(user.role) ? (
+                  <Button size="sm" variant="outline" onClick={() => markExpensePaid(e.id)}>
+                    {t("markPaid")}
+                  </Button>
+                ) : null}
+                {can.deleteExpense(user.role) ? (
+                  <Button size="sm" variant="ghost" onClick={() => deleteExpense(e.id)}>
+                    {t("delete")}
+                  </Button>
+                ) : null}
+              </div>
+            </article>
+          );
+        })}
+        {rows.length === 0 ? <p className="raha-card p-6 text-sm text-muted-foreground">{t("empty")}</p> : null}
       </div>
       <ExpenseDialog open={open} onOpenChange={setOpen} />
     </div>

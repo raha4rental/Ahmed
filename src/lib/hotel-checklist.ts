@@ -188,17 +188,24 @@ function bedroom(id: string, en: string, ar: string, when: ZoneDef["when"]): Zon
           { id: "personal", en: "Remove any personal items", ar: "إزالة أي أغراض شخصية" },
         ],
       },
-      {
+        {
         id: "closet",
-        en: "Closet",
-        ar: "الخزانة",
+        en: "Inside the closet",
+        ar: "داخل الخزانة",
         items: [
-          { id: "empty", en: "Empty closet", ar: "إفراغها" },
-          { id: "shelves", en: "Clean shelves", ar: "تنظيف الرفوف" },
-          { id: "drawers", en: "Clean drawers", ar: "تنظيف الأدراج" },
-          { id: "inside", en: "Clean interior", ar: "تنظيف الداخل" },
+          { id: "open", en: "Open all closet doors", ar: "فتح كل أبواب الخزانة" },
+          { id: "empty", en: "Empty leftover guest items", ar: "إفراغ أغراض الضيف السابق" },
+          { id: "inside", en: "Clean the entire closet interior", ar: "تنظيف داخل الخزانة بالكامل" },
+          { id: "shelves", en: "Wipe every shelf", ar: "مسح كل الرفوف" },
+          { id: "drawers", en: "Clean inside drawers", ar: "تنظيف داخل الأدراج" },
+          { id: "rod", en: "Clean the hanging rod", ar: "تنظيف عمود التعليق" },
+          { id: "floor", en: "Clean closet floor", ar: "تنظيف أرضية الخزانة" },
+          { id: "doors", en: "Clean doors inside and outside", ar: "تنظيف الأبواب من الداخل والخارج" },
           { id: "handles", en: "Clean handles", ar: "تنظيف المقابض" },
+          { id: "hangers", en: "Hangers present and clean", ar: "الشماعات موجودة ونظيفة" },
           { id: "left", en: "No leftover items", ar: "التأكد من عدم وجود أغراض متروكة" },
+          { id: "odor", en: "No odor inside the closet", ar: "لا روائح داخل الخزانة" },
+          { id: "photo", en: "Photo of closet interior after cleaning", ar: "صورة داخل الخزانة بعد التنظيف", kind: "photo" },
         ],
       },
       {
@@ -272,11 +279,28 @@ function bathroom(id: string, en: string, ar: string, when: ZoneDef["when"]): Zo
           { id: "mixer", en: "Clean mixer", ar: "تنظيف الخلاط" },
           { id: "scale", en: "Remove limescale", ar: "إزالة التكلسات" },
           { id: "top", en: "Clean sink surface", ar: "تنظيف سطح المغسلة" },
-          { id: "cabinet", en: "Clean cabinet", ar: "تنظيف الخزانة" },
-          { id: "drawers", en: "Clean drawers", ar: "تنظيف الأدراج" },
           { id: "mirror", en: "Clean mirror", ar: "تنظيف المرآة" },
           { id: "prints", en: "Remove fingerprints", ar: "إزالة البصمات" },
           { id: "streaks", en: "No cleaning streaks", ar: "إزالة خطوط التنظيف" },
+        ],
+      },
+      {
+        id: "cabinets",
+        en: "Inside bathroom cabinets",
+        ar: "داخل دواليب الحمام",
+        items: [
+          { id: "open", en: "Open vanity, drawers, and medicine cabinet", ar: "فتح دولاب المغسلة والأدراج وخزانة الأدوية" },
+          { id: "vanity", en: "Clean inside the vanity cabinet", ar: "تنظيف داخل دولاب المغسلة" },
+          { id: "undersink", en: "Clean inside the cabinet under the sink", ar: "تنظيف داخل الدولاب تحت الحوض" },
+          { id: "shelves", en: "Wipe all interior shelves", ar: "مسح كل الرفوف الداخلية" },
+          { id: "drawers", en: "Clean inside every drawer", ar: "تنظيف داخل كل درج" },
+          { id: "medicine", en: "Clean inside the medicine cabinet", ar: "تنظيف داخل خزانة الأدوية" },
+          { id: "doors", en: "Clean cabinet doors from the inside", ar: "تنظيف أبواب الدواليب من الداخل" },
+          { id: "left", en: "Remove leftover guest toiletries", ar: "إزالة مستلزمات الضيف السابق من الداخل" },
+          { id: "hair", en: "No hair or moisture inside cabinets", ar: "لا شعر ولا رطوبة داخل الدواليب" },
+          { id: "odor", en: "No odor inside bathroom cabinets", ar: "لا روائح داخل دواليب الحمام" },
+          { id: "organize", en: "Arrange supplies hotel-style", ar: "ترتيب المستلزمات بشكل فندقي" },
+          { id: "photo", en: "Photo of bathroom cabinets open after cleaning", ar: "صورة دواليب الحمام مفتوحة بعد التنظيف", kind: "photo", requiredPhoto: true },
         ],
       },
       {
@@ -328,6 +352,26 @@ const KITCHEN: ZoneDef = {
         { id: "table", en: "Clean table", ar: "تنظيف الطاولة" },
         { id: "chairs", en: "Clean chairs", ar: "تنظيف الكراسي" },
         { id: "handles", en: "Clean cabinet handles", ar: "تنظيف مقابض الخزائن" },
+      ],
+    },
+    {
+      id: "cabinets",
+      en: "Inside kitchen cabinets",
+      ar: "داخل دواليب المطبخ",
+      items: [
+        { id: "open", en: "Open every kitchen cabinet and drawer", ar: "فتح كل دواليب وأدراج المطبخ" },
+        { id: "upper", en: "Clean inside the upper cabinets", ar: "تنظيف داخل الدواليب العلوية" },
+        { id: "lower", en: "Clean inside the lower cabinets", ar: "تنظيف داخل الدواليب السفلية" },
+        { id: "shelves", en: "Wipe all interior shelves", ar: "مسح كل الرفوف من الداخل" },
+        { id: "drawers", en: "Clean inside kitchen drawers", ar: "تنظيف داخل أدراج المطبخ" },
+        { id: "doors", en: "Clean cabinet doors from the inside", ar: "تنظيف أبواب الدواليب من الداخل" },
+        { id: "corners", en: "Clean interior corners and edges", ar: "تنظيف الزوايا والحواف الداخلية" },
+        { id: "left", en: "Remove leftover food, bags, and guest items", ar: "إزالة بقايا الطعام والأكياس وأغراض الضيف" },
+        { id: "crumbs", en: "No crumbs, grease, or sticky residue inside", ar: "لا فتات ولا دهون ولا بقايا لزجة في الداخل" },
+        { id: "odor", en: "No odor inside the cabinets", ar: "لا روائح داخل الدواليب" },
+        { id: "undersink", en: "Clean inside the under-sink cabinet", ar: "تنظيف داخل دولاب تحت الحوض" },
+        { id: "organize", en: "Organize dishes hotel-style", ar: "ترتيب الأواني بشكل فندقي" },
+        { id: "photo", en: "Photo of kitchen cabinets open after cleaning", ar: "صورة دواليب المطبخ مفتوحة بعد التنظيف", kind: "photo", requiredPhoto: true },
       ],
     },
     {
@@ -385,6 +429,43 @@ const KITCHEN: ZoneDef = {
         { id: "in", en: "Clean interior", ar: "تنظيف الداخل" },
         { id: "door", en: "Clean door", ar: "تنظيف الباب" },
         { id: "works", en: "It works", ar: "التأكد أنها تعمل" },
+      ],
+    },
+  ],
+};
+
+const STORAGE: ZoneDef = {
+  id: "storage",
+  en: "Closets & storage",
+  ar: "الخزانات",
+  icon: "🗄️",
+  sections: [
+    {
+      id: "hall",
+      en: "Hall & linen closets",
+      ar: "خزانة الممر والبياضات",
+      items: [
+        { id: "open", en: "Open every hall and linen closet", ar: "فتح كل خزانات الممر والبياضات" },
+        { id: "empty", en: "Remove leftover guest items", ar: "إزالة أغراض الضيف السابق" },
+        { id: "inside", en: "Clean inside the closets", ar: "تنظيف داخل الخزانات" },
+        { id: "shelves", en: "Wipe all shelves", ar: "مسح كل الرفوف" },
+        { id: "floor", en: "Clean closet floors", ar: "تنظيف أرضيات الخزانات" },
+        { id: "doors", en: "Clean closet doors inside and out", ar: "تنظيف أبواب الخزانات من الداخل والخارج" },
+        { id: "handles", en: "Clean handles", ar: "تنظيف المقابض" },
+        { id: "linens", en: "Stack linens hotel-style", ar: "ترتيب البياضات بشكل فندقي" },
+        { id: "odor", en: "No odor inside closets", ar: "لا روائح داخل الخزانات" },
+        { id: "photo", en: "Photo of closets open after cleaning", ar: "صورة الخزانات مفتوحة بعد التنظيف", kind: "photo", requiredPhoto: true },
+      ],
+    },
+    {
+      id: "extra",
+      en: "Extra cabinets",
+      ar: "خزانات إضافية",
+      items: [
+        { id: "living", en: "Clean inside living-room cabinets", ar: "تنظيف داخل خزانات الصالة" },
+        { id: "entry", en: "Clean inside the entry closet", ar: "تنظيف داخل خزانة المدخل" },
+        { id: "utility", en: "Clean inside the utility / laundry cabinet", ar: "تنظيف داخل خزانة الغسيل أو الخدمات" },
+        { id: "left", en: "No leftover items in any cabinet", ar: "لا أغراض متروكة في أي خزانة" },
       ],
     },
   ],
@@ -457,6 +538,7 @@ const ZONES: ZoneDef[] = [
   bathroom("bath_1", "Bathroom 1", "الحمام الأول", (a) => a.bathrooms >= 1),
   bathroom("bath_2", "Bathroom 2", "الحمام الثاني", (a) => a.bathrooms >= 2),
   KITCHEN,
+  STORAGE,
   INVENTORY,
 ];
 
@@ -505,24 +587,53 @@ export function ensureHotelChecklist(
   list: ChecklistItem[],
   apt: Pick<Apartment, "bedrooms" | "bathrooms">
 ): ChecklistItem[] {
-  if (isHotelChecklist(list)) return list;
   const next = generateHotelChecklist(apt);
-  const failKitchen = list.some((i) => i.id === "kitchen" && i.passed === false);
-  if (failKitchen) {
-    return next.map((i) =>
-      i.id.includes("kitchen.") && i.section === "Counters" && i.id.endsWith("stone")
-        ? { ...i, passed: false, note: "Kitchen not restocked / not hotel standard" }
-        : i
-    );
+  if (!list.length) return next;
+
+  const byId = new Map(list.map((i) => [i.id, i]));
+  const overlap = next.filter((item) => byId.has(item.id)).length;
+  const hotel = isHotelChecklist(list) || overlap >= 20;
+
+  if (!hotel) {
+    const failKitchen = list.some((i) => i.id === "kitchen" && i.passed === false);
+    if (failKitchen) {
+      return next.map((i) =>
+        i.id.includes("kitchen.") && i.section === "Counters" && i.id.endsWith("stone")
+          ? { ...i, passed: false, note: "Kitchen not restocked / not hotel standard" }
+          : i
+      );
+    }
+    if (list.every((i) => i.passed === true)) {
+      return next.map((i) => ({
+        ...i,
+        passed: true,
+        photo: i.requiredPhoto ? "seed://ready" : i.photo,
+      }));
+    }
+    return next;
   }
-  if (list.length && list.every((i) => i.passed === true)) {
-    return next.map((i) => ({
-      ...i,
-      passed: i.kind === "photo" ? true : true,
-      photo: i.requiredPhoto ? "seed://ready" : i.photo,
-    }));
-  }
-  return next;
+
+  const allPassed = list.every((i) => i.passed === true || (i.kind === "photo" && Boolean(i.photo)));
+  return next.map((gen) => {
+    const existing = byId.get(gen.id);
+    if (existing) {
+      return {
+        ...gen,
+        passed: existing.passed,
+        note: existing.note ?? "",
+        photo: existing.photo,
+        actual: existing.actual ?? gen.actual,
+      };
+    }
+    if (allPassed) {
+      return {
+        ...gen,
+        passed: true,
+        photo: gen.requiredPhoto ? "seed://ready" : gen.photo,
+      };
+    }
+    return gen;
+  });
 }
 
 export function zoneProgress(list: ChecklistItem[], zoneId: string) {

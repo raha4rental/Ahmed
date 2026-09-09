@@ -35,7 +35,7 @@ export default function OperationsPage() {
     <div>
       <PageHeader
         title={t("operations")}
-        subtitle={lang === "ar" ? "لائحة فندقية حسب المنطقة. لا READY إلا إذا اكتمل كل بند." : "Hotel-standard checklist by zone. READY only when every item is done."}
+        subtitle={lang === "ar" ? "لائحة فندقية — بما فيها داخل دواليب المطبخ والحمام والخزانات. لا READY إلا إذا اكتمل كل بند." : "Hotel-standard checklist — including inside kitchen, bathroom, and storage cabinets. READY only when every item is done."}
       />
 
       <section className="raha-card mb-4 overflow-hidden">
