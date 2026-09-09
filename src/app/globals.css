@@ -375,53 +375,34 @@
   flex: 1;
   flex-direction: column;
   gap: 10px;
-  padding: 8px 18px calc(12px + env(safe-area-inset-bottom));
+  padding: calc(10px + env(safe-area-inset-top)) 18px calc(12px + env(safe-area-inset-bottom));
 }
 
 .login-lang {
-  position: relative;
   align-self: flex-start;
   z-index: 3;
-}
-
-.login-lang-btn {
   display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 40px;
-  padding: 8px 14px;
-  border: 1px solid #c4a574aa;
+  padding: 3px;
+  border: 1px solid #c4a57499;
   border-radius: 999px;
-  background: rgba(12, 28, 24, 0.45);
-  color: #f4ead6;
-  font-size: 12px;
+  background: rgba(12, 28, 24, 0.5);
   backdrop-filter: blur(8px);
 }
 
-.login-lang-menu {
-  position: absolute;
-  inset-inline-start: 0;
-  top: calc(100% + 6px);
-  min-width: 132px;
-  padding: 6px;
-  border: 1px solid #c4a57466;
-  border-radius: 12px;
-  background: #10211c;
-  box-shadow: 0 12px 28px #04110c88;
-}
-
-.login-lang-menu button {
-  display: block;
-  width: 100%;
-  padding: 8px 10px;
-  border-radius: 8px;
-  color: #f4ead6;
+.login-lang-opt {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #d8c7a4;
   font-size: 13px;
-  text-align: start;
+  font-weight: 600;
 }
 
-.login-lang-menu button:hover {
-  background: #c4a57422;
+.login-lang-opt-on {
+  background: linear-gradient(180deg, #e8d5a8 0%, #c4a574 100%);
+  color: #14241f;
 }
 
 .login-brand {

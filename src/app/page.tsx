@@ -1,15 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   BarChart3,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Clock3,
   Crown,
-  Globe,
   ShieldCheck,
   UserRound,
 } from "lucide-react";
@@ -26,8 +24,6 @@ export default function LoginPage() {
   const { data, login, user, ready, lang, t, setLang } = useStore();
   const router = useRouter();
   const [open, setOpen] = useState<"ahmed" | "ryan" | null>(null);
-  const [langOpen, setLangOpen] = useState(false);
-  const langRef = useRef<HTMLDivElement>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailSaved, setEmailSaved] = useState(false);
@@ -43,14 +39,6 @@ export default function LoginPage() {
       setEmail(saved);
       setEmailSaved(true);
     }
-  }, []);
-
-  useEffect(() => {
-    function onDoc(e: MouseEvent) {
-      if (!langRef.current?.contains(e.target as Node)) setLangOpen(false);
-    }
-    document.addEventListener("mousedown", onDoc);
-    return () => document.removeEventListener("mousedown", onDoc);
   }, []);
 
   const ahmed = data.users.find((u) => u.id === "u-ahmed");
@@ -94,7 +82,6 @@ export default function LoginPage() {
 
   function pickLang(next: Lang) {
     setLang(next);
-    setLangOpen(false);
   }
 
   const fieldCls = "bg-[#13241f] text-[#fffdf8] border-[#c4a57466]";
@@ -104,36 +91,23 @@ export default function LoginPage() {
       <img src="/login-buildings.jpg" alt="" className="login-photo" />
       <div className="login-veil" />
 
-      <header className="app-topbar">
-        <div className="app-topbar-inner" ref={langRef}>
-          <span />
-          <span className="app-topbar-word">{t("appName")}</span>
-          <div className="login-lang app-topbar-logout">
-            <button
-              type="button"
-              className="login-lang-btn"
-              onClick={() => setLangOpen((v) => !v)}
-              aria-expanded={langOpen}
-            >
-              <Globe className="size-3.5" />
-              <span>{lang === "ar" ? t("langArabic") : t("langEnglish")}</span>
-              <ChevronDown className="size-3.5" />
-            </button>
-            {langOpen ? (
-              <div className="login-lang-menu">
-                <button type="button" onClick={() => pickLang("ar")}>
-                  {t("langArabic")}
-                </button>
-                <button type="button" onClick={() => pickLang("en")}>
-                  {t("langEnglish")}
-                </button>
-              </div>
-            ) : null}
-          </div>
-        </div>
-      </header>
-
       <div className="login-inner">
+        <div className="login-lang">
+          <button
+            type="button"
+            className={lang === "ar" ? "login-lang-opt login-lang-opt-on" : "login-lang-opt"}
+            onClick={() => pickLang("ar")}
+          >
+            عربي
+          </button>
+          <button
+            type="button"
+            className={lang === "en" ? "login-lang-opt login-lang-opt-on" : "login-lang-opt"}
+            onClick={() => pickLang("en")}
+          >
+            English
+          </button>
+        </div>
 
         <header className="login-brand">
           <img src="/logo.png" alt="Ahmed Al Saadi" className="login-logo" />
