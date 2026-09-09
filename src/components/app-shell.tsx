@@ -11,6 +11,7 @@ import {
   CircleEllipsis,
   Home,
   LogOut,
+  Bell,
   Receipt,
   Sparkles,
   Wrench,
@@ -32,7 +33,7 @@ const icons: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const { user, ready, lang, t, logout } = useStore();
+  const { user, ready, lang, t, logout, unreadCount } = useStore();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -78,9 +79,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <BackIcon className="size-5" />
             </button>
             <img src="/logo.png" alt="Ahmed" className="app-topbar-logo" />
-            <button type="button" className="app-topbar-action app-topbar-logout" onClick={signOut} aria-label={t("logout")}>
-              <LogOut className="size-4" />
-            </button>
+            <div className="app-topbar-end">
+              <Link href="/notifications" className="app-topbar-action" aria-label={t("notifications")}>
+                <Bell className="size-4" />
+                {unreadCount > 0 ? (
+                  <span className="app-bell-count">{unreadCount > 9 ? "9+" : unreadCount}</span>
+                ) : null}
+              </Link>
+              <button type="button" className="app-topbar-action app-topbar-logout" onClick={signOut} aria-label={t("logout")}>
+                <LogOut className="size-4" />
+              </button>
+            </div>
           </div>
           <nav className="app-tabbar">
             {items.map((item) => {

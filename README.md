@@ -20,6 +20,8 @@ The iPhone app is **السعدي 1.0.1 (5)** on Apple. It is not in the public A
 
 App Store listing stays blocked until an Admin publishes App Privacy: https://appstoreconnect.apple.com/apps/6810042737/appPrivacy
 
+When Ahmed or Ryan **adds** an apartment, guest, booking, maintenance request, or (Ahmed) an expense, both accounts get an in-app alert. On iPhone, allow notifications so a banner also appears.
+
 ## Run (phone preview)
 
 ```bash

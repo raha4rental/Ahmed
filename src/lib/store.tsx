@@ -12,6 +12,7 @@ import type {
   Apartment,
   ApartmentStatus,
   AppData,
+  AppNotification,
   Booking,
   Building,
   CheckoutRecord,
@@ -24,6 +25,11 @@ import type {
   Role,
   User,
 } from "./types";
+import { apartmentPath, guestPath } from "./paths";
+import { aptName, guestName } from "./lookups";
+import { handoverPath } from "./handover-checklist";
+import { isNativeApp } from "./native";
+import { canSeeNotice, showDeviceNotification, unreadNotices } from "./notify";
 import { generateHotelChecklist, hotelReady, ensureHotelChecklist } from "./hotel-checklist";
 import { handoverReady } from "./handover-checklist";
 import { createSeed } from "./seed";
@@ -78,6 +84,9 @@ type Store = {
   markUtilityPaid: (kind: "electricity" | "internet" | "water", apartmentId: string) => boolean;
   updateInventory: (id: string, actual: number) => void;
   setTaskChecklist: (taskId: string, checklist: OpsTask["checklist"]) => void;
+  markNotificationRead: (id: string) => void;
+  markAllNotificationsRead: () => void;
+  unreadCount: number;
 };
 
 const Ctx = createContext<Store | null>(null);
@@ -146,6 +155,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           idPhoto: g.idPhoto ?? "",
         })),
         handovers: next.handovers ?? [],
+        notifications: next.notifications ?? [],
         expenses: hasRent
           ? expenses
           : [
@@ -191,6 +201,70 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       return next;
     });
   }, []);
+
+  const appendNotice = useCallback(
+    (
+      d: AppData,
+      input: Omit<AppNotification, "id" | "createdAt" | "readBy" | "actorId" | "actorNameAr" | "actorNameEn">
+    ): AppData => {
+      const actorId = user?.id ?? "";
+      const notice: AppNotification = {
+        ...input,
+        id: uid("n"),
+        createdAt: new Date().toISOString(),
+        actorId,
+        actorNameAr: user?.nameAr ?? "",
+        actorNameEn: user?.name ?? "",
+        readBy: actorId ? [actorId] : [],
+      };
+      queueMicrotask(() => {
+        void showDeviceNotification(notice, lang);
+      });
+      return {
+        ...d,
+        notifications: [notice, ...(d.notifications ?? [])].slice(0, 200),
+      };
+    },
+    [lang, user]
+  );
+
+  useEffect(() => {
+    if (!ready || isNativeApp()) return;
+    let cancelled = false;
+    const tick = async () => {
+      try {
+        const response = await fetch("/api/state");
+        if (!response.ok || cancelled) return;
+        const remote = (await response.json()) as AppData;
+        const incoming = remote.notifications ?? [];
+        if (!incoming.length) return;
+        setData((prev) => {
+          const have = new Set((prev.notifications ?? []).map((n) => n.id));
+          const fresh = incoming.filter((n) => !have.has(n.id));
+          if (!fresh.length) return prev;
+          const notifications = [...fresh, ...(prev.notifications ?? [])]
+            .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+            .slice(0, 200);
+          const next = { ...prev, notifications };
+          persist(next);
+          for (const notice of fresh) {
+            if (user && canSeeNotice(user.role, notice) && !notice.readBy.includes(user.id)) {
+              void showDeviceNotification(notice, lang);
+            }
+          }
+          return next;
+        });
+      } catch {
+        /* preview without db */
+      }
+    };
+    const id = window.setInterval(() => void tick(), 12000);
+    void tick();
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
+  }, [lang, ready, user]);
 
   const t = useCallback((key: CopyKey) => copy[lang][key], [lang]);
 
@@ -249,10 +323,22 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const addApartment = useCallback(
     (a: Omit<Apartment, "id">) => {
       const id = uid("apt");
-      commit((d) => ({ ...d, apartments: [...d.apartments, { ...a, id }] }));
+      commit((d) => {
+        const next = { ...d, apartments: [...d.apartments, { ...a, id }] };
+        const building = d.buildings.find((b) => b.id === a.buildingId)?.name ?? "";
+        return appendNotice(next, {
+          kind: "apartment",
+          href: apartmentPath(id),
+          titleAr: "شقة جديدة",
+          titleEn: "New apartment",
+          bodyAr: `أُضيفت شقة ${building} ${a.number}`,
+          bodyEn: `${building} ${a.number} was added`,
+          audience: "both",
+        });
+      });
       return id;
     },
-    [commit]
+    [appendNotice, commit]
   );
 
   const updateApartment = useCallback(
@@ -277,10 +363,23 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const addGuest = useCallback(
     (g: Omit<Guest, "id">) => {
       const id = uid("g");
-      commit((d) => ({ ...d, guests: [...d.guests, { ...g, id }] }));
+      commit((d) =>
+        appendNotice(
+          { ...d, guests: [...d.guests, { ...g, id }] },
+          {
+            kind: "guest",
+            href: guestPath(id),
+            titleAr: "زبون جديد",
+            titleEn: "New guest",
+            bodyAr: `أُضيف الزبون ${g.name}`,
+            bodyEn: `${g.name} was added`,
+            audience: "both",
+          }
+        )
+      );
       return id;
     },
-    [commit]
+    [appendNotice, commit]
   );
 
   const addBooking = useCallback(
@@ -289,12 +388,20 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       commit((d) => {
         const next = { ...d, bookings: [...d.bookings, { ...b, id }] };
         const apt = d.apartments.find((a) => a.id === b.apartmentId);
-        if (apt && apt.status === "ready") return setStatus(next, b.apartmentId, "booked");
-        return next;
+        const labeled = appendNotice(apt && apt.status === "ready" ? setStatus(next, b.apartmentId, "booked") : next, {
+          kind: "booking",
+          href: "/bookings",
+          titleAr: "حجز جديد",
+          titleEn: "New booking",
+          bodyAr: `حجز ${guestName(d, b.guestId)} في ${aptName(d, b.apartmentId)}`,
+          bodyEn: `${guestName(d, b.guestId)} booked ${aptName(d, b.apartmentId)}`,
+          audience: "both",
+        });
+        return labeled;
       });
       return id;
     },
-    [commit]
+    [appendNotice, commit]
   );
 
   const checkIn = useCallback(
@@ -309,11 +416,19 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
             b.id === bookingId ? { ...b, status: "checked_in" as const } : b
           ),
         };
-        return setStatus(next, bk.apartmentId, "occupied");
+        return appendNotice(setStatus(next, bk.apartmentId, "occupied"), {
+          kind: "checkin",
+          href: apartmentPath(bk.apartmentId),
+          titleAr: "دخول نزيل",
+          titleEn: "Guest checked in",
+          bodyAr: `دخل ${guestName(d, bk.guestId)} إلى ${aptName(d, bk.apartmentId)}`,
+          bodyEn: `${guestName(d, bk.guestId)} checked in at ${aptName(d, bk.apartmentId)}`,
+          audience: "both",
+        });
       });
       return true;
     },
-    [commit, user]
+    [appendNotice, commit, user]
   );
 
   const checkOut = useCallback(
@@ -348,11 +463,19 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           checkouts: [...d.checkouts, checkout],
           tasks: [...d.tasks, task],
         };
-        return setStatus(next, bk.apartmentId, rec.cleaningRequired ? "cleaning" : "inspection");
+        return appendNotice(setStatus(next, bk.apartmentId, rec.cleaningRequired ? "cleaning" : "inspection"), {
+          kind: "checkout",
+          href: apartmentPath(bk.apartmentId),
+          titleAr: "خروج نزيل",
+          titleEn: "Guest checked out",
+          bodyAr: `خرج ${guestName(d, bk.guestId)} من ${aptName(d, bk.apartmentId)}`,
+          bodyEn: `${guestName(d, bk.guestId)} checked out of ${aptName(d, bk.apartmentId)}`,
+          audience: "both",
+        });
       });
       return true;
     },
-    [commit, user]
+    [appendNotice, commit, user]
   );
 
   const upsertHandover = useCallback(
@@ -395,7 +518,15 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
               b.id === h.bookingId ? { ...b, status: "checked_in" as const } : b
             ),
           };
-          return setStatus(next, bk.apartmentId, "occupied");
+          return appendNotice(setStatus(next, bk.apartmentId, "occupied"), {
+            kind: "handover",
+            href: handoverPath(h.bookingId, "check_in"),
+            titleAr: "استلام شقة",
+            titleEn: "Check-in handover",
+            bodyAr: `تم استلام ${aptName(d, bk.apartmentId)}`,
+            bodyEn: `Check-in signed for ${aptName(d, bk.apartmentId)}`,
+            audience: "both",
+          });
         }
         const checkout: CheckoutRecord = {
           id: uid("co"),
@@ -431,11 +562,19 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           checkouts: [...d.checkouts, checkout],
           tasks: [...d.tasks, task],
         };
-        return setStatus(next, bk.apartmentId, "cleaning");
+        return appendNotice(setStatus(next, bk.apartmentId, "cleaning"), {
+          kind: "handover",
+          href: handoverPath(h.bookingId, "check_out"),
+          titleAr: "خروج موقّع",
+          titleEn: "Check-out handover",
+          bodyAr: `تم خروج ${aptName(d, bk.apartmentId)} وبدأ التنظيف`,
+          bodyEn: `${aptName(d, bk.apartmentId)} was signed out — cleaning started`,
+          audience: "both",
+        });
       });
       return { ok: true };
     },
-    [commit, user]
+    [appendNotice, commit, user]
   );
 
   const upsertTask = useCallback(
@@ -481,11 +620,19 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
             inspect,
           ],
         };
-        return setStatus(next, current.apartmentId, "inspection");
+        return appendNotice(setStatus(next, current.apartmentId, "inspection"), {
+          kind: "cleaning",
+          href: "/operations",
+          titleAr: "انتهى التنظيف",
+          titleEn: "Cleaning finished",
+          bodyAr: `انتهى تنظيف ${aptName(d, current.apartmentId)} — بانتظار الفحص`,
+          bodyEn: `${aptName(d, current.apartmentId)} cleaning is done — inspection next`,
+          audience: "both",
+        });
       });
       return true;
     },
-    [commit, data.tasks, user]
+    [appendNotice, commit, data.tasks, user]
   );
 
   const completeInspection = useCallback(
@@ -543,10 +690,20 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         (m) => m.apartmentId === apartmentId && m.status !== "completed"
       );
       if (openMaint) return { ok: false, reason: "maintenance" };
-      commit((d) => setStatus(d, apartmentId, "ready"));
+      commit((d) =>
+        appendNotice(setStatus(d, apartmentId, "ready"), {
+          kind: "ready",
+          href: apartmentPath(apartmentId),
+          titleAr: "شقة جاهزة",
+          titleEn: "Apartment ready",
+          bodyAr: `${aptName(d, apartmentId)} أصبحت جاهزة`,
+          bodyEn: `${aptName(d, apartmentId)} is ready`,
+          audience: "both",
+        })
+      );
       return { ok: true };
     },
-    [commit, data.maintenance, data.tasks, user]
+    [appendNotice, commit, data.maintenance, data.tasks, user]
   );
 
   const addMaintenance = useCallback(
@@ -555,14 +712,23 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       commit((d) => {
         const next = { ...d, maintenance: [{ ...m, id }, ...d.maintenance] };
         const apt = d.apartments.find((a) => a.id === m.apartmentId);
-        if (apt && (apt.status === "ready" || apt.status === "not_ready" || apt.status === "cleaning")) {
-          return setStatus(next, m.apartmentId, "maintenance");
-        }
-        return next;
+        const placed =
+          apt && (apt.status === "ready" || apt.status === "not_ready" || apt.status === "cleaning")
+            ? setStatus(next, m.apartmentId, "maintenance")
+            : next;
+        return appendNotice(placed, {
+          kind: "maintenance",
+          href: "/maintenance",
+          titleAr: m.priority === "urgent" ? "صيانة عاجلة" : "بلاغ صيانة",
+          titleEn: m.priority === "urgent" ? "Urgent maintenance" : "New maintenance",
+          bodyAr: `${m.title} — ${aptName(d, m.apartmentId)}`,
+          bodyEn: `${m.title} at ${aptName(d, m.apartmentId)}`,
+          audience: "both",
+        });
       });
       return id;
     },
-    [commit]
+    [appendNotice, commit]
   );
 
   const updateMaintenance = useCallback(
@@ -591,10 +757,23 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const addExpense = useCallback(
     (e: Omit<Expense, "id">) => {
       const id = uid("ex");
-      commit((d) => ({ ...d, expenses: [{ ...e, id }, ...d.expenses] }));
+      commit((d) =>
+        appendNotice(
+          { ...d, expenses: [{ ...e, id }, ...d.expenses] },
+          {
+            kind: "expense",
+            href: "/expenses",
+            titleAr: "مصروف جديد",
+            titleEn: "New expense",
+            bodyAr: e.description || "تمت إضافة مصروف",
+            bodyEn: e.description || "An expense was added",
+            audience: "admin",
+          }
+        )
+      );
       return id;
     },
-    [commit]
+    [appendNotice, commit]
   );
 
   const markExpensePaid = useCallback(
@@ -657,6 +836,31 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     [commit]
   );
 
+  const markNotificationRead = useCallback(
+    (id: string) => {
+      if (!user) return;
+      commit((d) => ({
+        ...d,
+        notifications: (d.notifications ?? []).map((n) =>
+          n.id === id && !n.readBy.includes(user.id) ? { ...n, readBy: [...n.readBy, user.id] } : n
+        ),
+      }));
+    },
+    [commit, user]
+  );
+
+  const markAllNotificationsRead = useCallback(() => {
+    if (!user) return;
+    commit((d) => ({
+      ...d,
+      notifications: (d.notifications ?? []).map((n) =>
+        n.readBy.includes(user.id) ? n : { ...n, readBy: [...n.readBy, user.id] }
+      ),
+    }));
+  }, [commit, user]);
+
+  const unreadCount = user ? unreadNotices(data.notifications, user).length : 0;
+
   const value = useMemo<Store>(
     () => ({
       ready,
@@ -691,6 +895,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       markUtilityPaid,
       updateInventory,
       setTaskChecklist,
+      markNotificationRead,
+      markAllNotificationsRead,
+      unreadCount,
     }),
     [
       ready,
@@ -725,6 +932,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       markUtilityPaid,
       updateInventory,
       setTaskChecklist,
+      markNotificationRead,
+      markAllNotificationsRead,
+      unreadCount,
     ]
   );
 

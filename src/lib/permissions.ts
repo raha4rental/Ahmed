@@ -74,7 +74,7 @@ export const bottomNav = (role: Role): NavItem[] => {
 };
 
 export const moreNav = (role: Role): NavItem[] => {
-  const items: NavItem[] = [];
+  const items: NavItem[] = [{ href: "/notifications", key: "notifications", icon: "bell" }];
   if (can.viewGuests(role)) items.push({ href: "/guests", key: "customers", icon: "users" });
   if (can.viewOperations(role) && role === "SUPER_ADMIN") items.push({ href: "/operations", key: "operations", icon: "sparkles" });
   if (can.viewMaintenance(role) && role !== "MAINTENANCE") items.push({ href: "/maintenance", key: "maintenance", icon: "wrench" });

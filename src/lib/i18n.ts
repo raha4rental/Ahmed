@@ -258,6 +258,12 @@ export const copy = {
     handoverDone: "تم التوقيع وإغلاق اللائحة",
     handoverProgress: "التقدم",
     signedCopy: "نسخة موقّعة",
+    notifications: "التنبيهات",
+    notificationInbox: "صندوق التنبيهات",
+    notificationEmpty: "لا توجد تنبيهات بعد. عند إضافة شقة أو زبون أو حجز أو صيانة يصل التنبيه لأحمد ورايان.",
+    markAllRead: "تعليم الكل كمقروء",
+    justNow: "الآن",
+    fromStaff: "من",
   },
   en: {
     appName: "Ahmed",
@@ -518,6 +524,12 @@ export const copy = {
     handoverDone: "List signed and closed",
     handoverProgress: "Progress",
     signedCopy: "Signed copy",
+    notifications: "Alerts",
+    notificationInbox: "Alert inbox",
+    notificationEmpty: "No alerts yet. New apartments, guests, bookings, and maintenance notify both Ahmed and Ryan.",
+    markAllRead: "Mark all read",
+    justNow: "Just now",
+    fromStaff: "From",
   },
 } as const;
 

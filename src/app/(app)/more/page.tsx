@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
+  Bell,
   BarChart3,
   ChevronLeft,
   ChevronRight,
@@ -20,6 +21,7 @@ import { moreNav } from "@/lib/permissions";
 import type { CopyKey } from "@/lib/i18n";
 
 const icons: Record<string, React.ComponentType<{ className?: string }>> = {
+  bell: Bell,
   users: Users,
   sparkles: Sparkles,
   wrench: Wrench,

@@ -222,6 +222,32 @@ export interface InventoryItem {
   state: InventoryState;
 }
 
+export interface AppNotification {
+  id: string;
+  kind:
+    | "apartment"
+    | "guest"
+    | "booking"
+    | "checkin"
+    | "checkout"
+    | "maintenance"
+    | "expense"
+    | "cleaning"
+    | "handover"
+    | "ready";
+  titleAr: string;
+  titleEn: string;
+  bodyAr: string;
+  bodyEn: string;
+  href: string;
+  createdAt: string;
+  actorId: string;
+  actorNameAr: string;
+  actorNameEn: string;
+  audience: "both" | "admin";
+  readBy: string[];
+}
+
 export interface AppData {
   users: User[];
   buildings: Building[];
@@ -237,6 +263,7 @@ export interface AppData {
   water: UtilityBill[];
   expenses: Expense[];
   inventory: InventoryItem[];
+  notifications: AppNotification[];
 }
 
 export const DEFAULT_CHECKLIST: Omit<ChecklistItem, "passed">[] = [];

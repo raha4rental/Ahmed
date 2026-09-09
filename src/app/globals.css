@@ -180,6 +180,7 @@
 }
 
 .app-topbar-action {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -200,8 +201,30 @@
 }
 
 .app-topbar-logout {
-  justify-self: end;
   color: #f3e6c8;
+}
+
+.app-topbar-end {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-bell-count {
+  position: absolute;
+  top: -3px;
+  inset-inline-end: -3px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #c4a574;
+  color: #14241f;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
 }
 
 .app-topbar-word {

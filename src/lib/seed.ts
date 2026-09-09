@@ -454,6 +454,7 @@ function buildSeed(): AppData {
     water,
     expenses,
     inventory,
+    notifications: [],
   };
   seedCache = data;
   return data;
