@@ -159,6 +159,128 @@ def persist_env(asc_file: Path, cert_file: Path | None) -> None:
     _log(f"persisted key file path to {cm_env}")
 
 
+def _cert_env() -> str:
+    for name in (
+        "CERTIFICATE_PRIVATE_KEY",
+        "IOS_CERTIFICATE_PRIVATE_KEY",
+        "CERTIFICATE_KEY",
+        "APP_STORE_CONNECT_CERTIFICATE_PRIVATE_KEY",
+    ):
+        value = os.environ.get(name, "").strip()
+        if value:
+            _log(f"certificate private key source: ${name}")
+            return value
+    return ""
+
+
+def generate_distribution_key() -> str:
+    try:
+        from cryptography.hazmat.primitives import serialization
+        from cryptography.hazmat.primitives.asymmetric import rsa
+
+        key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        pem = key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption(),
+        ).decode("ascii")
+    except Exception:
+        import subprocess
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            key_path = Path(tmp) / "key.pem"
+            subprocess.run(
+                ["openssl", "genpkey", "-algorithm", "RSA", "-pkeyopt", "rsa_keygen_bits:2048", "-out", str(key_path)],
+                check=True,
+                capture_output=True,
+            )
+            pem = key_path.read_text()
+    _log("generated ephemeral Apple Distribution private key for this build")
+    return pem if pem.endswith("\n") else pem + "\n"
+
+
+def _asc_token(pem: str, key_id: str, issuer: str) -> str:
+    import time
+
+    import jwt
+
+    now = int(time.time())
+    token = jwt.encode(
+        {"iss": issuer, "iat": now, "exp": now + 19 * 60, "aud": "appstoreconnect-v1"},
+        pem,
+        algorithm="ES256",
+        headers={"kid": key_id, "typ": "JWT"},
+    )
+    return token.decode() if isinstance(token, bytes) else token
+
+
+def _asc_json(token: str, method: str, path: str):
+    import json
+    import urllib.error
+    import urllib.request
+
+    request = urllib.request.Request(
+        "https://api.appstoreconnect.apple.com" + path,
+        method=method,
+        headers={"Authorization": f"Bearer {token}", "Accept": "application/json"},
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=60) as resp:
+            raw = resp.read().decode()
+            return resp.status, json.loads(raw) if raw else {}
+    except urllib.error.HTTPError as exc:
+        raw = exc.read().decode()
+        try:
+            body = json.loads(raw)
+        except json.JSONDecodeError:
+            body = {"raw": raw[:2000]}
+        return exc.code, body
+
+
+def free_distribution_slot(asc_pem: str, key_id: str, issuer: str) -> None:
+    """Revoke the Ahmed Codemagic distribution cert if Apple is at the 3-cert cap."""
+    token = _asc_token(asc_pem, key_id, issuer)
+    status, payload = _asc_json(token, "GET", "/v1/certificates?limit=200")
+    if status >= 400:
+        _log(f"could not list certificates ({status}); continuing")
+        return
+    dist = [
+        item
+        for item in payload.get("data") or []
+        if item.get("attributes", {}).get("certificateType") in {"DISTRIBUTION", "IOS_DISTRIBUTION"}
+    ]
+    _log(f"Apple Distribution certificates on the team: {len(dist)}")
+    if len(dist) < 3:
+        return
+
+    keep = {"63KM3JAQH9", "ZTM862GWBT"}
+    revoke_ids = ["JRU86YL2BU"]
+    status, profiles = _asc_json(token, "GET", "/v1/profiles?limit=200")
+    if status < 400:
+        for profile in profiles.get("data") or []:
+            name = profile.get("attributes", {}).get("name") or ""
+            if "Ahmed App Store Codemagic" not in name:
+                continue
+            pid = profile["id"]
+            certs_status, certs = _asc_json(token, "GET", f"/v1/profiles/{pid}/certificates")
+            if certs_status >= 400:
+                continue
+            for cert in certs.get("data") or []:
+                revoke_ids.append(cert["id"])
+
+    seen: set[str] = set()
+    for cert_id in revoke_ids:
+        if cert_id in seen or cert_id in keep:
+            continue
+        seen.add(cert_id)
+        del_status, del_body = _asc_json(token, "DELETE", f"/v1/certificates/{cert_id}")
+        if del_status in {200, 204}:
+            _log(f"revoked distribution certificate {cert_id} to free a signing slot")
+        else:
+            _log(f"did not revoke {cert_id} ({del_status}): {str(del_body)[:300]}")
+
+
 def write_named(pem: str, filename: str) -> Path:
     folders = (
         Path.home() / ".appstoreconnect/private_keys",
@@ -196,20 +318,31 @@ def main() -> int:
         raise SystemExit("normalized App Store Connect key is still not PEM")
     key_file = write_key_files(pem, key_id)
 
-    cert_raw = os.environ.get("CERTIFICATE_PRIVATE_KEY", "").strip()
-    if not cert_raw:
-        _log("CERTIFICATE_PRIVATE_KEY is missing.")
-        _log("Codemagic → Ahmed → Environment variables → add secret CERTIFICATE_PRIVATE_KEY")
-        _log("Paste the full RSA PEM (ios_distribution.pem), including BEGIN and END lines.")
-        return 1
+    cert_raw = _cert_env()
+    generated = False
+    if cert_raw:
+        _log("Certificate private key: present")
+        cert_pem = load_key_material(cert_raw, allow_existing_asc=False)
+    else:
+        _log("CERTIFICATE_PRIVATE_KEY is not in this build — generating one for signing.")
+        _log("Optional later: Codemagic → Ahmed → Environment variables → group appstore_credentials")
+        _log("Add secret CERTIFICATE_PRIVATE_KEY to keep the same distribution certificate.")
+        cert_pem = generate_distribution_key()
+        generated = True
+        if key_id != "unknown" and issuer != "missing":
+            try:
+                free_distribution_slot(pem, key_id, issuer)
+            except Exception as exc:
+                _log(f"certificate slot cleanup skipped: {exc}")
 
-    _log("Certificate private key: present")
-    cert_pem = load_key_material(cert_raw, allow_existing_asc=False)
     if "BEGIN" not in cert_pem:
         raise SystemExit("normalized CERTIFICATE_PRIVATE_KEY is still not PEM")
     cert_file = write_named(cert_pem, "ios_distribution.pem")
     persist_env(key_file, cert_file)
-    _log("App Store Connect and signing certificate keys look usable")
+    if generated:
+        _log("Ephemeral signing key is ready; fetch-signing-files --create will issue a matching certificate")
+    else:
+        _log("App Store Connect and signing certificate keys look usable")
     return 0
 
 

@@ -29,6 +29,7 @@ workflows:
       - name: Check App Store Connect credentials
         script: |
           set -euo pipefail
+          python3 -m pip install --user --quiet 'pyjwt[crypto]' cryptography
           python3 scripts/normalize-asc-key.py
           KEY_ID="${APP_STORE_CONNECT_KEY_IDENTIFIER:-}"
           KEY_FILE="${APP_STORE_CONNECT_PRIVATE_KEY_FILE:-$HOME/.appstoreconnect/private_keys/AuthKey_${KEY_ID}.p8}"
@@ -96,9 +97,13 @@ workflows:
       - /tmp/xcodebuild_logs/*.log
     publishing:
       app_store_connect:
-        # Use the Developer Portal key named Ahmed (Key ID comes from the integration).
+        # Developer Portal integration must be named Ahmed (Key ID 8LM6C7D787).
         auth: integration
         submit_to_testflight: true
+        submit_to_app_store: true
+        cancel_previous_submissions: true
+        release_type: AFTER_APPROVAL
+        copyright: 2026 Ahmed Al Saadi Real Estate & Investments
 
   android-internal:
     name: Ahmed Android

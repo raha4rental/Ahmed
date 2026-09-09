@@ -32,3 +32,5 @@ Do not commit the `.p8` file. Paste or upload it only in Codemagic.
 5. App → **Environment variables** → group name **`appstore_credentials`**
 6. Add secret **`CERTIFICATE_PRIVATE_KEY`**: paste the full RSA PEM from `ios_distribution.pem` (`-----BEGIN PRIVATE KEY-----` … `-----END PRIVATE KEY-----`)
 7. Save → Start **Ahmed iOS — App Store**
+
+If that secret is missing, the iOS workflow now generates a one-off signing key and frees a distribution-certificate slot so the build can still sign. Add the secret when you can so Apple does not keep issuing a new certificate every build.

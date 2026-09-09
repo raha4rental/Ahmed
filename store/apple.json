@@ -4,7 +4,12 @@
   "sku": "ahmed-property-ops.",
   "appleId": "6810042737",
   "appStoreName": "السعدي",
+  "version": "1.0.1",
   "primaryLocale": "ar-SA",
+  "secondaryLocale": "en-US",
+  "category": "BUSINESS",
+  "privacyPolicyUrl": "https://github.com/raha4rental/Ahmed/blob/main/store/PRIVACY.md",
+  "supportUrl": "https://github.com/raha4rental/Ahmed",
   "codemagicIntegration": "Ahmed",
   "issuerId": "c46c0b74-7d00-42b2-9786-333b76dacf91",
   "keyId": "8LM6C7D787",
@@ -14,5 +19,10 @@
   "distributionCertificateId": "JRU86YL2BU",
   "appStoreProfileId": "S9V76LJWYB",
   "appStoreProfileName": "Ahmed App Store Codemagic",
-  "note": "App Store Connect app السعدي exists as 6810042737. First TestFlight build is still pending from Codemagic."
+  "manualAppStoreProfileId": "358JN62MY3",
+  "appStoreVersionId": "5e020bab-0b6e-4012-951b-ff789f26be72",
+  "arabicLocalizationId": "7d9d0481-1b26-4b5c-92cc-11f5fbf8bd6d",
+  "englishLocalizationId": "21f59861-4dd0-435a-b474-ed8d5e85a5d7",
+  "reviewDetailId": "c1dfa87f-6913-4c78-9f31-7d06f6fd4528",
+  "note": "Listing, signing, and Codemagic App Store submit are prepared. First IPA still needs Codemagic secret CERTIFICATE_PRIVATE_KEY."
 }
