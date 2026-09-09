@@ -17,10 +17,11 @@ Codemagic talks to Apple with API key **`8LM6C7D787`**. That key is in this repo
 
 A Codemagic UI integration named **Ahmed** is optional. The workflow no longer uses `auth: integration`.
 
-Where to see the build after a green run (wait until Apple shows **Processed**, often 5–20 minutes):
+Where to see the build (wait until Apple shows **Processed**, often 5–20 minutes):
 
-- TestFlight iOS: https://appstoreconnect.apple.com/apps/6810042737/testflight/ios
+- TestFlight iOS (Internal testers): https://appstoreconnect.apple.com/apps/6810042737/testflight/ios
 - Version 1.0.1: https://appstoreconnect.apple.com/apps/6810042737/appstore/ios/version/inflight
+- GitHub Actions **iOS App Store** already landed build **1.0.1 (4)** on Apple. Codemagic had been failing on an invalid `ExportOptions.plist` (`method: app-store-connect`). The yaml now writes a valid plist with `method: app-store` and exports with `xcodebuild`, not `xcode-project build-ipa`.
 
 ## App
 
@@ -74,7 +75,7 @@ Group **`appstore_credentials`** is not required. Apple auth is in `codemagic.ya
 | File | Role |
 | --- | --- |
 | `scripts/ci/import-ios-signing.sh` | Builds a `.p12` and imports Apple Distribution into the Codemagic keychain (`--allow-all-applications`) |
-| `scripts/ci/write-export-options.sh` | Writes ExportOptions for the Xcode on the Mac (`app-store-connect` on Xcode 15+) |
+| `scripts/ci/write-export-options.py` | Writes a real XML `ExportOptions.plist` with `method: app-store` (Codemagic's parser rejects `app-store-connect`) |
 | `scripts/ci/publish-ipa.sh` | Uploads the IPA to App Store Connect |
 | `scripts/ci/verify-apple-link.py` | Confirms API key `8LM6C7D787` can see السعدي |
 | `scripts/ci/AuthKey_8LM6C7D787.key` | App Store Connect API key (`8LM6C7D787`) |
@@ -95,4 +96,4 @@ Group **`appstore_credentials`** is not required. Apple auth is in `codemagic.ya
 2. Import Apple Distribution (`.p12` from cert + key) and the App Store profile
 3. Build the IPA for App Store
 4. Upload the IPA to App Store Connect
-5. After Apple processing, the build appears in TestFlight → iOS
+5. After Apple processing, the build appears in TestFlight → iOS (Internal testers can install immediately; External testers wait for Beta Review)

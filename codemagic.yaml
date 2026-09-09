@@ -79,7 +79,7 @@ workflows:
       - name: Set up code signing
         script: |
           set -euo pipefail
-          xcode-project use-profiles
+          xcode-project use-profiles --project "$CM_BUILD_DIR/ios/App/App.xcodeproj"
       - name: Increment build number
         script: |
           set -euo pipefail
@@ -99,7 +99,8 @@ workflows:
       - name: Export options for this Xcode
         script: |
           set -euo pipefail
-          bash "$CM_BUILD_DIR/scripts/ci/write-export-options.sh" "$CM_BUILD_DIR/ios/ExportOptions.plist"
+          python3 "$CM_BUILD_DIR/scripts/ci/write-export-options.py" "$CM_BUILD_DIR/ios/ExportOptions.plist"
+          python3 -c "import plistlib,sys; plistlib.load(open(sys.argv[1],'rb')); print('plist ok', sys.argv[1])" "$CM_BUILD_DIR/ios/ExportOptions.plist"
       - name: Build ipa
         script: |
           set -euo pipefail

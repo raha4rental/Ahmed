@@ -81,7 +81,7 @@ jobs:
           echo "CFBundleVersion=$BUILD_NUMBER"
 
       - name: Export options
-        run: bash scripts/ci/write-export-options.sh "$GITHUB_WORKSPACE/ios/ExportOptions.plist"
+        run: python3 scripts/ci/write-export-options.py "$GITHUB_WORKSPACE/ios/ExportOptions.plist"
 
       - name: Build ipa
         run: bash scripts/ci/build-ipa.sh
