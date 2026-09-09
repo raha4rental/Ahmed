@@ -157,9 +157,14 @@ export default function ApartmentDetailPage({ params }: { params: Promise<{ id: 
             </div>
             <div className="grid gap-3 sm:grid-cols-3">
               <Meta k={t("phone")} v={guest.phone} />
-              <Meta k={t("email")} v={guest.email} />
               <Meta k={t("people")} v={String(booking.guestsCount)} />
             </div>
+            {guest.idPhoto ? (
+              <div>
+                <div className="mb-2 text-xs text-muted-foreground">{t("idPhoto")}</div>
+                <img src={guest.idPhoto} alt="" className="max-h-48 w-full rounded-xl object-contain" />
+              </div>
+            ) : null}
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">{t("noGuest")}</p>

@@ -132,6 +132,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           }
           return u;
         }),
+        guests: (next.guests?.length ? next.guests : seed.guests).map((g) => ({
+          id: g.id,
+          name: g.name,
+          phone: g.phone,
+          idPhoto: g.idPhoto ?? "",
+        })),
         expenses: hasRent
           ? expenses
           : [

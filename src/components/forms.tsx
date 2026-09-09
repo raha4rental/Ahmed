@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
+import { Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +18,7 @@ import { useStore } from "@/lib/store";
 import { can } from "@/lib/permissions";
 import type { ExpenseCategory, MaintenancePriority, PaymentMethod } from "@/lib/types";
 import { TODAY } from "@/lib/format";
+import { readImageFile } from "@/lib/image";
 
 const field = "grid gap-1.5";
 const selectCls =
@@ -405,7 +407,7 @@ export function BookingDialog({
             onClick={() => {
               let gid = guestId;
               if (newName.trim()) {
-                gid = addGuest({ name: newName.trim(), phone: "", email: "", notes: "" });
+                gid = addGuest({ name: newName.trim(), phone: "" });
               }
               addBooking({
                 guestId: gid,
@@ -631,13 +633,29 @@ export function GuestDialog({
   onOpenChange: (v: boolean) => void;
 }) {
   const { addGuest, t } = useStore();
+  const fileRef = useRef<HTMLInputElement>(null);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [notes, setNotes] = useState("");
+  const [idPhoto, setIdPhoto] = useState("");
+  const [busyPhoto, setBusyPhoto] = useState(false);
+
+  function reset() {
+    setName("");
+    setPhone("");
+    setIdPhoto("");
+    setBusyPhoto(false);
+    if (fileRef.current) fileRef.current.value = "";
+  }
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) reset();
+        onOpenChange(v);
+      }}
+    >
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{t("addGuest")}</DialogTitle>
         </DialogHeader>
@@ -648,15 +666,50 @@ export function GuestDialog({
           </div>
           <div className={field}>
             <Label>{t("phone")}</Label>
-            <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
+            <Input value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" />
           </div>
           <div className={field}>
-            <Label>{t("email")}</Label>
-            <Input value={email} onChange={(e) => setEmail(e.target.value)} />
-          </div>
-          <div className={field}>
-            <Label>{t("notes")}</Label>
-            <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
+            <Label>{t("idPhoto")}</Label>
+            <button
+              type="button"
+              className="flex min-h-36 w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl border border-dashed border-[#c4a574] bg-[#fffdf8] p-3 text-center"
+              onClick={() => fileRef.current?.click()}
+              disabled={busyPhoto}
+            >
+              {idPhoto ? (
+                <img src={idPhoto} alt="" className="max-h-48 w-full rounded-xl object-contain" />
+              ) : (
+                <>
+                  <Camera className="size-7 text-[#1b3d34]" />
+                  <span className="text-sm font-medium text-[#1b3d34]">{t("uploadIdPhoto")}</span>
+                </>
+              )}
+            </button>
+            {idPhoto ? (
+              <Button type="button" variant="outline" onClick={() => fileRef.current?.click()}>
+                {t("changeIdPhoto")}
+              </Button>
+            ) : null}
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                setBusyPhoto(true);
+                try {
+                  setIdPhoto(await readImageFile(file));
+                } catch {
+                  toast.error(t("uploadIdPhoto"));
+                } finally {
+                  setBusyPhoto(false);
+                  e.target.value = "";
+                }
+              }}
+            />
           </div>
         </div>
         <DialogFooter>
@@ -664,10 +717,10 @@ export function GuestDialog({
           <Button
             onClick={() => {
               if (!name.trim()) return;
-              addGuest({ name: name.trim(), phone, email, notes });
+              addGuest({ name: name.trim(), phone: phone.trim(), idPhoto });
               toast.success(t("created"));
               onOpenChange(false);
-              setName("");
+              reset();
             }}
           >
             {t("save")}

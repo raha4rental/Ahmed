@@ -83,8 +83,7 @@ export interface Guest {
   id: string;
   name: string;
   phone: string;
-  email: string;
-  notes: string;
+  idPhoto?: string;
 }
 
 export interface Booking {

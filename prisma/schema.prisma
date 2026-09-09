@@ -48,8 +48,7 @@ model Guest {
   id      String @id
   name    String
   phone   String
-  email   String
-  notes   String
+  idPhoto String @default("")
 }
 
 model Booking {

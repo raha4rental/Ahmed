@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { IdCard } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +19,7 @@ export default function GuestsPage() {
 
   const list = useMemo(() => {
     return data.guests.filter((g) => {
-      const s = `${g.name} ${g.phone} ${g.email}`.toLowerCase();
+      const s = `${g.name} ${g.phone}`.toLowerCase();
       return !q || s.includes(q.toLowerCase());
     });
   }, [data.guests, q]);
@@ -34,38 +35,37 @@ export default function GuestsPage() {
         title={t("guests")}
         action={<Button onClick={() => setOpen(true)}>{t("addGuest")}</Button>}
       />
-      <Input className="mb-5 max-w-sm" placeholder={t("search")} value={q} onChange={(e) => setQ(e.target.value)} />
-      <div className="overflow-hidden raha-card">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/50 text-muted-foreground">
-            <tr>
-              <th className="px-4 py-2 text-start font-medium">{t("name")}</th>
-              <th className="px-4 py-2 text-start font-medium">{t("phone")}</th>
-              <th className="hidden px-4 py-2 text-start font-medium md:table-cell">{t("email")}</th>
-              <th className="px-4 py-2 text-start font-medium">{t("apartment")}</th>
-              {can.viewFinancials(user.role) ? <th className="px-4 py-2 text-start font-medium">{t("remaining")}</th> : null}
-            </tr>
-          </thead>
-          <tbody>
-            {list.map((g) => {
-              const latest = [...data.bookings].reverse().find((b) => b.guestId === g.id);
-              return (
-                <tr key={g.id} className="border-t border-border">
-                  <td className="px-4 py-3">
-                    <Link href={`/guests/${g.id}`} className="font-medium hover:underline">{g.name}</Link>
-                  </td>
-                  <td className="px-4 py-3">{g.phone}</td>
-                  <td className="hidden px-4 py-3 md:table-cell text-muted-foreground">{g.email}</td>
-                  <td className="px-4 py-3">{latest ? aptName(data, latest.apartmentId) : "—"}</td>
-                  {can.viewFinancials(user.role) ? (
-                    <td className="px-4 py-3">{latest ? money(remaining(latest), lang) : "—"}</td>
-                  ) : null}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <Input className="mb-5" placeholder={t("search")} value={q} onChange={(e) => setQ(e.target.value)} />
+      {list.length === 0 ? (
+        <p className="raha-card p-8 text-sm text-muted-foreground">{t("noResults")}</p>
+      ) : (
+        <div className="grid gap-3">
+          {list.map((g) => {
+            const latest = [...data.bookings].reverse().find((b) => b.guestId === g.id);
+            return (
+              <Link key={g.id} href={`/guests/${g.id}`} className="raha-card flex items-center gap-3 p-3">
+                {g.idPhoto ? (
+                  <img src={g.idPhoto} alt="" className="size-16 shrink-0 rounded-xl object-cover" />
+                ) : (
+                  <span className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-[#ece4d4] text-[#1b3d34]">
+                    <IdCard className="size-7" />
+                  </span>
+                )}
+                <span className="min-w-0 flex-1">
+                  <span className="block font-medium">{g.name}</span>
+                  <span className="mt-0.5 block text-sm text-muted-foreground">{g.phone || "—"}</span>
+                  <span className="mt-1 block text-xs text-[#8a7048]">
+                    {latest ? aptName(data, latest.apartmentId) : "—"}
+                    {can.viewFinancials(user.role) && latest
+                      ? ` · ${t("remaining")} ${money(remaining(latest), lang)}`
+                      : ""}
+                  </span>
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      )}
       <GuestDialog open={open} onOpenChange={setOpen} />
     </div>
   );

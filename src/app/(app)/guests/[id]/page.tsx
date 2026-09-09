@@ -20,19 +20,23 @@ export default function GuestPage({ params }: { params: Promise<{ id: string }> 
 
   return (
     <div className="space-y-6">
-      <PageHeader title={guest.name} subtitle={guest.notes || undefined} />
-      <section className="raha-card grid gap-4 p-5 sm:grid-cols-3 text-sm">
-        <div>
-          <div className="text-xs text-muted-foreground">{t("phone")}</div>
-          <div className="font-medium">{guest.phone}</div>
-        </div>
-        <div>
-          <div className="text-xs text-muted-foreground">{t("email")}</div>
-          <div className="font-medium">{guest.email}</div>
-        </div>
-        <div>
-          <div className="text-xs text-muted-foreground">{t("previousBookings")}</div>
-          <div className="font-medium">{stays.length}</div>
+      <PageHeader title={guest.name} subtitle={guest.phone || undefined} />
+      <section className="raha-card space-y-3 p-5">
+        <h2 className="font-medium">{t("idPhoto")}</h2>
+        {guest.idPhoto ? (
+          <img src={guest.idPhoto} alt="" className="w-full rounded-2xl object-contain" />
+        ) : (
+          <p className="text-sm text-muted-foreground">{t("noIdPhoto")}</p>
+        )}
+        <div className="grid gap-4 pt-2 text-sm sm:grid-cols-2">
+          <div>
+            <div className="text-xs text-muted-foreground">{t("phone")}</div>
+            <div className="font-medium">{guest.phone || "—"}</div>
+          </div>
+          <div>
+            <div className="text-xs text-muted-foreground">{t("previousBookings")}</div>
+            <div className="font-medium">{stays.length}</div>
+          </div>
         </div>
       </section>
       <section className="raha-card p-5">

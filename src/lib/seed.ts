@@ -73,18 +73,18 @@ const UNITS: Array<{
 ];
 
 const GUESTS: Guest[] = [
-  { id: "g-1", name: "Ahmed Al-Farsi", phone: "+1 216 555 0140", email: "ahmed.guest@email.com", notes: "Prefers late check-in. Quiet unit." },
-  { id: "g-2", name: "Maya Chen", phone: "+1 216 555 0192", email: "maya.chen@email.com", notes: "Corporate stay — Cleveland Clinic." },
-  { id: "g-3", name: "James Porter", phone: "+1 440 555 0118", email: "j.porter@email.com", notes: "" },
-  { id: "g-4", name: "Lina Haddad", phone: "+1 216 555 0177", email: "lina.h@email.com", notes: "Traveling with child." },
-  { id: "g-5", name: "Omar Rahman", phone: "+1 330 555 0133", email: "omar.r@email.com", notes: "Long medical stay." },
-  { id: "g-6", name: "Sofia Alvarez", phone: "+1 216 555 0164", email: "sofia.a@email.com", notes: "" },
-  { id: "g-7", name: "Daniel Kim", phone: "+1 216 555 0108", email: "dkim@email.com", notes: "Repeat guest." },
-  { id: "g-8", name: "Nora Saleh", phone: "+1 440 555 0188", email: "nora.s@email.com", notes: "" },
-  { id: "g-9", name: "Chris Walker", phone: "+1 216 555 0121", email: "c.walker@email.com", notes: "Needs parking." },
-  { id: "g-10", name: "Hana Yusuf", phone: "+1 216 555 0155", email: "hana.y@email.com", notes: "Checking in today 3:00 PM." },
-  { id: "g-11", name: "Peter Novak", phone: "+1 330 555 0199", email: "p.novak@email.com", notes: "" },
-  { id: "g-12", name: "Aisha Karim", phone: "+1 216 555 0134", email: "aisha.k@email.com", notes: "Corporate weekly." },
+  { id: "g-1", name: "Ahmed Al-Farsi", phone: "+1 216 555 0140" },
+  { id: "g-2", name: "Maya Chen", phone: "+1 216 555 0192" },
+  { id: "g-3", name: "James Porter", phone: "+1 440 555 0118" },
+  { id: "g-4", name: "Lina Haddad", phone: "+1 216 555 0177" },
+  { id: "g-5", name: "Omar Rahman", phone: "+1 330 555 0133" },
+  { id: "g-6", name: "Sofia Alvarez", phone: "+1 216 555 0164" },
+  { id: "g-7", name: "Daniel Kim", phone: "+1 216 555 0108" },
+  { id: "g-8", name: "Nora Saleh", phone: "+1 440 555 0188" },
+  { id: "g-9", name: "Chris Walker", phone: "+1 216 555 0121" },
+  { id: "g-10", name: "Hana Yusuf", phone: "+1 216 555 0155" },
+  { id: "g-11", name: "Peter Novak", phone: "+1 330 555 0199" },
+  { id: "g-12", name: "Aisha Karim", phone: "+1 216 555 0134" },
 ];
 
 function aptId(buildingId: string, number: string) {
