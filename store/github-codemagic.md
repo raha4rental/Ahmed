@@ -1,39 +1,85 @@
-# Ahmed — GitHub then Codemagic then App Store Connect
+# Ahmed — Codemagic
 
-iOS / TestFlight is the goal. Android is secondary and does not run on push.
+Current Codemagic settings for **Ahmed / السعدي**. Source of truth: `codemagic.yaml` and `store/codemagic.json`.
 
-## 1. GitHub
+## App
 
-Repo: `https://github.com/raha4rental/Ahmed`
+| Field | Value |
+| --- | --- |
+| Codemagic app | **Ahmed** |
+| GitHub | `https://github.com/raha4rental/Ahmed` |
+| Branch | `main` (iOS workflow on every push) |
+| App Store name | السعدي |
+| Bundle ID | `com.darraha.ahmed` |
+| Apple ID | `6810042737` |
+| Version | `1.0.1` |
+| Team ID | `VPT9SWM94A` |
+| Xcode workspace | `ios/App/App.xcworkspace` |
+| Xcode scheme | `App` |
+| Instance | Mac mini M2 |
 
-## 2. App Store Connect (required)
+## Workflows
 
-Follow `store/app-store-connect.md`. You must:
+| Workflow ID | Name | When | Result |
+| --- | --- | --- | --- |
+| `ios-app-store` | **Ahmed iOS — App Store** | Push to `main` | IPA → TestFlight → App Store (`AFTER_APPROVAL`) |
+| `android-internal` | **Ahmed Android** | Manual | Debug APK |
 
-1. Create API key **Ahmed** (App Manager) and download the `.p8`
-2. Create the iOS app record named **Ahmed** with bundle ID `com.darraha.ahmed`
-3. In Codemagic, connect Developer Portal with that key named **Ahmed**
+The iOS IPA is a normal App Store build (`testFlightInternalTestingOnly` is off).
 
-This agent cannot sign in to Apple, GitHub, or Codemagic.
+## Developer Portal (Codemagic → Team integrations)
 
-## 3. Codemagic
+| Field | Value |
+| --- | --- |
+| Integration name | **Ahmed** (must match `codemagic.yaml`) |
+| Issuer ID | `c46c0b74-7d00-42b2-9786-333b76dacf91` |
+| Key ID | **`8LM6C7D787`** |
+| Key file | `AuthKey_8LM6C7D787.p8` |
+| Do not use | `R46D76UXCH` |
 
-1. Open [codemagic.io](https://codemagic.io)
-2. Sign in with **GitHub** (`raha4rental`)
-3. Apps → **Add application** → GitHub → **Ahmed**
-4. Team integrations → Developer Portal → key name **Ahmed**
-5. Start **Ahmed iOS — App Store** (also runs on every push to `main`)
+Upload the `.p8` only in Codemagic. Do not commit it.
 
-`codemagic.yaml` uses:
+## Environment variables (`codemagic.yaml`)
 
-```yaml
-integrations:
-  app_store_connect: Ahmed
-ios_signing:
-  distribution_type: app_store
-  bundle_identifier: com.darraha.ahmed
-```
+| Variable | Value |
+| --- | --- |
+| `APP_NAME` | Ahmed |
+| `APP_STORE_NAME` | السعدي |
+| `BUNDLE_ID` | `com.darraha.ahmed` |
+| `TEAM_ID` | `VPT9SWM94A` |
+| `XCODE_WORKSPACE` | `ios/App/App.xcworkspace` |
+| `XCODE_SCHEME` | `App` |
+| `APP_STORE_APPLE_ID` | `6810042737` |
+| `APP_STORE_CONNECT_ISSUER_ID` | `c46c0b74-7d00-42b2-9786-333b76dacf91` |
+| `APP_STORE_CONNECT_KEY_IDENTIFIER` | `8LM6C7D787` |
+| `APP_STORE_PROFILE_NAME` | Ahmed App Store Codemagic |
+| `APP_STORE_PROFILE_ID` | `S9V76LJWYB` |
+| `APP_STORE_PROFILE_UUID` | `93a6a9a2-d293-4e98-98c2-7aa74b08d3a7` |
+| `DISTRIBUTION_CERTIFICATE_ID` | `JRU86YL2BU` |
 
-Codemagic then creates the Apple signing files and uploads the IPA to TestFlight.
+Group **`appstore_credentials`** is optional. The Developer Portal integration already injects the `.p8`. `CERTIFICATE_PRIVATE_KEY` is optional.
 
-The APK workflow **Ahmed Android** is manual.
+## Signing files in this repo
+
+| File | Role |
+| --- | --- |
+| `scripts/ci/ios_distribution.key` | Apple Distribution private key (cert `JRU86YL2BU`) |
+| `scripts/ci/ios_distribution.cer` | Apple Distribution public cert |
+| `scripts/ci/Ahmed_App_Store_Codemagic.mobileprovision` | App Store profile `S9V76LJWYB` / UUID `93a6a9a2-d293-4e98-98c2-7aa74b08d3a7` |
+
+## Publishing
+
+- Auth: Codemagic integration **Ahmed**
+- `submit_to_testflight: true`
+- `submit_to_app_store: true`
+- `cancel_previous_submissions: true`
+- `release_type: AFTER_APPROVAL`
+- Copyright: `2026 Ahmed Al Saadi Real Estate & Investments`
+
+## What the iOS workflow does
+
+1. Normalize the App Store Connect `.p8` (`scripts/normalize-asc-key.py`)
+2. Install the bundled App Store profile + distribution cert
+3. Build the IPA for App Store
+4. Publish to TestFlight
+5. Submit version **1.0.1** to App Store review after Apple processes the build

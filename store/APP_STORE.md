@@ -13,17 +13,16 @@ Version: `1.0.1`
 | App Store profile (manual) | `358JN62MY3` | Active |
 | ASC API key | `8LM6C7D787` | Use this key only |
 
-The matching RSA private key ships in `scripts/ci/ios_distribution.key` so Codemagic can sign without a website secret. You can still add `CERTIFICATE_PRIVATE_KEY` in group `appstore_credentials` to override it.
+Codemagic signs with:
 
-## What this repo prepares
+- `scripts/ci/ios_distribution.key`
+- `scripts/ci/ios_distribution.cer`
+- `scripts/ci/Ahmed_App_Store_Codemagic.mobileprovision`
 
-1. Listing copy (Arabic + English), privacy URL, age rating, Business category, review notes.
-2. Codemagic workflow **Ahmed iOS — App Store** builds the IPA, uploads TestFlight, then submits the App Store version after Apple processes the build.
+## Listing
 
-## One remaining Codemagic step
+Arabic + English copy, privacy URL, Business category, and review notes are set on App Store Connect for version **1.0.1**.
 
-This environment cannot log into Codemagic. In the Codemagic website:
+## Codemagic
 
-1. Developer Portal integration named **Ahmed**, Key ID `8LM6C7D787`
-2. Secret `CERTIFICATE_PRIVATE_KEY` = full contents of `ios_distribution.pem`
-3. Start **Ahmed iOS — App Store** (also runs on push to `main`)
+See `store/codemagic.json` and `store/github-codemagic.md`. Push to `main` runs **Ahmed iOS — App Store** → TestFlight → App Store review after Apple processes the build.

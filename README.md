@@ -39,20 +39,19 @@ The iPhone build:
 - Fills the screen under the notch / Dynamic Island
 - Is portrait-only
 
-The App Store Connect API key is connected. Bundle ID `com.darraha.ahmed` and the App Store profile are registered. Create the **Ahmed** app record once in App Store Connect (Apple blocks creating apps via API), then paste the same key into Codemagic as **Ahmed**. Details: `store/app-store-connect.md`
+Bundle ID `com.darraha.ahmed`. App Store record **السعدي** (Apple ID `6810042737`). Codemagic Developer Portal key **Ahmed** / `8LM6C7D787`. Details: `store/github-codemagic.md`
 
-Then every push to `main` uploads TestFlight.
+Every push to `main` runs **Ahmed iOS — App Store** → TestFlight → App Store review.
 
 ## GitHub + Codemagic
 
-This agent cannot sign in to GitHub or Codemagic. Publish steps: `store/github-codemagic.md`
+Repo: `https://github.com/raha4rental/Ahmed`
 
-1. Click **Create repo** in Cursor and name it **Ahmed** — or create `https://github.com/raha4rental/Ahmed`
-2. Sign in to [Codemagic](https://codemagic.io) with that GitHub account and add the **Ahmed** app
-3. Workflows in `codemagic.yaml`:
-   - **Ahmed iOS — App Store** → TestFlight
-   - **Ahmed Android** → APK
-4. App Store Connect: `store/app-store-connect.md`
+1. Codemagic app **Ahmed**, integration name **Ahmed**, Key ID **`8LM6C7D787`**
+2. Workflows in `codemagic.yaml`:
+   - **Ahmed iOS — App Store** → TestFlight + App Store (on push to `main`)
+   - **Ahmed Android** → APK (manual)
+3. Full Codemagic info: `store/codemagic.json` and `store/github-codemagic.md`
 
 ## Database
 

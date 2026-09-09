@@ -1,0 +1,46 @@
+{
+  "appName": "Ahmed",
+  "appStoreName": "السعدي",
+  "github": "https://github.com/raha4rental/Ahmed",
+  "branch": "main",
+  "trigger": "push to main",
+  "workflows": {
+    "ios-app-store": {
+      "name": "Ahmed iOS — App Store",
+      "instance": "mac_mini_m2",
+      "trigger": "push to main",
+      "submitToTestFlight": true,
+      "submitToAppStore": true,
+      "releaseType": "AFTER_APPROVAL",
+      "testFlightInternalTestingOnly": false
+    },
+    "android-internal": {
+      "name": "Ahmed Android",
+      "instance": "linux",
+      "trigger": "manual"
+    }
+  },
+  "bundleId": "com.darraha.ahmed",
+  "appleId": "6810042737",
+  "version": "1.0.1",
+  "teamId": "VPT9SWM94A",
+  "integrationName": "Ahmed",
+  "issuerId": "c46c0b74-7d00-42b2-9786-333b76dacf91",
+  "keyId": "8LM6C7D787",
+  "keyFile": "AuthKey_8LM6C7D787.p8",
+  "doNotUseKeyId": "R46D76UXCH",
+  "distributionCertificateId": "JRU86YL2BU",
+  "appStoreProfileName": "Ahmed App Store Codemagic",
+  "appStoreProfileId": "S9V76LJWYB",
+  "appStoreProfileUuid": "93a6a9a2-d293-4e98-98c2-7aa74b08d3a7",
+  "xcodeWorkspace": "ios/App/App.xcworkspace",
+  "xcodeScheme": "App",
+  "environmentGroup": "appstore_credentials",
+  "signingFiles": {
+    "distributionKey": "scripts/ci/ios_distribution.key",
+    "distributionCert": "scripts/ci/ios_distribution.cer",
+    "provisioningProfile": "scripts/ci/Ahmed_App_Store_Codemagic.mobileprovision"
+  },
+  "optionalWebsiteSecret": "CERTIFICATE_PRIVATE_KEY",
+  "note": "Developer Portal integration name must be exactly Ahmed. Key ID must be 8LM6C7D787. The .p8 stays in Codemagic only. Signing uses bundled scripts/ci files so CERTIFICATE_PRIVATE_KEY is optional."
+}

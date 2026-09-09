@@ -15,8 +15,7 @@ platform :ios do
       scheme: "App",
       export_method: "app-store",
       export_options: {
-        method: "app-store",
-        testFlightInternalTestingOnly: true
+        method: "app-store"
       }
     )
 

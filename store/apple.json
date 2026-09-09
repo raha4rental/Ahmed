@@ -19,6 +19,8 @@
   "distributionCertificateId": "JRU86YL2BU",
   "appStoreProfileId": "S9V76LJWYB",
   "appStoreProfileName": "Ahmed App Store Codemagic",
+  "appStoreProfileUuid": "93a6a9a2-d293-4e98-98c2-7aa74b08d3a7",
+  "codemagic": "store/codemagic.json",
   "manualAppStoreProfileId": "358JN62MY3",
   "appStoreVersionId": "5e020bab-0b6e-4012-951b-ff789f26be72",
   "arabicLocalizationId": "7d9d0481-1b26-4b5c-92cc-11f5fbf8bd6d",

@@ -124,7 +124,7 @@ def load_key_material(raw: str, *, allow_existing_asc: bool = True) -> str:
     _log(f"private key prefix: {_safe_prefix(raw)}")
     raise SystemExit(
         "APP_STORE_CONNECT_PRIVATE_KEY is not a PEM .p8 key, file path, or base64 p8. "
-        "Re-upload AuthKey_R46D76UXCH.p8 (or AuthKey_8LM6C7D787.p8) in Codemagic → "
+        "Re-upload AuthKey_8LM6C7D787.p8 in Codemagic → "
         "Team integrations → Developer Portal → key name Ahmed."
     )
 

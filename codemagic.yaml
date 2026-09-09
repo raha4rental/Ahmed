@@ -1,3 +1,15 @@
+# Ahmed / السعدي — Codemagic
+# App: السعدي (Apple ID 6810042737)
+# Bundle: com.darraha.ahmed
+# Developer Portal integration name: Ahmed
+# Key ID: 8LM6C7D787  (do not use R46D76UXCH)
+# Issuer: c46c0b74-7d00-42b2-9786-333b76dacf91
+# Team: VPT9SWM94A
+# Profile: Ahmed App Store Codemagic (S9V76LJWYB / 93a6a9a2-d293-4e98-98c2-7aa74b08d3a7)
+# Distribution cert: JRU86YL2BU
+# Info: store/codemagic.json  ·  store/github-codemagic.md
+# Push to main → IPA → TestFlight → App Store review (after Apple processes the build)
+
 workflows:
   ios-app-store:
     name: Ahmed iOS — App Store
@@ -14,12 +26,19 @@ workflows:
       app_store_connect: Ahmed
     environment:
       vars:
+        APP_NAME: Ahmed
+        APP_STORE_NAME: السعدي
         BUNDLE_ID: com.darraha.ahmed
+        TEAM_ID: VPT9SWM94A
         XCODE_WORKSPACE: ios/App/App.xcworkspace
         XCODE_SCHEME: App
         APP_STORE_APPLE_ID: 6810042737
         APP_STORE_CONNECT_ISSUER_ID: c46c0b74-7d00-42b2-9786-333b76dacf91
         APP_STORE_CONNECT_KEY_IDENTIFIER: 8LM6C7D787
+        APP_STORE_PROFILE_NAME: Ahmed App Store Codemagic
+        APP_STORE_PROFILE_ID: S9V76LJWYB
+        APP_STORE_PROFILE_UUID: 93a6a9a2-d293-4e98-98c2-7aa74b08d3a7
+        DISTRIBUTION_CERTIFICATE_ID: JRU86YL2BU
       groups:
         - appstore_credentials
       xcode: latest
@@ -85,8 +104,7 @@ workflows:
           fi
       - name: Set up code signing
         script: |
-          xcode-project use-profiles \
-            --custom-export-options='{"testFlightInternalTestingOnly": true}'
+          xcode-project use-profiles
       - name: Increment build number
         script: |
           set -euo pipefail
