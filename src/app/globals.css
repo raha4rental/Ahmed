@@ -360,14 +360,6 @@
   overflow-y: auto;
 }
 
-.login-screen .app-topbar-inner {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  min-height: 52px;
-  padding: 8px 12px 12px;
-}
-
 .login-inner {
   position: relative;
   z-index: 1;
