@@ -65,6 +65,7 @@ Group **`appstore_credentials`** is not required. Apple auth is in `codemagic.ya
 
 | File | Role |
 | --- | --- |
+| `scripts/ci/import-ios-signing.sh` | Builds a `.p12` and imports Apple Distribution into the Codemagic keychain |
 | `scripts/ci/AuthKey_8LM6C7D787.key` | App Store Connect API key (`8LM6C7D787`) |
 | `scripts/ci/ios_distribution.key` | Apple Distribution private key (cert `JRU86YL2BU`) |
 | `scripts/ci/ios_distribution.cer` | Apple Distribution public cert |
@@ -82,7 +83,7 @@ Group **`appstore_credentials`** is not required. Apple auth is in `codemagic.ya
 ## What the iOS workflow does
 
 1. Load the App Store Connect API key (yaml + `scripts/ci/AuthKey_8LM6C7D787.key`)
-2. Install the bundled App Store profile + distribution cert
+2. Import Apple Distribution (`.p12` from cert + key) and the App Store profile
 3. Build the IPA for App Store
 4. Publish to TestFlight
 5. Submit version **1.0.1** to App Store review after Apple processes the build

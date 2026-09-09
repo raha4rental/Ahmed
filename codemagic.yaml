@@ -70,43 +70,13 @@ workflows:
           pod install
       - name: Set up keychain
         script: keychain initialize
-      - name: Fetch signing files from App Store Connect
+      - name: Import Apple Distribution identity
         script: |
           set -euo pipefail
-          KEY_FILE="${APP_STORE_CONNECT_PRIVATE_KEY_FILE:-$HOME/.appstoreconnect/private_keys/AuthKey_${APP_STORE_CONNECT_KEY_IDENTIFIER}.p8}"
-          CERT_FILE="${CERTIFICATE_PRIVATE_KEY_FILE:-$HOME/.appstoreconnect/private_keys/ios_distribution.pem}"
-          ROOT="${CM_BUILD_DIR:-.}"
-          PROFILE_SRC="$ROOT/scripts/ci/Ahmed_App_Store_Codemagic.mobileprovision"
-          PROFILE_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
-          mkdir -p "$PROFILE_DIR"
-          if [ -f "$PROFILE_SRC" ]; then
-            cp "$PROFILE_SRC" "$PROFILE_DIR/93a6a9a2-d293-4e98-98c2-7aa74b08d3a7.mobileprovision"
-            cp "$PROFILE_SRC" "$PROFILE_DIR/Ahmed_App_Store_Codemagic.mobileprovision"
-            echo "Installed bundled App Store profile"
-          fi
-          if [ ! -f "$CERT_FILE" ]; then
-            echo "Signing certificate private key file is missing: $CERT_FILE"
-            exit 1
-          fi
-          app-store-connect fetch-signing-files "$BUNDLE_ID" \
-            --type IOS_APP_STORE \
-            --create \
-            --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
-            --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
-            --private-key "@file:$KEY_FILE" \
-            --certificate-key "@file:$CERT_FILE" \
-            || echo "Apple fetch-signing-files failed; bundled Ahmed App Store profile is installed"
-      - name: Add certificates to keychain
-        script: |
-          set -euo pipefail
-          ROOT="${CM_BUILD_DIR:-.}"
-          if [ -f "$ROOT/scripts/ci/ios_distribution.cer" ]; then
-            keychain add-certificates --certificate "$ROOT/scripts/ci/ios_distribution.cer" || keychain add-certificates
-          else
-            keychain add-certificates
-          fi
+          bash "$CM_BUILD_DIR/scripts/ci/import-ios-signing.sh"
       - name: Set up code signing
         script: |
+          set -euo pipefail
           xcode-project use-profiles
       - name: Increment build number
         script: |
@@ -125,9 +95,17 @@ workflows:
           agvtool new-version -all "$BUILD_NUMBER" || true
       - name: Build ipa
         script: |
+          set -euo pipefail
           xcode-project build-ipa \
             --workspace "$CM_BUILD_DIR/$XCODE_WORKSPACE" \
-            --scheme "$XCODE_SCHEME"
+            --scheme "$XCODE_SCHEME" \
+            --export-options-plist "$CM_BUILD_DIR/ios/ExportOptions.plist" \
+            || {
+              echo "IPA build failed. Last xcodebuild log:"
+              ls -lt /tmp/xcodebuild_logs 2>/dev/null || true
+              tail -n 200 /tmp/xcodebuild_logs/*.log 2>/dev/null || true
+              exit 65
+            }
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
