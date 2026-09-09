@@ -47,7 +47,8 @@ app-store-connect publish \
   --key-id "$KEY_ID" \
   --private-key "@file:$KEY_FILE" \
   --skip-package-validation \
-  --altool-retries 3
+  --altool-retries 3 \
+  --max-build-processing-wait 20
 
 # Let yaml publishing run TestFlight Magic Actions without uploading twice.
 if [ -n "${CM_ENV:-}" ]; then
@@ -55,6 +56,8 @@ if [ -n "${CM_ENV:-}" ]; then
   echo "Persisted APP_STORE_CONNECT_SKIP_PACKAGE_UPLOAD=true for Codemagic publishing"
 fi
 
-echo "IPA uploaded. After Apple processing (often 5–20 min) the build appears in:"
+python3 "$ROOT/scripts/ci/link-build-to-version.py"
+
+echo "IPA uploaded. After Apple processing the build appears in:"
 echo "  https://appstoreconnect.apple.com/apps/${APPLE_ID}/testflight/ios"
 echo "  https://appstoreconnect.apple.com/apps/${APPLE_ID}/appstore/ios/version/inflight"

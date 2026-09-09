@@ -116,6 +116,7 @@ workflows:
       - name: Upload IPA to App Store Connect
         script: |
           set -euo pipefail
+          python3 -m pip install --user --quiet 'PyJWT[crypto]' || true
           bash "$CM_BUILD_DIR/scripts/ci/publish-ipa.sh"
     artifacts:
       - build/ios/ipa/*.ipa

@@ -34,4 +34,4 @@ Arabic + English copy, privacy URL, Business category, and review notes are set 
 
 ## Codemagic
 
-See `store/codemagic.json` and `store/github-codemagic.md`. Push to `main` runs **Ahmed iOS — App Store**, uploads the IPA to App Store Connect, and submits it to TestFlight. Add for Review stays manual until App Privacy and screenshots are done.
+See `store/codemagic.json` and `store/github-codemagic.md`. Push to `main` runs **Ahmed iOS — App Store** on Codemagic and **iOS App Store** on GitHub Actions. Both upload the IPA to App Store Connect and attach it to version 1.0.1 after Apple processes it. Add for Review stays manual until App Privacy and screenshots are done.

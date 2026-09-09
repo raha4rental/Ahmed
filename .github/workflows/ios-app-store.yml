@@ -1,0 +1,96 @@
+name: iOS App Store
+
+# Builds the iPhone IPA on a Mac and uploads it to App Store Connect / TestFlight,
+# then attaches it to version 1.0.1 (السعدي / 6810042737).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  upload:
+    name: Upload IPA to Apple
+    runs-on: macos-15
+    timeout-minutes: 90
+    env:
+      APP_NAME: Ahmed
+      BUNDLE_ID: com.darraha.ahmed
+      TEAM_ID: VPT9SWM94A
+      APP_STORE_APPLE_ID: "6810042737"
+      APP_STORE_VERSION_ID: 5e020bab-0b6e-4012-951b-ff789f26be72
+      APP_STORE_CONNECT_ISSUER_ID: c46c0b74-7d00-42b2-9786-333b76dacf91
+      APP_STORE_CONNECT_KEY_IDENTIFIER: 8LM6C7D787
+      XCODE_WORKSPACE: ios/App/App.xcworkspace
+      XCODE_SCHEME: App
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Python tools
+        run: |
+          python3 -m venv .venv
+          .venv/bin/pip install --upgrade pip
+          .venv/bin/pip install 'codemagic-cli-tools' 'PyJWT[crypto]'
+          echo "$PWD/.venv/bin" >> "$GITHUB_PATH"
+
+      - name: Install JS
+        run: |
+          npm ci
+          npx prisma generate
+
+      - name: Native web + Capacitor iOS
+        run: |
+          npm run build:native
+          cd ios/App
+          pod install
+
+      - name: App Store Connect key
+        run: |
+          python3 scripts/normalize-asc-key.py
+          python3 scripts/ci/verify-apple-link.py
+
+      - name: Signing
+        run: |
+          keychain initialize
+          bash scripts/ci/import-ios-signing.sh
+          xcode-project use-profiles
+
+      - name: Build number
+        run: |
+          cd ios/App
+          BUILD_NUMBER="${GITHUB_RUN_NUMBER}"
+          KEY_FILE="${APP_STORE_CONNECT_PRIVATE_KEY_FILE:-$HOME/.appstoreconnect/private_keys/AuthKey_${APP_STORE_CONNECT_KEY_IDENTIFIER}.p8}"
+          LATEST=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APPLE_ID" \
+            --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
+            --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
+            --private-key "@file:$KEY_FILE" \
+            2>/dev/null || true)
+          if [ -n "$LATEST" ] && [ "$LATEST" -eq "$LATEST" ] 2>/dev/null; then
+            BUILD_NUMBER=$((LATEST + 1))
+          fi
+          agvtool new-version -all "$BUILD_NUMBER" || true
+          echo "CFBundleVersion=$BUILD_NUMBER"
+
+      - name: Export options
+        run: bash scripts/ci/write-export-options.sh "$GITHUB_WORKSPACE/ios/ExportOptions.plist"
+
+      - name: Build ipa
+        run: |
+          xcode-project build-ipa \
+            --workspace "$GITHUB_WORKSPACE/$XCODE_WORKSPACE" \
+            --scheme "$XCODE_SCHEME" \
+            --export-options-plist "$GITHUB_WORKSPACE/ios/ExportOptions.plist"
+
+      - name: Upload IPA and link to version 1.0.1
+        env:
+          CM_BUILD_DIR: ${{ github.workspace }}
+        run: bash scripts/ci/publish-ipa.sh

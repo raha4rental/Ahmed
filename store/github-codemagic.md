@@ -46,6 +46,8 @@ Where to see the build after a green run (wait until Apple shows **Processed**, 
 
 The iOS IPA is a normal App Store build (`testFlightInternalTestingOnly` is off). The workflow does **not** auto-submit **Add for Review** until App Privacy and screenshots are done.
 
+A GitHub Actions Mac job **iOS App Store** also runs on push to `main`. It builds the IPA, uploads it to App Store Connect, and attaches it to version **1.0.1**.
+
 ## Environment variables (`codemagic.yaml`)
 
 | Variable | Value |

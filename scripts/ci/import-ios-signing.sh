@@ -15,6 +15,21 @@ WORK="${TMPDIR:-/tmp}/ahmed-sign-$$"
 mkdir -p "$WORK"
 trap 'rm -rf "$WORK"' EXIT
 
+if command -v app-store-connect >/dev/null 2>&1 && [ -n "${APP_STORE_CONNECT_KEY_IDENTIFIER:-}" ]; then
+  KEY_FILE="${APP_STORE_CONNECT_PRIVATE_KEY_FILE:-$HOME/.appstoreconnect/private_keys/AuthKey_${APP_STORE_CONNECT_KEY_IDENTIFIER}.p8}"
+  if [ -f "$KEY_FILE" ] && [ -f "$CERT_KEY" ]; then
+    echo "Fetching App Store signing files from Apple"
+    app-store-connect fetch-signing-files com.darraha.ahmed \
+      --type IOS_APP_STORE \
+      --platform IOS \
+      --issuer-id "${APP_STORE_CONNECT_ISSUER_ID:-c46c0b74-7d00-42b2-9786-333b76dacf91}" \
+      --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
+      --private-key "@file:$KEY_FILE" \
+      --certificate-key "@file:$CERT_KEY" \
+      || echo "fetch-signing-files skipped; using bundled certificate and profile"
+  fi
+fi
+
 if [ ! -f "$CERT_KEY" ]; then
   echo "Missing distribution private key: $CERT_KEY"
   exit 1

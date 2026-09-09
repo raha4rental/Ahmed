@@ -43,7 +43,7 @@ The iPhone build:
 
 Bundle ID `com.darraha.ahmed`. App Store record **السعدي** (Apple ID `6810042737`). Codemagic uses App Store Connect key **`8LM6C7D787`**. Details: `store/github-codemagic.md`
 
-Every push to `main` runs **Ahmed iOS — App Store** and uploads the IPA to App Store Connect / TestFlight.
+Every push to `main` builds an iPhone IPA (Codemagic and GitHub Actions) and uploads it to App Store Connect / TestFlight, then attaches it to version 1.0.1.
 
 ## GitHub + Codemagic
 
