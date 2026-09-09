@@ -1,6 +1,10 @@
 import type { AppNotification, Lang, Role, User } from "./types";
 import { isNativeApp } from "./native";
 
+export function noticeFingerprint(notice: Pick<AppNotification, "kind" | "href" | "bodyAr" | "actorId">) {
+  return `${notice.kind}|${notice.href}|${notice.bodyAr}|${notice.actorId}`;
+}
+
 export function canSeeNotice(role: Role, notice: AppNotification): boolean {
   if (notice.audience === "admin") return role === "SUPER_ADMIN";
   if (role === "SUPER_ADMIN" || role === "EMPLOYEE") return true;

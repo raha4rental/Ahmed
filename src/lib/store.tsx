@@ -29,7 +29,7 @@ import { apartmentPath, guestPath } from "./paths";
 import { aptName, guestName } from "./lookups";
 import { handoverPath } from "./handover-checklist";
 import { isNativeApp } from "./native";
-import { canSeeNotice, showDeviceNotification, unreadNotices } from "./notify";
+import { canSeeNotice, noticeFingerprint, showDeviceNotification, unreadNotices } from "./notify";
 import { generateHotelChecklist, hotelReady, ensureHotelChecklist } from "./hotel-checklist";
 import { handoverReady } from "./handover-checklist";
 import { createSeed } from "./seed";
@@ -195,12 +195,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const commit = useCallback((updater: (d: AppData) => AppData) => {
-    setData((prev) => {
-      const next = updater(prev);
-      persist(next);
-      return next;
-    });
+    setData((prev) => updater(prev));
   }, []);
+
+  useEffect(() => {
+    if (!ready) return;
+    persist(data);
+  }, [data, ready]);
 
   const appendNotice = useCallback(
     (
@@ -208,6 +209,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       input: Omit<AppNotification, "id" | "createdAt" | "readBy" | "actorId" | "actorNameAr" | "actorNameEn">
     ): AppData => {
       const actorId = user?.id ?? "";
+      const fingerprint = noticeFingerprint({ ...input, actorId });
+      const recent = (d.notifications ?? []).some(
+        (existing) =>
+          noticeFingerprint(existing) === fingerprint &&
+          Date.now() - Date.parse(existing.createdAt) < 8000
+      );
+      if (recent) return d;
       const notice: AppNotification = {
         ...input,
         id: uid("n"),
@@ -240,13 +248,15 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         if (!incoming.length) return;
         setData((prev) => {
           const have = new Set((prev.notifications ?? []).map((n) => n.id));
-          const fresh = incoming.filter((n) => !have.has(n.id));
+          const keys = new Set((prev.notifications ?? []).map(noticeFingerprint));
+          const fresh = incoming.filter(
+            (n) => !have.has(n.id) && !keys.has(noticeFingerprint(n))
+          );
           if (!fresh.length) return prev;
           const notifications = [...fresh, ...(prev.notifications ?? [])]
             .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
             .slice(0, 200);
           const next = { ...prev, notifications };
-          persist(next);
           for (const notice of fresh) {
             if (user && canSeeNotice(user.role, notice) && !notice.readBy.includes(user.id)) {
               void showDeviceNotification(notice, lang);
