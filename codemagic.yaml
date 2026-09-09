@@ -106,6 +106,8 @@ workflows:
           xcode-project build-ipa \
             --workspace "$CM_BUILD_DIR/$XCODE_WORKSPACE" \
             --scheme "$XCODE_SCHEME" \
+            --config Release \
+            --disable-xcpretty \
             --export-options-plist "$CM_BUILD_DIR/ios/ExportOptions.plist" \
             || {
               echo "IPA build failed. Last xcodebuild log:"

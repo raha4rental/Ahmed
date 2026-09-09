@@ -85,9 +85,12 @@ jobs:
 
       - name: Build ipa
         run: |
+          xcodebuild -workspace "$GITHUB_WORKSPACE/$XCODE_WORKSPACE" -list
           xcode-project build-ipa \
             --workspace "$GITHUB_WORKSPACE/$XCODE_WORKSPACE" \
             --scheme "$XCODE_SCHEME" \
+            --config Release \
+            --disable-xcpretty \
             --export-options-plist "$GITHUB_WORKSPACE/ios/ExportOptions.plist"
 
       - name: Upload IPA and link to version 1.0.1
