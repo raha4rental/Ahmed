@@ -17,6 +17,7 @@ import type {
   CheckoutRecord,
   Expense,
   Guest,
+  HandoverRecord,
   Lang,
   MaintenanceRequest,
   OpsTask,
@@ -24,6 +25,7 @@ import type {
   User,
 } from "./types";
 import { generateHotelChecklist, hotelReady, ensureHotelChecklist } from "./hotel-checklist";
+import { handoverReady } from "./handover-checklist";
 import { createSeed } from "./seed";
 import { TODAY, uid } from "./format";
 import { copy, type CopyKey } from "./i18n";
@@ -54,6 +56,8 @@ type Store = {
     bookingId: string,
     rec: Omit<CheckoutRecord, "id" | "bookingId" | "apartmentId">
   ) => boolean;
+  upsertHandover: (h: HandoverRecord) => void;
+  completeHandover: (h: HandoverRecord) => { ok: boolean; reason?: string };
   upsertTask: (task: OpsTask) => void;
   completeCleaning: (taskId: string) => boolean;
   completeInspection: (taskId: string, checklist: OpsTask["checklist"], notes: string) => boolean;
@@ -139,6 +143,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           address: g.address ?? "",
           idPhoto: g.idPhoto ?? "",
         })),
+        handovers: next.handovers ?? [],
         expenses: hasRent
           ? expenses
           : [
@@ -327,6 +332,89 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         return setStatus(next, bk.apartmentId, rec.cleaningRequired ? "cleaning" : "inspection");
       });
       return true;
+    },
+    [commit, user]
+  );
+
+  const upsertHandover = useCallback(
+    (h: HandoverRecord) => {
+      commit((d) => {
+        const idx = d.handovers.findIndex((x) => x.bookingId === h.bookingId && x.kind === h.kind);
+        const next = [...d.handovers];
+        if (idx >= 0) next[idx] = h;
+        else next.push(h);
+        return { ...d, handovers: next };
+      });
+    },
+    [commit]
+  );
+
+  const completeHandover = useCallback(
+    (h: HandoverRecord) => {
+      if (!user || !can.checkInOut(user.role)) return { ok: false, reason: "denied" };
+      const gate = handoverReady(
+        h.items,
+        h.receiverName,
+        h.incomingName,
+        h.receiverSignature,
+        h.incomingSignature,
+      );
+      if (!gate.ok) return { ok: false, reason: gate.reason };
+      commit((d) => {
+        const bk = d.bookings.find((b) => b.id === h.bookingId);
+        if (!bk) return d;
+        const record: HandoverRecord = { ...h, completed: true };
+        const idx = d.handovers.findIndex((x) => x.bookingId === h.bookingId && x.kind === h.kind);
+        const handovers = [...d.handovers];
+        if (idx >= 0) handovers[idx] = record;
+        else handovers.push(record);
+        if (h.kind === "check_in") {
+          const next = {
+            ...d,
+            handovers,
+            bookings: d.bookings.map((b) =>
+              b.id === h.bookingId ? { ...b, status: "checked_in" as const } : b
+            ),
+          };
+          return setStatus(next, bk.apartmentId, "occupied");
+        }
+        const checkout: CheckoutRecord = {
+          id: uid("co"),
+          bookingId: bk.id,
+          apartmentId: bk.apartmentId,
+          checkoutTime: h.time,
+          apartmentCondition: gate.problems.length ? "Issues noted on handover" : "Clean — signed",
+          hasDamage: h.hasDamage || gate.problems.length > 0,
+          hasMissing: h.hasMissing,
+          extraCharge: h.extraCharge,
+          photos: [],
+          cleaningRequired: true,
+          notes: h.notes,
+        };
+        const apt = d.apartments.find((a) => a.id === bk.apartmentId);
+        const task: OpsTask = {
+          id: uid("t"),
+          apartmentId: bk.apartmentId,
+          type: "cleaning",
+          status: "pending",
+          assignedTo: "u-omar",
+          date: TODAY,
+          checklist: generateHotelChecklist(apt ?? { bedrooms: 2, bathrooms: 2 }),
+          score: null,
+          notes: "Auto-created after signed checkout handover",
+        };
+        const next: AppData = {
+          ...d,
+          handovers,
+          bookings: d.bookings.map((b) =>
+            b.id === h.bookingId ? { ...b, status: "checked_out" as const } : b
+          ),
+          checkouts: [...d.checkouts, checkout],
+          tasks: [...d.tasks, task],
+        };
+        return setStatus(next, bk.apartmentId, "cleaning");
+      });
+      return { ok: true };
     },
     [commit, user]
   );
@@ -569,6 +657,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       addBooking,
       checkIn,
       checkOut,
+      upsertHandover,
+      completeHandover,
       upsertTask,
       completeCleaning,
       completeInspection,
@@ -600,6 +690,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       addBooking,
       checkIn,
       checkOut,
+      upsertHandover,
+      completeHandover,
       upsertTask,
       completeCleaning,
       completeInspection,

@@ -446,6 +446,7 @@ function buildSeed(): AppData {
         notes: "Toilet paper missing. Sent to cleaning.",
       },
     ],
+    handovers: [],
     tasks,
     maintenance,
     electricity,

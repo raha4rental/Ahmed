@@ -3,18 +3,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import { PageHeader } from "@/components/page-header";
-import { Button } from "@/components/ui/button";
-import { BookingDialog, CheckInDialog, CheckOutDialog } from "@/components/forms";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { BookingDialog } from "@/components/forms";
 import { useStore } from "@/lib/store";
 import { can } from "@/lib/permissions";
 import { fmtDateTime, money, TODAY } from "@/lib/format";
 import { aptName, guestName, remaining } from "@/lib/lookups";
+import { handoverPath } from "@/lib/handover-checklist";
 
 export default function BookingsPage() {
   const { data, user, t, lang } = useStore();
   const [open, setOpen] = useState(false);
-  const [inId, setInId] = useState<string | null>(null);
-  const [outId, setOutId] = useState<string | null>(null);
   if (!user) return null;
   if (!can.viewBookings(user.role)) return <p className="raha-card p-8">{t("denied")}</p>;
 
@@ -71,10 +70,14 @@ export default function BookingsPage() {
                 <td className="px-4 py-3">{b.status}</td>
                 <td className="px-4 py-3 text-end">
                   {b.status === "booked" && can.checkInOut(user.role) ? (
-                    <Button size="sm" onClick={() => setInId(b.id)}>{t("checkIn")}</Button>
+                    <Link href={handoverPath(b.id, "check_in")} className={buttonVariants({ size: "sm" })}>
+                      {t("handoverIn")}
+                    </Link>
                   ) : null}
                   {b.status === "checked_in" && can.checkInOut(user.role) ? (
-                    <Button size="sm" variant="secondary" onClick={() => setOutId(b.id)}>{t("checkOut")}</Button>
+                    <Link href={handoverPath(b.id, "check_out")} className={buttonVariants({ size: "sm", variant: "secondary" })}>
+                      {t("handoverOut")}
+                    </Link>
                   ) : null}
                 </td>
               </tr>
@@ -83,8 +86,6 @@ export default function BookingsPage() {
         </table>
       </div>
       <BookingDialog open={open} onOpenChange={setOpen} />
-      <CheckInDialog open={!!inId} onOpenChange={(v) => !v && setInId(null)} bookingId={inId} />
-      <CheckOutDialog open={!!outId} onOpenChange={(v) => !v && setOutId(null)} bookingId={outId} />
     </div>
   );
 }

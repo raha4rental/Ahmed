@@ -14,6 +14,7 @@ import { useStore } from "@/lib/store";
 import { can } from "@/lib/permissions";
 import { money, TODAY, inThisMonth } from "@/lib/format";
 import { aptName, guestName, remaining, statusLabel } from "@/lib/lookups";
+import { handoverPath } from "@/lib/handover-checklist";
 
 export default function DashboardPage() {
   const { data, user, t, lang } = useStore();
@@ -91,7 +92,7 @@ export default function DashboardPage() {
         ) : (
           <>
             <Quick href="/operations" icon={Sparkles} label={t("todaysWork")} />
-            <Quick href="/bookings" icon={CalendarPlus} label={t("checkIn")} />
+            <Quick href="/operations" icon={CalendarPlus} label={t("handoverIn")} />
             <Quick href="/maintenance" icon={Wrench} label={t("newRequest")} />
             <Quick href="/apartments" icon={Building2} label={t("apartments")} />
           </>
@@ -123,13 +124,13 @@ export default function DashboardPage() {
         <section className="app-card mt-3">
           <h2 className="mb-3 font-medium">{lang === "ar" ? "دخول وخروج اليوم" : "Today arrivals"}</h2>
           {checkinsToday.map((b) => (
-            <Link key={b.id} href="/bookings" className="mb-2 block rounded-xl bg-sky-50 px-3 py-2 text-sm">
-              {t("checkIn")} · {guestName(data, b.guestId)} · {aptName(data, b.apartmentId)}
+            <Link key={b.id} href={handoverPath(b.id, "check_in")} className="mb-2 block rounded-xl bg-sky-50 px-3 py-2 text-sm">
+              {t("handoverIn")} · {guestName(data, b.guestId)} · {aptName(data, b.apartmentId)}
             </Link>
           ))}
           {checkoutsToday.map((b) => (
-            <Link key={b.id} href="/bookings" className="mb-2 block rounded-xl bg-amber-50 px-3 py-2 text-sm">
-              {t("checkOut")} · {guestName(data, b.guestId)} · {aptName(data, b.apartmentId)}
+            <Link key={b.id} href={handoverPath(b.id, "check_out")} className="mb-2 block rounded-xl bg-amber-50 px-3 py-2 text-sm">
+              {t("handoverOut")} · {guestName(data, b.guestId)} · {aptName(data, b.apartmentId)}
             </Link>
           ))}
         </section>

@@ -5,22 +5,21 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/page-header";
 import { AptStatus, MaintStatusBadge, PriorityBadge, UtilBadge } from "@/components/status-badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CheckInDialog, CheckOutDialog, MaintenanceDialog } from "@/components/forms";
+import { MaintenanceDialog } from "@/components/forms";
 import { useStore } from "@/lib/store";
 import { can } from "@/lib/permissions";
 import { fmtDate, money, nights } from "@/lib/format";
 import { activeStay, currentBooking, guestName, remaining, statusLabel, userName } from "@/lib/lookups";
 import type { ApartmentStatus, ChecklistItem, Lang } from "@/lib/types";
 import { hotelReady, hotelZones, zoneProgress } from "@/lib/hotel-checklist";
+import { handoverPath } from "@/lib/handover-checklist";
 
 export default function ApartmentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const store = useStore();
   const { data, user, t, lang, markReady, updateApartment, updateInventory, deleteApartment } = store;
-  const [inId, setInId] = useState<string | null>(null);
-  const [outId, setOutId] = useState<string | null>(null);
   const [maint, setMaint] = useState(false);
 
   const apt = data.apartments.find((a) => a.id === id);
@@ -77,10 +76,14 @@ export default function ApartmentDetailPage({ params }: { params: Promise<{ id: 
 
       <div className="flex flex-wrap gap-2">
         {booking && booking.status === "booked" && can.checkInOut(user.role) ? (
-          <Button onClick={() => setInId(booking.id)}>{t("checkIn")}</Button>
+          <Link href={handoverPath(booking.id, "check_in")} className={buttonVariants()}>
+            {t("handoverIn")}
+          </Link>
         ) : null}
         {stay && can.checkInOut(user.role) ? (
-          <Button variant="secondary" onClick={() => setOutId(stay.id)}>{t("checkOut")}</Button>
+          <Link href={handoverPath(stay.id, "check_out")} className={buttonVariants({ variant: "secondary" })}>
+            {t("handoverOut")}
+          </Link>
         ) : null}
         <Button variant="outline" onClick={() => setMaint(true)}>{t("newRequest")}</Button>
         {can.markReady(user.role) ? (
@@ -311,8 +314,6 @@ export default function ApartmentDetailPage({ params }: { params: Promise<{ id: 
         <Link href="/operations" className="mt-2 inline-block text-xs text-[#8a7048] hover:underline">{t("operations")}</Link>
       </section>
 
-      <CheckInDialog open={!!inId} onOpenChange={(v) => !v && setInId(null)} bookingId={inId} />
-      <CheckOutDialog open={!!outId} onOpenChange={(v) => !v && setOutId(null)} bookingId={outId} />
       <MaintenanceDialog open={maint} onOpenChange={setMaint} apartmentId={apt.id} />
     </div>
   );

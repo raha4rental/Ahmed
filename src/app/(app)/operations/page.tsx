@@ -10,9 +10,10 @@ import { Button } from "@/components/ui/button";
 import { useStore } from "@/lib/store";
 import { can } from "@/lib/permissions";
 import { TODAY } from "@/lib/format";
-import { aptName } from "@/lib/lookups";
+import { aptName, guestName } from "@/lib/lookups";
 import { hotelReady } from "@/lib/hotel-checklist";
-import type { OpsTask } from "@/lib/types";
+import { handoverPath } from "@/lib/handover-checklist";
+import type { Booking, HandoverKind, OpsTask } from "@/lib/types";
 
 export default function OperationsPage() {
   const { data, user, t, lang, completeCleaning, completeInspection, markReady, setTaskChecklist } = useStore();
@@ -31,12 +32,34 @@ export default function OperationsPage() {
     else toast.error(t("cannotReady"));
   }
 
+  const checkinsToday = data.bookings.filter((b) => b.checkIn === TODAY && b.status === "booked");
+  const checkoutsToday = data.bookings.filter((b) => b.checkOut === TODAY && b.status === "checked_in");
+
   return (
     <div>
       <PageHeader
         title={t("operations")}
-        subtitle={lang === "ar" ? "لائحة فندقية — بما فيها داخل دواليب المطبخ والحمام والخزانات. لا READY إلا إذا اكتمل كل بند." : "Hotel-standard checklist — including inside kitchen, bathroom, and storage cabinets. READY only when every item is done."}
+        subtitle={
+          lang === "ar"
+            ? "استلام وخروج بتوقيع المستلم والداخل، ثم اللائحة الفندقية للتنظيف. لا READY إلا إذا اكتمل كل بند."
+            : "Signed check-in and check-out lists, then hotel cleaning. READY only when every item is done."
+        }
       />
+
+      {can.checkInOut(user.role) ? (
+        <>
+          <HandoverLane
+            title={t("todayHandoverIn")}
+            bookings={checkinsToday}
+            kind="check_in"
+          />
+          <HandoverLane
+            title={t("todayHandoverOut")}
+            bookings={checkoutsToday}
+            kind="check_out"
+          />
+        </>
+      ) : null}
 
       <section className="raha-card mb-4 overflow-hidden">
         <div className="px-4 py-3 font-medium">{t("todaysTasks")}</div>
@@ -142,6 +165,52 @@ export default function OperationsPage() {
         <p className="raha-card p-8 text-muted-foreground">{t("empty")}</p>
       )}
     </div>
+  );
+}
+
+function HandoverLane({
+  title,
+  bookings,
+  kind,
+}: {
+  title: string;
+  bookings: Booking[];
+  kind: HandoverKind;
+}) {
+  const { data, t } = useStore();
+  if (!bookings.length) return null;
+  return (
+    <section className="raha-card mb-4 overflow-hidden">
+      <div className="px-4 py-3 font-medium">{title}</div>
+      <div className="divide-y divide-border">
+        {bookings.map((b) => {
+          const apt = data.apartments.find((a) => a.id === b.apartmentId);
+          const signed = data.handovers.some((h) => h.bookingId === b.id && h.kind === kind && h.completed);
+          return (
+            <Link
+              key={b.id}
+              href={handoverPath(b.id, kind)}
+              className="flex items-center gap-3 px-4 py-3"
+            >
+              <img
+                src={apt?.photos[0]}
+                alt=""
+                className="size-16 shrink-0 rounded-xl object-cover"
+              />
+              <span className="min-w-0 flex-1">
+                <span className="block font-medium">{aptName(data, b.apartmentId)}</span>
+                <span className="mt-0.5 block text-sm text-muted-foreground">
+                  {guestName(data, b.guestId)} · {kind === "check_in" ? b.checkInTime : t("checkOut")}
+                </span>
+                <span className="mt-1 block text-xs text-[#8a7048]">
+                  {signed ? t("signedCopy") : t("openHandover")}
+                </span>
+              </span>
+            </Link>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 

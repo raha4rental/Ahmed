@@ -116,6 +116,28 @@ export interface CheckoutRecord {
   notes: string;
 }
 
+export type HandoverKind = "check_in" | "check_out";
+
+export interface HandoverRecord {
+  id: string;
+  kind: HandoverKind;
+  bookingId: string;
+  apartmentId: string;
+  guestId: string;
+  date: string;
+  time: string;
+  items: ChecklistItem[];
+  receiverName: string;
+  incomingName: string;
+  receiverSignature: string;
+  incomingSignature: string;
+  extraCharge: number;
+  hasDamage: boolean;
+  hasMissing: boolean;
+  notes: string;
+  completed: boolean;
+}
+
 export type CheckKind = "check" | "photo" | "inventory";
 
 export interface ChecklistItem {
@@ -207,6 +229,7 @@ export interface AppData {
   guests: Guest[];
   bookings: Booking[];
   checkouts: CheckoutRecord[];
+  handovers: HandoverRecord[];
   tasks: OpsTask[];
   maintenance: MaintenanceRequest[];
   electricity: UtilityBill[];
