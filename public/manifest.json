@@ -1,12 +1,12 @@
 {
-  "name": "أحمد — إدارة وتشغيل الشقق",
+  "name": "Ahmed",
   "short_name": "أحمد",
-  "description": "تطبيق أحمد السعدي لإدارة الشقق وتشغيل ريان",
+  "description": "تطبيق أحمد — إدارة أحمد السعدي وتشغيل رايان",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#14241f",
-  "theme_color": "#14241f",
+  "background_color": "#0e1c18",
+  "theme_color": "#0e1c18",
   "lang": "ar",
   "dir": "rtl",
   "icons": [

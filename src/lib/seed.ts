@@ -150,13 +150,13 @@ export function createSeed(): AppData {
 
   const tasks: OpsTask[] = [
     { id: "t-1", apartmentId: "apt-aster-405", type: "cleaning", status: "pending", assignedTo: "u-omar", date: TODAY, checklist: checklist(false), score: null, notes: "Turnover after Ahmed Al-Farsi." },
-    { id: "t-2", apartmentId: "apt-vantage-302", type: "inspection", status: "in_progress", assignedTo: "u-rayan", date: TODAY, checklist: checklist(true, "kitchen"), score: 88, notes: "Kitchen not restocked." },
-    { id: "t-3", apartmentId: "apt-lumos-210", type: "final_inspection", status: "completed", assignedTo: "u-rayan", date: "2026-09-07", checklist: checklist(true), score: 98, notes: "READY." },
+    { id: "t-2", apartmentId: "apt-vantage-302", type: "inspection", status: "in_progress", assignedTo: "u-ryan", date: TODAY, checklist: checklist(true, "kitchen"), score: 88, notes: "Kitchen not restocked." },
+    { id: "t-3", apartmentId: "apt-lumos-210", type: "final_inspection", status: "completed", assignedTo: "u-ryan", date: "2026-09-07", checklist: checklist(true), score: 98, notes: "READY." },
     { id: "t-4", apartmentId: "apt-vantage-415", type: "cleaning", status: "pending", assignedTo: "u-omar", date: TODAY, checklist: checklist(false), score: null, notes: "" },
     { id: "t-5", apartmentId: "apt-lumos-304", type: "cleaning", status: "pending", assignedTo: "u-omar", date: TODAY, checklist: checklist(false), score: null, notes: "" },
-    { id: "t-6", apartmentId: "apt-lumos-401", type: "inspection", status: "pending", assignedTo: "u-rayan", date: TODAY, checklist: checklist(false), score: null, notes: "Final inspection." },
+    { id: "t-6", apartmentId: "apt-lumos-401", type: "inspection", status: "pending", assignedTo: "u-ryan", date: TODAY, checklist: checklist(false), score: null, notes: "Final inspection." },
     { id: "t-7", apartmentId: "apt-vantage-302", type: "restock", status: "pending", assignedTo: "u-omar", date: TODAY, checklist: [], score: null, notes: "Coffee + paper towels." },
-    { id: "t-8", apartmentId: "apt-aster-405", type: "turnover", status: "completed", assignedTo: "u-rayan", date: TODAY, checklist: [], score: null, notes: "Checkout walkthrough done." },
+    { id: "t-8", apartmentId: "apt-aster-405", type: "turnover", status: "completed", assignedTo: "u-ryan", date: TODAY, checklist: [], score: null, notes: "Checkout walkthrough done." },
   ];
 
   const maintenance: MaintenanceRequest[] = [
@@ -337,7 +337,7 @@ export function createSeed(): AppData {
   return {
     users: [
       { id: "u-ahmed", name: "Ahmed Al-Saadi", nameAr: "أحمد السعدي", email: "ahmed@ahmed.app", phone: "+1 216 555 0100", role: "SUPER_ADMIN", title: "Management", titleAr: "إدارة" },
-      { id: "u-rayan", name: "Rayan", nameAr: "ريان", email: "rayan@ahmed.app", phone: "+1 216 555 0101", role: "EMPLOYEE", title: "Operations", titleAr: "تشغيل" },
+      { id: "u-ryan", name: "Ryan", nameAr: "رايان", email: "ryan@ahmed.app", phone: "+1 216 555 0101", role: "EMPLOYEE", title: "Operations", titleAr: "تشغيل" },
       { id: "u-omar", name: "Omar Saleh", nameAr: "عمر صالح", email: "omar@ahmed.app", phone: "+1 216 555 0102", role: "CLEANER", title: "Cleaner", titleAr: "تنظيف" },
       { id: "u-khalid", name: "Khalid Mansour", nameAr: "خالد منصور", email: "khalid@ahmed.app", phone: "+1 216 555 0103", role: "MAINTENANCE", title: "Maintenance", titleAr: "صيانة" },
     ],

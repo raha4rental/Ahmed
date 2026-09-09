@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Ahmed</string>
+    <string name="title_activity_main">Ahmed</string>
+    <string name="package_name">com.ahmed.app</string>
+    <string name="custom_url_scheme">com.ahmed.app</string>
+</resources>

@@ -1,0 +1,58 @@
+workflows:
+  ios-app-store:
+    name: Ahmed iOS — App Store
+    instance_type: mac_mini_m2
+    max_build_duration: 120
+    integrations:
+      app_store_connect: Ahmed
+    environment:
+      ios_signing:
+        bundle_identifier: com.ahmed.app
+      vars:
+        XCODE_PROJECT: ios/App/App.xcodeproj
+        XCODE_SCHEME: App
+        APP_STORE_APPLE_ID: "REPLACE_AFTER_CONNECT"
+      node: 22
+    scripts:
+      - name: Install
+        script: |
+          npm ci
+          npx prisma generate
+          npx prisma db push
+          npm run db:seed
+      - name: Web build
+        script: npm run build
+      - name: Sync Capacitor iOS
+        script: npx cap sync ios
+      - name: Build ipa
+        script: |
+          xcode-project use-profiles
+          xcode-project build-ipa \
+            --project "$XCODE_PROJECT" \
+            --scheme "$XCODE_SCHEME"
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+
+  android-internal:
+    name: Ahmed Android
+    instance_type: linux
+    max_build_duration: 60
+    environment:
+      java: 17
+      node: 22
+    scripts:
+      - name: Install
+        script: npm ci && npx prisma generate && npm run build
+      - name: Sync Capacitor
+        script: npx cap sync android
+      - name: Assemble
+        script: |
+          cd android
+          ./gradlew assembleRelease
+    artifacts:
+      - android/app/build/outputs/**/*.apk

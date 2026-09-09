@@ -1,0 +1,153 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "binary"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id
+  name      String
+  nameAr    String
+  email     String   @unique
+  phone     String
+  role      String
+  title     String
+  titleAr   String
+  pin       String   @default("1234")
+  createdAt DateTime @default(now())
+}
+
+model Building {
+  id         String      @id
+  name       String
+  city       String
+  address    String
+  apartments Apartment[]
+}
+
+model Apartment {
+  id            String   @id
+  buildingId    String
+  building      Building @relation(fields: [buildingId], references: [id])
+  number        String
+  city          String
+  bedrooms      Int
+  bathrooms     Int
+  description   String
+  descriptionAr String
+  photos        String
+  status        String
+  pricing       String
+}
+
+model Guest {
+  id      String @id
+  name    String
+  phone   String
+  email   String
+  notes   String
+}
+
+model Booking {
+  id            String @id
+  guestId       String
+  apartmentId   String
+  checkIn       String
+  checkOut      String
+  checkInTime   String
+  guestsCount   Int
+  totalAmount   Float
+  paidAmount    Float
+  paymentMethod String
+  status        String
+  notes         String
+}
+
+model CheckoutRecord {
+  id                 String  @id
+  bookingId          String
+  apartmentId        String
+  checkoutTime       String
+  apartmentCondition String
+  hasDamage          Boolean
+  hasMissing         Boolean
+  extraCharge        Float
+  photos             String
+  cleaningRequired   Boolean
+  notes              String
+}
+
+model OpsTask {
+  id          String  @id
+  apartmentId String
+  type        String
+  status      String
+  assignedTo  String?
+  date        String
+  checklist   String
+  score       Int?
+  notes       String
+}
+
+model MaintenanceRequest {
+  id          String  @id
+  apartmentId String
+  title       String
+  description String
+  photos      String
+  video       String?
+  priority    String
+  status      String
+  assigneeId  String?
+  cost        Float
+  invoice     String?
+  date        String
+}
+
+model UtilityBill {
+  id            String  @id
+  kind          String
+  apartmentId   String
+  company       String
+  accountNumber String
+  extraNumber   String
+  wifiName      String?
+  wifiPassword  String?
+  amount        Float
+  billDate      String
+  dueDate       String
+  status        String
+  photo         String?
+}
+
+model Expense {
+  id          String  @id
+  buildingId  String
+  apartmentId String
+  category    String
+  amount      Float
+  date        String
+  description String
+  receipt     String?
+}
+
+model InventoryItem {
+  id          String @id
+  apartmentId String
+  name        String
+  nameAr      String
+  expected    Int
+  actual      Int
+  state       String
+}
+
+/// Working snapshot the mobile app reads and writes.
+model Snapshot {
+  id        String   @id @default("main")
+  payload   String
+  updatedAt DateTime @updatedAt
+}

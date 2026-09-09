@@ -17,12 +17,12 @@ const display = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "أحمد — إدارة وتشغيل الشقق",
-  description: "تطبيق أحمد السعدي لإدارة الشقق وتشغيل ريان",
-  applicationName: "أحمد",
+  title: "Ahmed",
+  description: "تطبيق أحمد — إدارة أحمد السعدي وتشغيل رايان",
+  applicationName: "Ahmed",
   appleWebApp: {
     capable: true,
-    title: "أحمد",
+    title: "Ahmed",
     statusBarStyle: "black-translucent",
   },
   icons: { icon: "/icon.svg", apple: "/icon.svg" },

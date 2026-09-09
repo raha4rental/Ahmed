@@ -29,8 +29,8 @@ import { TODAY, uid } from "./format";
 import { copy, type CopyKey } from "./i18n";
 import { can } from "./permissions";
 
-const KEY = "ahmed-app-v2";
-const SESSION = "ahmed-session-v2";
+const KEY = "ahmed-app-v3";
+const SESSION = "ahmed-session-v3";
 
 type Store = {
   ready: boolean;
@@ -81,6 +81,11 @@ function loadData(): AppData {
 
 function persist(data: AppData) {
   localStorage.setItem(KEY, JSON.stringify(data));
+  void fetch("/api/state", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  }).catch(() => undefined);
 }
 
 function setStatus(data: AppData, apartmentId: string, status: ApartmentStatus): AppData {
@@ -97,16 +102,22 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLang] = useState<Lang>("ar");
 
   useEffect(() => {
-    const next = loadData();
-    setData(next);
-    const sid = localStorage.getItem(SESSION);
-    if (sid) {
-      const u = next.users.find((x) => x.id === sid) ?? null;
-      setUser(u);
-    }
     const lg = localStorage.getItem("ahmed-lang") as Lang | null;
     if (lg === "ar" || lg === "en") setLang(lg);
-    setReady(true);
+
+    const apply = (next: AppData) => {
+      setData(next);
+      localStorage.setItem(KEY, JSON.stringify(next));
+      let sid = localStorage.getItem(SESSION);
+      if (sid === "u-rayan") sid = "u-ryan";
+      if (sid) setUser(next.users.find((x) => x.id === sid) ?? null);
+    };
+
+    fetch("/api/state")
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("db"))))
+      .then((next: AppData) => apply(next))
+      .catch(() => apply(loadData()))
+      .finally(() => setReady(true));
   }, []);
 
   const commit = useCallback((updater: (d: AppData) => AppData) => {
@@ -286,7 +297,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           apartmentId: task.apartmentId,
           type: "inspection",
           status: "pending",
-          assignedTo: "u-rayan",
+          assignedTo: "u-ryan",
           date: TODAY,
           checklist: DEFAULT_CHECKLIST.map((c) => ({ ...c, passed: null })),
           score: null,
