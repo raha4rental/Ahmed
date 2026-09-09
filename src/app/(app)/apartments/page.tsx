@@ -53,10 +53,10 @@ export default function ApartmentsPage() {
         }
       />
 
-      <div className="mb-5 flex flex-col gap-2 sm:flex-row">
-        <Input className="sm:max-w-xs" placeholder={t("search")} value={q} onChange={(e) => setQ(e.target.value)} />
+      <div className="mb-5 flex flex-col gap-2">
+        <Input placeholder={t("search")} value={q} onChange={(e) => setQ(e.target.value)} />
         <select
-          className="h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm"
+          className="app-field"
           value={building}
           onChange={(e) => setBuilding(e.target.value)}
         >
@@ -66,7 +66,7 @@ export default function ApartmentsPage() {
           ))}
         </select>
         <select
-          className="h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm"
+          className="app-field"
           value={status}
           onChange={(e) => setStatus(e.target.value as typeof status)}
         >

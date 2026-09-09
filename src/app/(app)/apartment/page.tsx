@@ -153,7 +153,7 @@ function ApartmentInner() {
             <div className="sm:col-span-2">
               <label className="text-xs text-muted-foreground">{t("status")}</label>
               <select
-                className="mt-1 h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm"
+                className="app-field mt-1"
                 value={apt.status}
                 onChange={(e) => updateApartment(apt.id, { status: e.target.value as ApartmentStatus })}
               >

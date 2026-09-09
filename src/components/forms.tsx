@@ -25,7 +25,7 @@ import { pickImage } from "@/lib/native";
 
 const field = "grid gap-1.5";
 const selectCls =
-  "h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
+  "app-field";
 
 export function AddApartmentDialog({
   open,

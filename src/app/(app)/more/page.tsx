@@ -47,7 +47,7 @@ export default function MorePage() {
         {items.map((item) => {
           const Icon = icons[item.icon] ?? Users;
           return (
-            <Link key={item.href} href={item.href} className="flex items-center gap-3 border-b border-border px-4 py-3.5 last:border-0">
+            <Link key={item.href} href={item.href} className="flex min-h-[56px] items-center gap-3 border-b border-border px-4 py-3.5 last:border-0">
               <span className="flex size-9 items-center justify-center rounded-xl bg-[#1b3d34] text-[#c4a574]">
                 <Icon className="size-4" />
               </span>
@@ -58,7 +58,7 @@ export default function MorePage() {
         })}
       </div>
       <div className="mt-4 app-card overflow-hidden p-0">
-        <button onClick={toggleLang} className="flex w-full items-center gap-3 border-b border-border px-4 py-3.5">
+        <button onClick={toggleLang} className="flex min-h-[56px] w-full items-center gap-3 border-b border-border px-4 py-3.5">
           <Languages className="size-5 text-[#8a7048]" />
           <span className="flex-1 text-start font-medium">{t("lang")}</span>
         </button>
@@ -67,7 +67,7 @@ export default function MorePage() {
             logout();
             router.replace("/");
           }}
-          className="flex w-full items-center gap-3 px-4 py-3.5 text-rose-700"
+          className="flex min-h-[56px] w-full items-center gap-3 px-4 py-3.5 text-rose-700"
         >
           <LogOut className="size-5" />
           <span className="flex-1 text-start font-medium">{t("logout")}</span>

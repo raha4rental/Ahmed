@@ -41,7 +41,7 @@ export function StatCard({
     gold: "bg-[#c4a574]",
   }[tone];
   return (
-    <div className="raha-card raha-stat overflow-hidden p-4">
+    <div className="raha-card raha-stat overflow-hidden p-4 shadow-[0_10px_24px_-12px_rgba(20,36,31,0.28)]">
       <div className={`mb-3 h-1 w-8 rounded-full ${bar}`} />
       <div className="text-xs text-muted-foreground">{label}</div>
       <div className="mt-1 font-[family-name:var(--font-display)] text-2xl text-[#1b3d34]">{value}</div>

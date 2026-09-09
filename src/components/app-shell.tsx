@@ -83,27 +83,27 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <span>{t("logout")}</span>
           </button>
         </div>
-        <nav className="app-tabbar">
-          {items.map((item) => {
-            const Icon = icons[item.icon] ?? Home;
-            const active =
-              item.href === "/more"
-                ? path === "/more"
-                : path === item.href || path.startsWith(item.href + "/");
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn("app-tab", active && "app-tab-active")}
-              >
-                <Icon className="size-4" />
-                <span>{t(item.key as CopyKey)}</span>
-              </Link>
-            );
-          })}
-        </nav>
       </header>
       <main className="app-scroll">{children}</main>
+      <nav className="app-tabbar">
+        {items.map((item) => {
+          const Icon = icons[item.icon] ?? Home;
+          const active =
+            item.href === "/more"
+              ? path === "/more"
+              : path === item.href || path.startsWith(item.href + "/");
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn("app-tab", active && "app-tab-active")}
+            >
+              <Icon className="size-5" />
+              <span>{t(item.key as CopyKey)}</span>
+            </Link>
+          );
+        })}
+      </nav>
     </div>
   );
 }

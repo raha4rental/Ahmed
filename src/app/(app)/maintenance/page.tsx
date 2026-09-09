@@ -60,7 +60,7 @@ export default function MaintenancePage() {
               <div>
                 <div className="text-xs text-muted-foreground">{t("assignee")}</div>
                 <select
-                  className="mt-1 h-8 w-full rounded-lg border border-input bg-transparent px-2 text-sm"
+                  className="app-field mt-1"
                   value={m.assigneeId ?? ""}
                   onChange={(e) =>
                     updateMaintenance(m.id, {
@@ -79,7 +79,7 @@ export default function MaintenancePage() {
               <div>
                 <div className="text-xs text-muted-foreground">{t("status")}</div>
                 <select
-                  className="mt-1 h-8 w-full rounded-lg border border-input bg-transparent px-2 text-sm"
+                  className="app-field mt-1"
                   value={m.status}
                   onChange={(e) => updateMaintenance(m.id, { status: e.target.value as MaintenanceStatus })}
                 >

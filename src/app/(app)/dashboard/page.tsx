@@ -4,6 +4,8 @@ import Link from "next/link";
 import {
   Building2,
   CalendarPlus,
+  ChevronLeft,
+  ChevronRight,
   Plus,
   Receipt,
   Sparkles,
@@ -46,28 +48,28 @@ export default function DashboardPage() {
   return (
     <div className="app-page">
       <header className="mb-5 flex items-center gap-3">
-        <div className="flex size-12 items-center justify-center rounded-2xl bg-[#1b3d34] text-[#c4a574] text-lg font-semibold">
+        <div className="flex size-12 items-center justify-center rounded-2xl bg-[#1b3d34] text-[#c4a574] text-lg font-semibold shadow-[0_10px_20px_-12px_rgba(27,61,52,0.9)] ring-1 ring-[#c4a57455]">
           {isAdmin ? "أ" : "ر"}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-xs text-[#8a7048]">{isAdmin ? t("management") : t("operationsRole")}</p>
+          <p className="text-xs font-medium text-[#8a7048]">{isAdmin ? t("management") : t("operationsRole")}</p>
           <h1 className="truncate text-xl font-semibold text-[#1b3d34]">
             {isAdmin ? t("welcomeAhmed") : t("welcomeStaff")}
           </h1>
         </div>
       </header>
 
-      <div className="mb-4 grid grid-cols-2 gap-2">
+      <div className="mb-4 grid grid-cols-2 gap-3">
         <Mini label={t("apartments")} value={counts.total} />
-        <Mini label={`🟢 ${t("ready")}`} value={counts.ready} />
-        <Mini label={`🔵 ${t("occupied")}`} value={counts.occupied} />
-        <Mini label={`🟡 ${t("cleaning")}`} value={counts.cleaning} />
-        <Mini label={`🔴 ${t("maintenanceSt")}`} value={counts.maintenance} wide />
+        <Mini label={t("ready")} value={counts.ready} tone="ready" />
+        <Mini label={t("occupied")} value={counts.occupied} tone="info" />
+        <Mini label={t("cleaning")} value={counts.cleaning} tone="warn" />
+        <Mini label={t("maintenanceSt")} value={counts.maintenance} wide tone="danger" />
       </div>
 
       {can.viewFinancials(user.role) ? (
-        <div className="mb-4 grid grid-cols-2 gap-2">
-          <div className="col-span-2 rounded-2xl bg-[#14241f] px-4 py-4 text-[#f3e6c8]">
+        <div className="mb-4 grid grid-cols-2 gap-3">
+          <div className="app-hero col-span-2">
             <div className="text-xs text-[#c4a574]">{t("expenseTotal")}</div>
             <div className="mt-1 text-3xl font-semibold">{money(expenses, lang)}</div>
           </div>
@@ -76,13 +78,13 @@ export default function DashboardPage() {
           <MoneyCard label={t("outstanding")} value={money(outstanding, lang)} tone="warn" wide />
         </div>
       ) : (
-        <div className="mb-4 grid grid-cols-2 gap-2">
+        <div className="mb-4 grid grid-cols-2 gap-3">
           <Mini label={t("checkinsToday")} value={checkinsToday.length} />
           <Mini label={t("checkoutsToday")} value={checkoutsToday.length} />
         </div>
       )}
 
-      <div className="mb-5 grid grid-cols-4 gap-2">
+      <div className="mb-5 grid grid-cols-2 gap-3">
         {isAdmin ? (
           <>
             <Quick href="/apartments" icon={Plus} label={t("addApartment")} />
@@ -101,13 +103,13 @@ export default function DashboardPage() {
       </div>
 
       <section className="app-card">
-        <div className="mb-3 flex items-center justify-between">
+        <div className="mb-2 flex items-center justify-between">
           <h2 className="font-medium">{t("todaysTasks")}</h2>
-          <Link href="/operations" className="text-xs text-[#8a7048]">{t("operations")}</Link>
+          <Link href="/operations" className="text-xs font-medium text-[#8a7048]">{t("operations")}</Link>
         </div>
-        <div className="divide-y divide-border">
+        <div className="divide-y divide-border/80">
           {todayTasks.slice(0, 6).map((task) => (
-            <Link key={task.id} href="/operations" className="flex items-center gap-3 py-2.5">
+            <Link key={task.id} href="/operations" className="app-row">
               <TaskDot status={task.status} />
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-medium">{aptName(data, task.apartmentId)}</div>
@@ -115,6 +117,7 @@ export default function DashboardPage() {
                   {task.type === "inspection" || task.type === "final_inspection" ? t("inspection") : task.type === "restock" ? t("restock") : t("cleaning")}
                 </div>
               </div>
+              {lang === "ar" ? <ChevronLeft className="size-4 text-muted-foreground" /> : <ChevronRight className="size-4 text-muted-foreground" />}
             </Link>
           ))}
           {todayTasks.length === 0 ? <p className="py-6 text-sm text-muted-foreground">{t("empty")}</p> : null}
@@ -125,12 +128,12 @@ export default function DashboardPage() {
         <section className="app-card mt-3">
           <h2 className="mb-3 font-medium">{lang === "ar" ? "دخول وخروج اليوم" : "Today arrivals"}</h2>
           {checkinsToday.map((b) => (
-            <Link key={b.id} href={handoverPath(b.id, "check_in")} className="mb-2 block rounded-xl bg-sky-50 px-3 py-2 text-sm">
+            <Link key={b.id} href={handoverPath(b.id, "check_in")} className="mb-2 block rounded-xl bg-[#eef6f2] px-3 py-3 text-sm shadow-sm">
               {t("handoverIn")} · {guestName(data, b.guestId)} · {aptName(data, b.apartmentId)}
             </Link>
           ))}
           {checkoutsToday.map((b) => (
-            <Link key={b.id} href={handoverPath(b.id, "check_out")} className="mb-2 block rounded-xl bg-amber-50 px-3 py-2 text-sm">
+            <Link key={b.id} href={handoverPath(b.id, "check_out")} className="mb-2 block rounded-xl bg-[#f7f0e2] px-3 py-3 text-sm shadow-sm">
               {t("handoverOut")} · {guestName(data, b.guestId)} · {aptName(data, b.apartmentId)}
             </Link>
           ))}
@@ -138,12 +141,12 @@ export default function DashboardPage() {
       ) : null}
 
       <section className="app-card mt-3">
-        <h2 className="mb-3 font-medium">{t("apartments")}</h2>
+        <h2 className="mb-2 font-medium">{t("apartments")}</h2>
         {["apt-aster-405", "apt-vantage-302", "apt-lumos-210"].map((id) => {
           const a = data.apartments.find((x) => x.id === id);
           if (!a) return null;
           return (
-            <Link key={id} href={apartmentPath(id)} className="flex items-center justify-between py-2.5">
+            <Link key={id} href={apartmentPath(id)} className="app-row justify-between">
               <span className="text-sm font-medium">{aptName(data, id)}</span>
               <AptStatus status={a.status} label={statusLabel(a.status, t)} />
             </Link>
@@ -154,9 +157,27 @@ export default function DashboardPage() {
   );
 }
 
-function Mini({ label, value, wide }: { label: string; value: number; wide?: boolean }) {
+function Mini({
+  label,
+  value,
+  wide,
+  tone = "default",
+}: {
+  label: string;
+  value: number;
+  wide?: boolean;
+  tone?: "default" | "ready" | "info" | "warn" | "danger";
+}) {
+  const pip = {
+    default: "bg-[#1b3d34]",
+    ready: "bg-emerald-600",
+    info: "bg-sky-600",
+    warn: "bg-amber-500",
+    danger: "bg-rose-600",
+  }[tone];
   return (
-    <div className={`app-card px-3 py-3 ${wide ? "col-span-2" : ""}`}>
+    <div className={`app-card px-3 py-3.5 ${wide ? "col-span-2" : ""}`}>
+      <div className={`mb-2 h-1 w-7 rounded-full ${pip}`} />
       <div className="text-[11px] text-muted-foreground">{label}</div>
       <div className="text-2xl font-semibold text-[#1b3d34]">{value}</div>
     </div>
@@ -164,9 +185,9 @@ function Mini({ label, value, wide }: { label: string; value: number; wide?: boo
 }
 
 function MoneyCard({ label, value, tone, wide }: { label: string; value: string; tone: "up" | "down" | "warn"; wide?: boolean }) {
-  const color = tone === "up" ? "text-emerald-700" : tone === "down" ? "text-rose-700" : "text-amber-700";
+  const color = tone === "up" ? "text-emerald-700" : tone === "down" ? "text-rose-700" : "text-amber-800";
   return (
-    <div className={`app-card px-3 py-3 ${wide ? "col-span-2" : ""}`}>
+    <div className={`app-card px-3 py-3.5 ${wide ? "col-span-2" : ""}`}>
       <div className="text-[11px] text-muted-foreground">{label}</div>
       <div className={`text-xl font-semibold ${color}`}>{value}</div>
     </div>
@@ -175,11 +196,11 @@ function MoneyCard({ label, value, tone, wide }: { label: string; value: string;
 
 function Quick({ href, icon: Icon, label }: { href: string; icon: React.ComponentType<{ className?: string }>; label: string }) {
   return (
-    <Link href={href} className="flex flex-col items-center gap-1.5 rounded-2xl bg-white px-1 py-3 text-center shadow-sm ring-1 ring-border">
-      <span className="flex size-9 items-center justify-center rounded-xl bg-[#1b3d34] text-[#f3e6c8]">
-        <Icon className="size-4" />
+    <Link href={href} className="app-tile">
+      <span className="app-tile-icon">
+        <Icon className="size-5" />
       </span>
-      <span className="line-clamp-2 text-[10px] leading-tight text-[#1b3d34]">{label}</span>
+      <span className="text-[12px] font-medium leading-tight text-[#1b3d34]">{label}</span>
     </Link>
   );
 }
