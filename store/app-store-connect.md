@@ -1,70 +1,41 @@
 # ربط أحمد بـ App Store Connect / Connect Ahmed to App Store Connect
 
-لا أستطيع الدخول إلى حساب آبل نيابة عنك. Apple لا تسمح بإنشاء التطبيق عبر الـ API. بعد الخطوات الثلاث أدناه، Codemagic يرفع البناء إلى TestFlight تلقائياً.
+## Status
 
-I cannot sign into your Apple account. Apple does not allow creating a new app through the API. After the three steps below, Codemagic uploads every `main` push to TestFlight.
+Connected with API key `R46D76UXCH` (Issuer `c46c0b74-7d00-42b2-9786-333b76dacf91`).
 
-Bundle ID: `com.ahmed.app`  
-App name: **Ahmed**  
-SKU: `ahmed-property-ops`  
-Codemagic integration name: **Ahmed** (must match exactly)  
-Issuer ID (saved): `c46c0b74-7d00-42b2-9786-333b76dacf91`
+تم تسجيل المعرّف والملف الشخصي على آبل. Apple refused `com.ahmed.app` (already taken worldwide), so Ahmed uses **`com.darraha.ahmed`**.
 
-Still needed: **Key ID** (10 characters) and the `.p8` private key in Codemagic. Do not commit the `.p8`.
+The `.p8` is not in git. Apple still blocks creating the **app record** via API — that one click is left.
 
----
+| Item | Value |
+| --- | --- |
+| App name | Ahmed |
+| Bundle ID | `com.darraha.ahmed` |
+| Team | `VPT9SWM94A` |
+| SKU | `ahmed-property-ops` |
+| Profile | Ahmed App Store (`358JN62MY3`) |
+| Codemagic key name | **Ahmed** |
 
-## 1. مفتاح API في App Store Connect / Create the API key
-
-1. Open [Users and Access → Integrations → App Store Connect API](https://appstoreconnect.apple.com/access/integrations/api)
-2. Accept any pending agreements first: [Agreements](https://appstoreconnect.apple.com/agreements)
-3. **+** → Name: `Ahmed` → Access: **App Manager** → Generate
-4. Download the `.p8` file (once only)
-5. Copy **Issuer ID** (top of the keys table) and **Key ID**
-
-يجب أن يكون الحساب مشتركاً في [Apple Developer Program](https://developer.apple.com/programs/) (99 دولار سنوياً).
-
-You need an active [Apple Developer Program](https://developer.apple.com/programs/) membership.
+Existing apps on this Apple team: **DAR RAHA** (`com.darraha.rahaApp`), **voya** (`com.laffa.laffa`).
 
 ---
 
-## 2. أنشئ التطبيق يدوياً / Create the app record (required)
+## Remaining click / الخطوة المتبقية
 
-Apple blocks `POST /v1/apps`. Do this once in the website:
+1. Open [New App](https://appstoreconnect.apple.com/apps)
+   - iOS · Name `Ahmed` · Arabic · Bundle ID **`com.darraha.ahmed`** · SKU `ahmed-property-ops`
+2. Codemagic → Team integrations → Developer Portal → key name **Ahmed**
+   - Issuer ID `c46c0b74-7d00-42b2-9786-333b76dacf91`
+   - Key ID `R46D76UXCH`
+   - Upload the same `.p8`
+3. Start **Ahmed iOS — App Store**
 
-1. [Identifiers](https://developer.apple.com/account/resources/identifiers/list) → **+** → App IDs → App  
-   Description: `Ahmed`  
-   Bundle ID: **Explicit** `com.ahmed.app` → Continue → Register  
-   (Codemagic also tries to create this automatically.)
-2. [App Store Connect → Apps → + → New App](https://appstoreconnect.apple.com/apps)
-   - Platforms: **iOS**
-   - Name: `Ahmed`
-   - Primary language: **Arabic**
-   - Bundle ID: `com.ahmed.app`
-   - SKU: `ahmed-property-ops`
-   - User Access: Full Access
+Add Ahmed Al-Saadi and Ryan in TestFlight → Internal Testing.
 
 ---
 
-## 3. الصق المفتاح في Codemagic / Paste the key in Codemagic
-
-1. [codemagic.io](https://codemagic.io) → sign in with GitHub `raha4rental`
-2. Apps → Add application → GitHub → **Ahmed** (`raha4rental/Ahmed`)
-3. Teams → Team integrations → **Developer Portal** → Connect
-   - App Store Connect API key name: **Ahmed**
-   - Issuer ID and Key ID from step 1
-   - Upload the `.p8` file → Save
-4. Start workflow **Ahmed iOS — App Store**
-
-After that, every push to `main` registers the bundle ID if needed, signs the IPA, and uploads it to TestFlight (internal testers only — no public App Store review).
-
-بعدها كل دفع على `main` يرفع البناء إلى TestFlight للمختبرين الداخليين.
-
-Add Ahmed Al-Saadi and Ryan under App Store Connect → Ahmed → TestFlight → Internal Testing.
-
----
-
-## Listing copy (when you later submit to the store)
+## Listing copy
 
 **Subtitle:** إدارة وتشغيل الشقق
 

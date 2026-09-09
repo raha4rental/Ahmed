@@ -5,7 +5,7 @@ on:
 
 jobs:
   register-bundle-id:
-    name: Register com.ahmed.app
+    name: Register com.darraha.ahmed
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -14,7 +14,7 @@ jobs:
       - name: Create bundle ID if missing
         env:
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID || 'c46c0b74-7d00-42b2-9786-333b76dacf91' }}
-          APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }}
+          APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER || 'R46D76UXCH' }}
           APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
         run: |
           if [ -z "$APP_STORE_CONNECT_KEY_IDENTIFIER" ] || [ -z "$APP_STORE_CONNECT_PRIVATE_KEY" ]; then
@@ -22,6 +22,6 @@ jobs:
             echo "Issuer ID is already set. Or connect the key named Ahmed in Codemagic — see store/app-store-connect.md"
             exit 1
           fi
-          app-store-connect bundle-ids create com.ahmed.app --name "Ahmed" --platform IOS || true
+          app-store-connect bundle-ids create com.darraha.ahmed --name "Ahmed" --platform IOS || true
           echo "--- apps already in App Store Connect ---"
           app-store-connect apps list --json || app-store-connect apps list

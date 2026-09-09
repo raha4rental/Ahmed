@@ -8,7 +8,7 @@
 
 Private staff app. No guest login. No customer booking.
 
-Bundle ID: `com.ahmed.app`
+Bundle ID: `com.darraha.ahmed`
 
 ## Run (phone preview)
 
@@ -39,13 +39,7 @@ The iPhone build:
 - Fills the screen under the notch / Dynamic Island
 - Is portrait-only
 
-App Store Connect cannot be finished from this agent — Apple blocks creating the app via API, and the `.p8` key never leaves your account.
-
-Do this once: `store/app-store-connect.md`
-
-1. Create API key **Ahmed** (App Manager) in App Store Connect
-2. Create the iOS app **Ahmed** / `com.ahmed.app`
-3. Paste that key into Codemagic Team integrations as **Ahmed**
+The App Store Connect API key is connected. Bundle ID `com.darraha.ahmed` and the App Store profile are registered. Create the **Ahmed** app record once in App Store Connect (Apple blocks creating apps via API), then paste the same key into Codemagic as **Ahmed**. Details: `store/app-store-connect.md`
 
 Then every push to `main` uploads TestFlight.
 

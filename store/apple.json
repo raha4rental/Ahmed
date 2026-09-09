@@ -1,8 +1,13 @@
 {
   "appName": "Ahmed",
-  "bundleId": "com.ahmed.app",
+  "bundleId": "com.darraha.ahmed",
   "sku": "ahmed-property-ops",
   "primaryLocale": "ar-SA",
   "codemagicIntegration": "Ahmed",
-  "issuerId": "c46c0b74-7d00-42b2-9786-333b76dacf91"
+  "issuerId": "c46c0b74-7d00-42b2-9786-333b76dacf91",
+  "keyId": "R46D76UXCH",
+  "teamId": "VPT9SWM94A",
+  "bundleIdResource": "UKH9ZQF978",
+  "appStoreProfileId": "358JN62MY3",
+  "note": "com.ahmed.app is not available on Apple globally. Registered com.darraha.ahmed instead. App record still must be created in the App Store Connect website."
 }

@@ -1,4 +1,4 @@
-package com.ahmed.app;
+package com.darraha.ahmed;
 
 import com.getcapacitor.BridgeActivity;
 

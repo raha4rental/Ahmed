@@ -4,7 +4,7 @@ platform :ios do
   desc "Upload Ahmed to TestFlight (needs App Store Connect API key env)"
   lane :beta do
     api_key = app_store_connect_api_key(
-      key_id: ENV.fetch("APP_STORE_CONNECT_KEY_IDENTIFIER"),
+      key_id: ENV["APP_STORE_CONNECT_KEY_IDENTIFIER"] || "R46D76UXCH",
       issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"] || "c46c0b74-7d00-42b2-9786-333b76dacf91",
       key_content: ENV.fetch("APP_STORE_CONNECT_PRIVATE_KEY"),
       is_key_content_base64: false
@@ -23,7 +23,7 @@ platform :ios do
     upload_to_testflight(
       api_key: api_key,
       skip_waiting_for_build_processing: true,
-      app_identifier: "com.ahmed.app"
+      app_identifier: "com.darraha.ahmed"
     )
   end
 end

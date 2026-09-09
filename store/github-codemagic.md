@@ -11,7 +11,7 @@ Repo: `https://github.com/raha4rental/Ahmed`
 Follow `store/app-store-connect.md`. You must:
 
 1. Create API key **Ahmed** (App Manager) and download the `.p8`
-2. Create the iOS app record named **Ahmed** with bundle ID `com.ahmed.app`
+2. Create the iOS app record named **Ahmed** with bundle ID `com.darraha.ahmed`
 3. In Codemagic, connect Developer Portal with that key named **Ahmed**
 
 This agent cannot sign in to Apple, GitHub, or Codemagic.
@@ -31,7 +31,7 @@ integrations:
   app_store_connect: Ahmed
 ios_signing:
   distribution_type: app_store
-  bundle_identifier: com.ahmed.app
+  bundle_identifier: com.darraha.ahmed
 ```
 
 Codemagic then creates the Apple signing files and uploads the IPA to TestFlight.
