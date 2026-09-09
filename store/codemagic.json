@@ -12,7 +12,8 @@
       "submitToTestFlight": true,
       "submitToAppStore": true,
       "releaseType": "AFTER_APPROVAL",
-      "testFlightInternalTestingOnly": false
+      "testFlightInternalTestingOnly": false,
+      "appleAuth": "api_key"
     },
     "android-internal": {
       "name": "Ahmed Android",
@@ -24,10 +25,11 @@
   "appleId": "6810042737",
   "version": "1.0.1",
   "teamId": "VPT9SWM94A",
-  "integrationName": "Ahmed",
+  "integrationName": null,
+  "appleAuth": "bundled api_key (no Codemagic UI Developer Portal integration required)",
   "issuerId": "c46c0b74-7d00-42b2-9786-333b76dacf91",
   "keyId": "8LM6C7D787",
-  "keyFile": "AuthKey_8LM6C7D787.p8",
+  "keyFile": "scripts/ci/AuthKey_8LM6C7D787.key",
   "doNotUseKeyId": "R46D76UXCH",
   "distributionCertificateId": "JRU86YL2BU",
   "appStoreProfileName": "Ahmed App Store Codemagic",
@@ -35,12 +37,12 @@
   "appStoreProfileUuid": "93a6a9a2-d293-4e98-98c2-7aa74b08d3a7",
   "xcodeWorkspace": "ios/App/App.xcworkspace",
   "xcodeScheme": "App",
-  "environmentGroup": "appstore_credentials",
+  "environmentGroup": null,
   "signingFiles": {
+    "appStoreConnectKey": "scripts/ci/AuthKey_8LM6C7D787.key",
     "distributionKey": "scripts/ci/ios_distribution.key",
     "distributionCert": "scripts/ci/ios_distribution.cer",
     "provisioningProfile": "scripts/ci/Ahmed_App_Store_Codemagic.mobileprovision"
   },
-  "optionalWebsiteSecret": "CERTIFICATE_PRIVATE_KEY",
-  "note": "Developer Portal integration name must be exactly Ahmed. Key ID must be 8LM6C7D787. The .p8 stays in Codemagic only. Signing uses bundled scripts/ci files so CERTIFICATE_PRIVATE_KEY is optional."
+  "note": "Codemagic publishes with api_key 8LM6C7D787 from scripts/ci/AuthKey_8LM6C7D787.key. A website Developer Portal integration named Ahmed is optional."
 }

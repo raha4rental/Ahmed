@@ -13,8 +13,9 @@ Version: `1.0.1`
 | App Store profile (manual) | `358JN62MY3` | Active |
 | ASC API key | `8LM6C7D787` | Use this key only |
 
-Codemagic signs with:
+Codemagic signs and publishes with:
 
+- `scripts/ci/AuthKey_8LM6C7D787.key` (App Store Connect API key `8LM6C7D787`)
 - `scripts/ci/ios_distribution.key`
 - `scripts/ci/ios_distribution.cer`
 - `scripts/ci/Ahmed_App_Store_Codemagic.mobileprovision`

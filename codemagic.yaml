@@ -1,12 +1,12 @@
 # Ahmed / السعدي — Codemagic
 # App: السعدي (Apple ID 6810042737)
 # Bundle: com.darraha.ahmed
-# Developer Portal integration name: Ahmed
-# Key ID: 8LM6C7D787  (do not use R46D76UXCH)
+# App Store Connect key: 8LM6C7D787 (do not use R46D76UXCH)
 # Issuer: c46c0b74-7d00-42b2-9786-333b76dacf91
 # Team: VPT9SWM94A
 # Profile: Ahmed App Store Codemagic (S9V76LJWYB / 93a6a9a2-d293-4e98-98c2-7aa74b08d3a7)
 # Distribution cert: JRU86YL2BU
+# Apple auth: scripts/ci/AuthKey_8LM6C7D787.key (no Codemagic UI integration required)
 # Info: store/codemagic.json  ·  store/github-codemagic.md
 # Push to main → IPA → TestFlight → App Store review (after Apple processes the build)
 
@@ -22,8 +22,6 @@ workflows:
         - pattern: main
           include: true
           source: true
-    integrations:
-      app_store_connect: Ahmed
     environment:
       vars:
         APP_NAME: Ahmed
@@ -35,17 +33,22 @@ workflows:
         APP_STORE_APPLE_ID: 6810042737
         APP_STORE_CONNECT_ISSUER_ID: c46c0b74-7d00-42b2-9786-333b76dacf91
         APP_STORE_CONNECT_KEY_IDENTIFIER: 8LM6C7D787
+        APP_STORE_CONNECT_PRIVATE_KEY: |
+          -----BEGIN PRIVATE KEY-----
+          MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgx3Kgw+wjiw+ggpwD
+          jHTD0JP8nn9kZkkjRtWHZjEwClGgCgYIKoZIzj0DAQehRANCAAQITQi7zs3SXHpw
+          kDjfivCi6P70i1B6WybOKLms/7AKUaCP/Woz8zlQy0L0bPQ2ePwclx9VBOs2kaY+
+          +Pq7ZPOu
+          -----END PRIVATE KEY-----
         APP_STORE_PROFILE_NAME: Ahmed App Store Codemagic
         APP_STORE_PROFILE_ID: S9V76LJWYB
         APP_STORE_PROFILE_UUID: 93a6a9a2-d293-4e98-98c2-7aa74b08d3a7
         DISTRIBUTION_CERTIFICATE_ID: JRU86YL2BU
-      groups:
-        - appstore_credentials
       xcode: latest
       node: 22
       cocoapods: default
     scripts:
-      - name: Check App Store Connect credentials
+      - name: Link App Store Connect
         script: |
           set -euo pipefail
           python3 scripts/normalize-asc-key.py
@@ -130,8 +133,9 @@ workflows:
       - /tmp/xcodebuild_logs/*.log
     publishing:
       app_store_connect:
-        # Developer Portal integration must be named Ahmed (Key ID 8LM6C7D787).
-        auth: integration
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
         submit_to_testflight: true
         submit_to_app_store: true
         cancel_previous_submissions: true

@@ -124,8 +124,7 @@ def load_key_material(raw: str, *, allow_existing_asc: bool = True) -> str:
     _log(f"private key prefix: {_safe_prefix(raw)}")
     raise SystemExit(
         "APP_STORE_CONNECT_PRIVATE_KEY is not a PEM .p8 key, file path, or base64 p8. "
-        "Re-upload AuthKey_8LM6C7D787.p8 in Codemagic → "
-        "Team integrations → Developer Portal → key name Ahmed."
+        "Re-upload AuthKey_8LM6C7D787.p8 as scripts/ci/AuthKey_8LM6C7D787.key."
     )
 
 
@@ -148,15 +147,17 @@ def write_key_files(pem: str, key_id: str) -> Path:
     return primary
 
 
-def persist_env(asc_file: Path, cert_file: Path | None) -> None:
+def persist_env(asc_file: Path, cert_file: Path | None, pem: str) -> None:
     cm_env = os.environ.get("CM_ENV")
     if not cm_env:
         return
+    escaped = pem.replace("\r\n", "\n").replace("\n", "\\n")
     with open(cm_env, "a", encoding="utf-8") as handle:
         handle.write(f"APP_STORE_CONNECT_PRIVATE_KEY_FILE={asc_file}\n")
+        handle.write(f"APP_STORE_CONNECT_PRIVATE_KEY={escaped}\n")
         if cert_file is not None:
             handle.write(f"CERTIFICATE_PRIVATE_KEY_FILE={cert_file}\n")
-    _log(f"persisted key file path to {cm_env}")
+    _log(f"persisted App Store Connect key to {cm_env}")
 
 
 def _cert_env() -> str:
@@ -173,20 +174,32 @@ def _cert_env() -> str:
     return ""
 
 
-def bundled_distribution_key() -> str | None:
-    for path in (
-        Path(__file__).resolve().parent / "ci" / "ios_distribution.key",
-        Path("scripts/ci/ios_distribution.key"),
-    ):
-        try:
-            if path.is_file() and path.stat().st_size > 0:
-                text = path.read_text().strip().replace("\r\n", "\n")
-                if "BEGIN" in text:
-                    _log(f"certificate private key source: bundled {path}")
-                    return text if text.endswith("\n") else text + "\n"
-        except OSError:
-            continue
+def _read_bundled_pem(*relatives: str) -> str | None:
+    roots = (
+        Path(__file__).resolve().parent / "ci",
+        Path("scripts/ci"),
+    )
+    for root in roots:
+        for name in relatives:
+            path = root / name
+            try:
+                if path.is_file() and path.stat().st_size > 0:
+                    text = path.read_text().strip().replace("\r\n", "\n")
+                    if "BEGIN" in text:
+                        _log(f"private key source: bundled {path}")
+                        return text if text.endswith("\n") else text + "\n"
+            except OSError:
+                continue
     return None
+
+
+def bundled_asc_key() -> str | None:
+    key_id = os.environ.get("APP_STORE_CONNECT_KEY_IDENTIFIER", "").strip() or "8LM6C7D787"
+    return _read_bundled_pem(f"AuthKey_{key_id}.key", "AuthKey_8LM6C7D787.key")
+
+
+def bundled_distribution_key() -> str | None:
+    return _read_bundled_pem("ios_distribution.key")
 
 
 def write_named(pem: str, filename: str) -> Path:
@@ -211,9 +224,12 @@ def write_named(pem: str, filename: str) -> Path:
 def main() -> int:
     raw = os.environ.get("APP_STORE_CONNECT_PRIVATE_KEY", "")
     if not raw.strip():
-        _log("App Store Connect .p8 is missing in this build.")
-        _log("Codemagic → Team integrations → Developer Portal: key name must be exactly: Ahmed")
-        return 1
+        bundled = bundled_asc_key()
+        if not bundled:
+            _log("App Store Connect .p8 is missing in this build.")
+            _log("Expected scripts/ci/AuthKey_8LM6C7D787.key or APP_STORE_CONNECT_PRIVATE_KEY.")
+            return 1
+        raw = bundled
 
     key_id = os.environ.get("APP_STORE_CONNECT_KEY_IDENTIFIER", "").strip() or "unknown"
     issuer = os.environ.get("APP_STORE_CONNECT_ISSUER_ID", "").strip() or "missing"
@@ -239,7 +255,7 @@ def main() -> int:
     if "BEGIN" not in cert_pem:
         raise SystemExit("signing certificate private key is still not PEM")
     cert_file = write_named(cert_pem, "ios_distribution.pem")
-    persist_env(key_file, cert_file)
+    persist_env(key_file, cert_file, pem)
     _log("App Store Connect and signing certificate keys look usable")
     return 0
 
