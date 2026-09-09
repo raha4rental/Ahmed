@@ -27,12 +27,12 @@ Arabic + English copy, privacy URL, Business category, and review notes are set 
 
 ## Before Add for Review
 
-1. **Build:** GitHub Actions already uploaded **1.0.1 (4)** (`18cebe15-e590-49da-ad65-0441a6d6849c`). It is **VALID** and attached to version 1.0.1. Codemagic has not uploaded an IPA yet (it was failing on `ExportOptions.plist`). Look on Apple, not Codemagic:
+1. **Build:** Xcode archive (GitHub Actions Mac) uploaded **1.0.1 (5)** (`d6e65f5f-7208-4b06-a8be-8bfc9a2e0551`). This environment cannot open the Xcode GUI (Linux). The Mac runner archived with `xcodebuild` and uploaded the IPA. Open TestFlight, not Codemagic:
 
    - TestFlight iOS: https://appstoreconnect.apple.com/apps/6810042737/testflight/ios
    - Internal testers group: `9bb6bee9-5a22-41e5-af2e-d48f634b1ffe` (Account Holder `allaasheikh@icloud.com` can install now in the TestFlight app)
    - External group **Ops testers**: `c1eee463-0353-4cae-8b87-11fdfe938405` (`allaasheikh@icloud.com`, `raha4rental@gmail.com`) — waiting for Apple Beta Review before email invites go out
-   - GitHub run: https://github.com/raha4rental/Ahmed/actions/runs/34390607251
+   - GitHub archive run: https://github.com/raha4rental/Ahmed/actions/runs/34392282672
 2. **App Privacy:** an Admin must publish answers. Steps: `store/APP_PRIVACY.md`  
    https://appstoreconnect.apple.com/apps/6810042737/appPrivacy  
    Choose **No, we do not collect data from this app** → Save → Publish.

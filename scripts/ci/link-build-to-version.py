@@ -94,20 +94,32 @@ def _builds() -> list[dict]:
             "limit": "20",
         }
     )
+    by_id: dict[str, dict] = {}
     payload = _request("GET", f"/v1/builds?{query}")
-    return list(payload.get("data") or [])
+    for build in payload.get("data") or []:
+        by_id[str(build.get("id"))] = build
+
+    # Processing IPAs often show up on the pre-release version before /v1/builds.
+    versions = _request("GET", f"/v1/apps/{APP_ID}/preReleaseVersions?limit=10")
+    for version in versions.get("data") or []:
+        vid = version.get("id")
+        if not vid:
+            continue
+        related = _request("GET", f"/v1/preReleaseVersions/{vid}/builds")
+        for build in related.get("data") or []:
+            by_id[str(build.get("id"))] = build
+
+    builds = list(by_id.values())
+    builds.sort(
+        key=lambda item: str((item.get("attributes") or {}).get("uploadedDate") or ""),
+        reverse=True,
+    )
+    return builds
 
 
 def _pick(builds: list[dict]) -> dict | None:
-    valid = []
-    processing = []
-    for build in builds:
-        state = (build.get("attributes") or {}).get("processingState")
-        if state == "VALID":
-            valid.append(build)
-        elif state in {"PROCESSING", "VALIDATING"}:
-            processing.append(build)
-    return (valid or processing or [None])[0]
+    """Newest uploaded build, even if Apple is still processing it."""
+    return builds[0] if builds else None
 
 
 def _link(build_id: str) -> None:
