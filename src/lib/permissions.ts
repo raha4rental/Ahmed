@@ -36,20 +36,54 @@ export const can = {
     role === "SUPER_ADMIN" || role === "EMPLOYEE" || role === "CLEANER",
 };
 
-export const navFor = (role: Role) => {
-  const items: Array<{ href: string; key: string; icon: string }> = [
-    { href: "/dashboard", key: "dashboard", icon: "layout" },
+export type NavItem = { href: string; key: string; icon: string };
+
+export const bottomNav = (role: Role): NavItem[] => {
+  if (role === "SUPER_ADMIN") {
+    return [
+      { href: "/dashboard", key: "home", icon: "home" },
+      { href: "/apartments", key: "apartments", icon: "building" },
+      { href: "/bookings", key: "bookings", icon: "calendar" },
+      { href: "/expenses", key: "expenses", icon: "receipt" },
+      { href: "/more", key: "more", icon: "more" },
+    ];
+  }
+  if (role === "EMPLOYEE") {
+    return [
+      { href: "/dashboard", key: "home", icon: "home" },
+      { href: "/apartments", key: "apartments", icon: "building" },
+      { href: "/bookings", key: "bookings", icon: "calendar" },
+      { href: "/operations", key: "ops", icon: "sparkles" },
+      { href: "/more", key: "more", icon: "more" },
+    ];
+  }
+  if (role === "CLEANER") {
+    return [
+      { href: "/dashboard", key: "home", icon: "home" },
+      { href: "/operations", key: "ops", icon: "sparkles" },
+      { href: "/apartments", key: "apartments", icon: "building" },
+      { href: "/more", key: "more", icon: "more" },
+    ];
+  }
+  return [
+    { href: "/dashboard", key: "home", icon: "home" },
+    { href: "/maintenance", key: "maintenance", icon: "wrench" },
+    { href: "/apartments", key: "apartments", icon: "building" },
+    { href: "/more", key: "more", icon: "more" },
   ];
-  if (can.viewApartments(role)) items.push({ href: "/apartments", key: "apartments", icon: "building" });
-  if (can.viewGuests(role)) items.push({ href: "/guests", key: "guests", icon: "users" });
-  if (can.viewBookings(role)) items.push({ href: "/bookings", key: "bookings", icon: "calendar" });
-  if (can.viewOperations(role)) items.push({ href: "/operations", key: "operations", icon: "sparkles" });
-  if (can.viewMaintenance(role)) items.push({ href: "/maintenance", key: "maintenance", icon: "wrench" });
+};
+
+export const moreNav = (role: Role): NavItem[] => {
+  const items: NavItem[] = [];
+  if (can.viewGuests(role)) items.push({ href: "/guests", key: "customers", icon: "users" });
+  if (can.viewOperations(role) && role === "SUPER_ADMIN") items.push({ href: "/operations", key: "operations", icon: "sparkles" });
+  if (can.viewMaintenance(role) && role !== "MAINTENANCE") items.push({ href: "/maintenance", key: "maintenance", icon: "wrench" });
   if (can.viewUtilities(role)) {
     items.push({ href: "/electricity", key: "electricity", icon: "zap" });
     items.push({ href: "/internet", key: "internet", icon: "wifi" });
   }
-  if (can.viewExpenses(role)) items.push({ href: "/expenses", key: "expenses", icon: "receipt" });
-  if (can.manageUsers(role)) items.push({ href: "/users", key: "users", icon: "shield" });
+  if (can.viewExpenses(role) && role !== "SUPER_ADMIN") items.push({ href: "/expenses", key: "expenses", icon: "receipt" });
+  if (can.viewFinancials(role)) items.push({ href: "/reports", key: "reports", icon: "chart" });
+  if (can.manageUsers(role)) items.push({ href: "/users", key: "staff", icon: "shield" });
   return items;
 };

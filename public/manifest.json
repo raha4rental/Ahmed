@@ -1,0 +1,15 @@
+{
+  "name": "أحمد — إدارة وتشغيل الشقق",
+  "short_name": "أحمد",
+  "description": "تطبيق أحمد السعدي لإدارة الشقق وتشغيل ريان",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#14241f",
+  "theme_color": "#14241f",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

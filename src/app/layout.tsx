@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Sans_Arabic, Fraunces } from "next/font/google";
 import { StoreProvider } from "@/lib/store";
 import { Toaster } from "@/components/ui/sonner";
@@ -17,8 +17,25 @@ const display = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Raha Management — راحة",
-  description: "نظام إدارة وتشغيل الشقق — Super Admin أحمد",
+  title: "أحمد — إدارة وتشغيل الشقق",
+  description: "تطبيق أحمد السعدي لإدارة الشقق وتشغيل ريان",
+  applicationName: "أحمد",
+  appleWebApp: {
+    capable: true,
+    title: "أحمد",
+    statusBarStyle: "black-translucent",
+  },
+  icons: { icon: "/icon.svg", apple: "/icon.svg" },
+  manifest: "/manifest.json",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#14241f",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

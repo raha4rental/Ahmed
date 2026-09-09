@@ -21,7 +21,7 @@ export default function UsersPage() {
     <div>
       <PageHeader
         title={t("users")}
-        subtitle={lang === "ar" ? "أحمد: صلاحية كاملة. الموظف: تشغيل فقط." : "Ahmed: full access. Staff: operations only."}
+        subtitle={lang === "ar" ? "أحمد السعدي: إدارة كاملة. ريان: تشغيل فقط." : "Ahmed Al-Saadi: full management. Rayan: operations only."}
         action={
           <Button variant="outline" onClick={reset}>
             {t("resetDemo")}

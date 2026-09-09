@@ -29,8 +29,8 @@ import { TODAY, uid } from "./format";
 import { copy, type CopyKey } from "./i18n";
 import { can } from "./permissions";
 
-const KEY = "raha-management-v1";
-const SESSION = "raha-session-v1";
+const KEY = "ahmed-app-v2";
+const SESSION = "ahmed-session-v2";
 
 type Store = {
   ready: boolean;
@@ -104,7 +104,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       const u = next.users.find((x) => x.id === sid) ?? null;
       setUser(u);
     }
-    const lg = localStorage.getItem("raha-lang") as Lang | null;
+    const lg = localStorage.getItem("ahmed-lang") as Lang | null;
     if (lg === "ar" || lg === "en") setLang(lg);
     setReady(true);
   }, []);
@@ -136,7 +136,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const toggleLang = useCallback(() => {
     setLang((prev) => {
       const next = prev === "ar" ? "en" : "ar";
-      localStorage.setItem("raha-lang", next);
+      localStorage.setItem("ahmed-lang", next);
       return next;
     });
   }, []);
@@ -286,7 +286,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           apartmentId: task.apartmentId,
           type: "inspection",
           status: "pending",
-          assignedTo: "u-sara",
+          assignedTo: "u-rayan",
           date: TODAY,
           checklist: DEFAULT_CHECKLIST.map((c) => ({ ...c, passed: null })),
           score: null,

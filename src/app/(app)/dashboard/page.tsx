@@ -1,14 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { PageHeader, StatCard } from "@/components/page-header";
-import { AptStatus, PriorityBadge, TaskDot } from "@/components/status-badge";
-import { Button } from "@/components/ui/button";
+import {
+  Building2,
+  CalendarPlus,
+  Plus,
+  Receipt,
+  Sparkles,
+  Wrench,
+} from "lucide-react";
+import { AptStatus, TaskDot } from "@/components/status-badge";
 import { useStore } from "@/lib/store";
 import { can } from "@/lib/permissions";
-import { money, TODAY } from "@/lib/format";
+import { money, TODAY, inThisMonth } from "@/lib/format";
 import { aptName, guestName, remaining, statusLabel } from "@/lib/lookups";
-import { inThisMonth } from "@/lib/format";
 
 export default function DashboardPage() {
   const { data, user, t, lang } = useStore();
@@ -21,189 +26,151 @@ export default function DashboardPage() {
     ready: apts.filter((a) => a.status === "ready").length,
     cleaning: apts.filter((a) => a.status === "cleaning" || a.status === "inspection").length,
     maintenance: apts.filter((a) => a.status === "maintenance").length,
-    occupied: apts.filter((a) => a.status === "occupied").length,
+    occupied: apts.filter((a) => a.status === "occupied" || a.status === "booked").length,
   };
-
   const monthBookings = data.bookings.filter(
     (b) => inThisMonth(b.checkIn) || inThisMonth(b.checkOut) || b.status === "checked_in"
   );
   const revenue = monthBookings.reduce((s, b) => s + b.paidAmount, 0);
   const expenses = data.expenses.filter((e) => inThisMonth(e.date)).reduce((s, e) => s + e.amount, 0);
-  const outstanding = data.bookings
-    .filter((b) => b.status !== "cancelled")
-    .reduce((s, b) => s + remaining(b), 0);
-
+  const outstanding = data.bookings.filter((b) => b.status !== "cancelled").reduce((s, b) => s + remaining(b), 0);
+  const todayTasks = data.tasks.filter((x) => x.date === TODAY && x.status !== "completed");
   const checkinsToday = data.bookings.filter((b) => b.checkIn === TODAY && b.status === "booked");
   const checkoutsToday = data.bookings.filter((b) => b.checkOut === TODAY && b.status === "checked_in");
-  const cleaningReq = apts.filter((a) => a.status === "cleaning").length;
-  const inspectPend = data.tasks.filter(
-    (x) => (x.type === "inspection" || x.type === "final_inspection") && x.status !== "completed"
-  ).length;
-  const openMaint = data.maintenance.filter((m) => m.status !== "completed");
-  const urgent = openMaint.filter((m) => m.priority === "urgent");
-
-  const todayTasks = data.tasks.filter((x) => x.date === TODAY && x.status !== "completed");
 
   return (
-    <div>
-      <PageHeader
-        eyebrow={isAdmin ? "SUPER ADMIN" : user.title.toUpperCase()}
-        title={isAdmin ? t("welcomeAhmed") : t("welcomeStaff")}
-        subtitle={isAdmin ? t("subtitleDash") : t("subtitleEmp")}
-        action={
-          isAdmin ? (
-            <Button render={<Link href="/apartments" />}>+ {t("addApartment")}</Button>
-          ) : null
-        }
-      />
+    <div className="app-page">
+      <header className="mb-5 flex items-center gap-3">
+        <div className="flex size-12 items-center justify-center rounded-2xl bg-[#1b3d34] text-[#c4a574] text-lg font-semibold">
+          {isAdmin ? "أ" : "ر"}
+        </div>
+        <div className="min-w-0">
+          <p className="text-xs text-[#8a7048]">{isAdmin ? t("management") : t("operationsRole")}</p>
+          <h1 className="truncate text-xl font-semibold text-[#1b3d34]">
+            {isAdmin ? t("welcomeAhmed") : t("welcomeStaff")}
+          </h1>
+        </div>
+      </header>
 
-      {isAdmin ? (
-        <>
-          <p className="mb-3 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">{t("today")}</p>
-          <div className="mb-8 grid grid-cols-2 gap-3 md:grid-cols-5">
-            <StatCard label={t("apartments")} value={counts.total} />
-            <StatCard label={`🟢 ${t("ready")}`} value={counts.ready} tone="ready" />
-            <StatCard label={`🟡 ${t("cleaning")}`} value={counts.cleaning} tone="warn" />
-            <StatCard label={`🔴 ${t("maintenanceSt")}`} value={counts.maintenance} tone="danger" />
-            <StatCard label={`🔵 ${t("occupied")}`} value={counts.occupied} tone="info" />
-          </div>
+      <div className="mb-4 grid grid-cols-2 gap-2">
+        <Mini label={t("apartments")} value={counts.total} />
+        <Mini label={`🟢 ${t("ready")}`} value={counts.ready} />
+        <Mini label={`🔵 ${t("occupied")}`} value={counts.occupied} />
+        <Mini label={`🟡 ${t("cleaning")}`} value={counts.cleaning} />
+        <Mini label={`🔴 ${t("maintenanceSt")}`} value={counts.maintenance} wide />
+      </div>
 
-          {can.viewFinancials(user.role) ? (
-            <>
-              <p className="mb-3 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">{t("financial")}</p>
-              <div className="mb-8 grid gap-3 md:grid-cols-3">
-                <StatCard label={t("revenueMonth")} value={money(revenue, lang)} tone="gold" />
-                <StatCard label={t("expensesMonth")} value={money(expenses, lang)} />
-                <StatCard label={t("outstanding")} value={money(outstanding, lang)} tone="warn" />
-              </div>
-            </>
-          ) : null}
-
-          <p className="mb-3 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">{t("ops")}</p>
-          <div className="mb-8 grid grid-cols-2 gap-3 md:grid-cols-4">
-            <StatCard label={t("checkinsToday")} value={checkinsToday.length} tone="info" />
-            <StatCard label={t("checkoutsToday")} value={checkoutsToday.length} />
-            <StatCard label={t("cleaningRequired")} value={cleaningReq} tone="warn" />
-            <StatCard label={t("inspectionsPending")} value={inspectPend} tone="danger" />
-          </div>
-
-          <p className="mb-3 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">{t("maintenance")}</p>
-          <div className="mb-8 grid gap-3 md:grid-cols-2">
-            <StatCard label={t("openIssues")} value={openMaint.length} tone="danger" />
-            <StatCard label={t("urgent")} value={urgent.length} tone="warn" />
-          </div>
-        </>
+      {can.viewFinancials(user.role) ? (
+        <div className="mb-4 grid grid-cols-2 gap-2">
+          <MoneyCard label={t("revenueMonth")} value={money(revenue, lang)} tone="up" />
+          <MoneyCard label={t("expensesMonth")} value={money(expenses, lang)} tone="down" />
+          <MoneyCard label={t("outstanding")} value={money(outstanding, lang)} tone="warn" wide />
+        </div>
       ) : (
-        <div className="mb-8 grid gap-3 sm:grid-cols-3">
-          <StatCard label={t("todaysWork")} value={todayTasks.length} tone="gold" />
-          <StatCard label={t("checkoutsToday")} value={checkoutsToday.length} />
-          <StatCard label={t("openIssues")} value={openMaint.length} tone="danger" />
+        <div className="mb-4 grid grid-cols-2 gap-2">
+          <Mini label={t("checkinsToday")} value={checkinsToday.length} />
+          <Mini label={t("checkoutsToday")} value={checkoutsToday.length} />
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <section className="raha-card p-5">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-medium">{t("todaysTasks")}</h2>
-            <Link href="/operations" className="text-xs text-[#8a7048] hover:underline">
-              {t("operations")}
-            </Link>
-          </div>
-          <div className="divide-y divide-border">
-            {todayTasks.slice(0, 8).map((task) => (
-              <Link
-                key={task.id}
-                href="/operations"
-                className="flex items-center justify-between gap-3 py-2.5 text-sm hover:bg-muted/40"
-              >
-                <span className="font-medium">{aptName(data, task.apartmentId)}</span>
-                <span className="text-muted-foreground">{t(task.type === "inspection" || task.type === "final_inspection" ? "inspection" : task.type === "restock" ? "restock" : "cleaning")}</span>
-                <TaskDot status={task.status} />
-              </Link>
-            ))}
-            {todayTasks.length === 0 ? <p className="py-6 text-sm text-muted-foreground">{t("empty")}</p> : null}
-          </div>
-        </section>
-
-        <section className="raha-card p-5">
-          <h2 className="mb-4 font-medium">
-            {lang === "ar" ? "دخول وخروج اليوم" : "Arrivals & departures"}
-          </h2>
-          <div className="space-y-3">
-            {checkinsToday.map((b) => (
-              <Link key={b.id} href="/bookings" className="block rounded-xl bg-sky-50 px-3 py-2.5 text-sm">
-                <div className="font-medium">{t("checkIn")} · {guestName(data, b.guestId)}</div>
-                <div className="text-muted-foreground">
-                  {aptName(data, b.apartmentId)} · {b.checkInTime}
-                </div>
-              </Link>
-            ))}
-            {checkoutsToday.map((b) => (
-              <Link key={b.id} href="/bookings" className="block rounded-xl bg-amber-50 px-3 py-2.5 text-sm">
-                <div className="font-medium">{t("checkOut")} · {guestName(data, b.guestId)}</div>
-                <div className="text-muted-foreground">{aptName(data, b.apartmentId)}</div>
-              </Link>
-            ))}
-            {checkinsToday.length + checkoutsToday.length === 0 ? (
-              <p className="text-sm text-muted-foreground">{t("empty")}</p>
-            ) : null}
-          </div>
-        </section>
+      <div className="mb-5 grid grid-cols-4 gap-2">
+        {isAdmin ? (
+          <>
+            <Quick href="/apartments" icon={Plus} label={t("addApartment")} />
+            <Quick href="/bookings" icon={CalendarPlus} label={t("createBooking")} />
+            <Quick href="/expenses" icon={Receipt} label={t("addExpense")} />
+            <Quick href="/maintenance" icon={Wrench} label={t("maintenance")} />
+          </>
+        ) : (
+          <>
+            <Quick href="/operations" icon={Sparkles} label={t("todaysWork")} />
+            <Quick href="/bookings" icon={CalendarPlus} label={t("checkIn")} />
+            <Quick href="/maintenance" icon={Wrench} label={t("newRequest")} />
+            <Quick href="/apartments" icon={Building2} label={t("apartments")} />
+          </>
+        )}
       </div>
 
-      {isAdmin && urgent.length > 0 ? (
-        <section className="raha-card mt-6 p-5">
-          <h2 className="mb-4 font-medium">{t("urgent")}</h2>
-          <div className="space-y-2">
-            {urgent.map((m) => (
-              <Link key={m.id} href="/maintenance" className="flex items-center justify-between gap-3 rounded-lg px-2 py-2 hover:bg-muted/50">
-                <div>
-                  <div className="font-medium">{aptName(data, m.apartmentId)}</div>
-                  <div className="text-sm text-muted-foreground">{m.title}</div>
+      <section className="app-card">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="font-medium">{t("todaysTasks")}</h2>
+          <Link href="/operations" className="text-xs text-[#8a7048]">{t("operations")}</Link>
+        </div>
+        <div className="divide-y divide-border">
+          {todayTasks.slice(0, 6).map((task) => (
+            <Link key={task.id} href="/operations" className="flex items-center gap-3 py-2.5">
+              <TaskDot status={task.status} />
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-sm font-medium">{aptName(data, task.apartmentId)}</div>
+                <div className="text-xs text-muted-foreground">
+                  {task.type === "inspection" || task.type === "final_inspection" ? t("inspection") : task.type === "restock" ? t("restock") : t("cleaning")}
                 </div>
-                <PriorityBadge priority={m.priority} labels={{ urgent: t("urgent"), normal: t("normal"), low: t("low") }} />
-              </Link>
-            ))}
-          </div>
+              </div>
+            </Link>
+          ))}
+          {todayTasks.length === 0 ? <p className="py-6 text-sm text-muted-foreground">{t("empty")}</p> : null}
+        </div>
+      </section>
+
+      {(checkinsToday.length > 0 || checkoutsToday.length > 0) ? (
+        <section className="app-card mt-3">
+          <h2 className="mb-3 font-medium">{lang === "ar" ? "دخول وخروج اليوم" : "Today arrivals"}</h2>
+          {checkinsToday.map((b) => (
+            <Link key={b.id} href="/bookings" className="mb-2 block rounded-xl bg-sky-50 px-3 py-2 text-sm">
+              {t("checkIn")} · {guestName(data, b.guestId)} · {aptName(data, b.apartmentId)}
+            </Link>
+          ))}
+          {checkoutsToday.map((b) => (
+            <Link key={b.id} href="/bookings" className="mb-2 block rounded-xl bg-amber-50 px-3 py-2 text-sm">
+              {t("checkOut")} · {guestName(data, b.guestId)} · {aptName(data, b.apartmentId)}
+            </Link>
+          ))}
         </section>
       ) : null}
 
-      <section className="mt-6 overflow-hidden raha-card">
-        <div className="flex items-center justify-between px-5 py-4">
-          <h2 className="font-medium">{t("apartments")}</h2>
-          <Link href="/apartments" className="text-xs text-[#8a7048] hover:underline">{t("all")}</Link>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-muted-foreground">
-              <tr>
-                <th className="px-5 py-2 text-start font-medium">{t("apartment")}</th>
-                <th className="px-5 py-2 text-start font-medium">{t("status")}</th>
-                <th className="px-5 py-2 text-start font-medium">{t("city")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {["apt-aster-405", "apt-vantage-302", "apt-lumos-210"].map((id) => {
-                const a = data.apartments.find((x) => x.id === id);
-                if (!a) return null;
-                return (
-                  <tr key={a.id} className="border-t border-border">
-                    <td className="px-5 py-3">
-                      <Link href={`/apartments/${a.id}`} className="font-medium hover:underline">
-                        {aptName(data, a.id)}
-                      </Link>
-                    </td>
-                    <td className="px-5 py-3">
-                      <AptStatus status={a.status} label={statusLabel(a.status, t)} />
-                    </td>
-                    <td className="px-5 py-3 text-muted-foreground">{a.city}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+      <section className="app-card mt-3">
+        <h2 className="mb-3 font-medium">{t("apartments")}</h2>
+        {["apt-aster-405", "apt-vantage-302", "apt-lumos-210"].map((id) => {
+          const a = data.apartments.find((x) => x.id === id);
+          if (!a) return null;
+          return (
+            <Link key={id} href={`/apartments/${id}`} className="flex items-center justify-between py-2.5">
+              <span className="text-sm font-medium">{aptName(data, id)}</span>
+              <AptStatus status={a.status} label={statusLabel(a.status, t)} />
+            </Link>
+          );
+        })}
       </section>
     </div>
+  );
+}
+
+function Mini({ label, value, wide }: { label: string; value: number; wide?: boolean }) {
+  return (
+    <div className={`app-card px-3 py-3 ${wide ? "col-span-2" : ""}`}>
+      <div className="text-[11px] text-muted-foreground">{label}</div>
+      <div className="text-2xl font-semibold text-[#1b3d34]">{value}</div>
+    </div>
+  );
+}
+
+function MoneyCard({ label, value, tone, wide }: { label: string; value: string; tone: "up" | "down" | "warn"; wide?: boolean }) {
+  const color = tone === "up" ? "text-emerald-700" : tone === "down" ? "text-rose-700" : "text-amber-700";
+  return (
+    <div className={`app-card px-3 py-3 ${wide ? "col-span-2" : ""}`}>
+      <div className="text-[11px] text-muted-foreground">{label}</div>
+      <div className={`text-xl font-semibold ${color}`}>{value}</div>
+    </div>
+  );
+}
+
+function Quick({ href, icon: Icon, label }: { href: string; icon: React.ComponentType<{ className?: string }>; label: string }) {
+  return (
+    <Link href={href} className="flex flex-col items-center gap-1.5 rounded-2xl bg-white px-1 py-3 text-center shadow-sm ring-1 ring-border">
+      <span className="flex size-9 items-center justify-center rounded-xl bg-[#1b3d34] text-[#f3e6c8]">
+        <Icon className="size-4" />
+      </span>
+      <span className="line-clamp-2 text-[10px] leading-tight text-[#1b3d34]">{label}</span>
+    </Link>
   );
 }

@@ -1,41 +1,30 @@
-# Raha Management — راحة
+# أحمد — تطبيق إدارة وتشغيل الشقق
 
-نظام إدارة وتشغيل كامل للشقق (Cleveland). ليس تطبيق تنظيف فقط.
+تطبيق جوال (PWA) باسم **أحمد**.
 
-**Raha Management** is a full apartment operations system: properties, guests, bookings, check-in/out, cleaning & inspection, maintenance, electricity, internet, and expenses — all tied to the unit.
+- **أحمد السعدي** — إدارة كاملة (Super Admin)
+- **ريان** — تشغيل يومي (Operations)
 
-أحمد (**Ahmed**) is **Super Admin** and sees everything. Employees see only the work they need.
+This is the **Ahmed** mobile app: Ahmed Al-Saadi manages everything; Rayan runs daily operations.
 
-## Roles / الصلاحيات
-
-| Role | Access |
-| --- | --- |
-| Super Admin — أحمد | 100% — prices, financials, users, delete invoices |
-| Employee | Operations: check-in/out, cleaning, inspection |
-| Cleaner | Cleaning + inventory |
-| Maintenance | Maintenance tickets only |
-
-Employees cannot change prices, delete apartments, view sensitive accounts, edit revenue, change user permissions, or delete bills.
-
-## Apartment cycle / دورة الشقة
-
-Guest books → Booking → Check-in → Occupied → Check-out → Inspection → Cleaning → Maintenance / Inventory if needed → Final Inspection → READY → next guest
-
-Checkout automatically sets **Cleaning Required**. An apartment cannot be marked READY if an inspection item failed.
-
-## Run locally
+## Open / التشغيل
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open the printed local URL (default in this project: port **4721**).
+يفتح على `http://127.0.0.1:4721` داخل إطار جوال. على الهاتف الحقيقي: افتح الرابط ثم **Add to Home Screen**.
 
-Sign in as أحمد to see the full dashboard, or as Sara / Omar / Khalid to see staff views.
+Opens as a phone app on `http://127.0.0.1:4721`. On a real phone, add it to the home screen.
 
-Demo data is stored in the browser (`localStorage`). Super Admin can reset it from Permissions.
+رمز الدخول / PIN: `1234`
 
-## Stack
+| الحساب | الدور |
+| --- | --- |
+| أحمد السعدي | إدارة — أسعار، مالية، صلاحيات، حذف |
+| ريان | تشغيل — دخول/خروج، تنظيف، فحص. بدون أسعار أو حسابات حساسة |
 
-Next.js (App Router), TypeScript, Tailwind CSS, shadcn/ui. No database and no login passwords — pick a role on the home screen.
+## الدورة
+
+حجز → دخول → مشغولة → خروج → فحص → تنظيف → صيانة إن لزم → READY

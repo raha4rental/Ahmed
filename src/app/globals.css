@@ -93,21 +93,124 @@
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground antialiased;
-  }
   html {
     @apply font-sans;
   }
+  body {
+    color: var(--foreground);
+    background: #0c1411;
+    min-height: 100dvh;
+    overscroll-behavior: none;
+  }
 }
 
-.raha-card {
+.raha-card,
+.app-card {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 1rem;
+  padding: 1rem;
   box-shadow: 0 1px 0 rgba(28, 25, 20, 0.03), 0 10px 28px -22px rgba(20, 36, 31, 0.45);
 }
 
 .raha-stat {
   background: linear-gradient(180deg, #fffdf8 0%, #f7f0e4 100%);
+}
+
+.app-device {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 430px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  background: var(--background);
+  position: relative;
+  overflow: hidden;
+}
+
+.app-scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 18px 16px 12px;
+}
+
+.app-page {
+  padding-bottom: 8px;
+}
+
+.app-tabbar {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-around;
+  gap: 2px;
+  padding: 6px 8px calc(10px + env(safe-area-inset-bottom));
+  background: #fffdf8;
+  border-top: 1px solid var(--border);
+}
+
+.app-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 0;
+  padding: 6px 2px;
+  font-size: 10px;
+  color: #7a7368;
+  border-radius: 12px;
+}
+
+.app-tab-active {
+  color: #1b3d34;
+  background: #ece4d4;
+  font-weight: 600;
+}
+
+.app-login {
+  background: #14241f;
+  color: #f3e6c8;
+}
+
+.app-login-bg {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(800px 420px at 20% 0%, #c4a57433, transparent),
+    radial-gradient(600px 360px at 90% 80%, #2d8a5c22, transparent);
+}
+
+.login-card {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 12px;
+  border-radius: 1.25rem;
+  border: 1px solid #c4a57444;
+  background: #1b3029cc;
+  padding: 14px;
+  text-align: start;
+}
+
+@media (min-width: 768px) {
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 28px 16px;
+  }
+  .app-device {
+    height: 860px;
+    min-height: 860px;
+    max-height: 860px;
+    border-radius: 36px;
+    box-shadow:
+      0 0 0 10px #1a2a24,
+      0 0 0 12px #c4a57455,
+      0 40px 80px rgba(0, 0, 0, 0.45);
+  }
 }
