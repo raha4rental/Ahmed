@@ -13,7 +13,7 @@ Version: `1.0.1`
 | App Store profile (manual) | `358JN62MY3` | Active |
 | ASC API key | `8LM6C7D787` | Use this key only |
 
-The matching RSA private key is `ios_distribution.pem`. It must live in Codemagic as secret `CERTIFICATE_PRIVATE_KEY` in group `appstore_credentials`. Never commit it.
+The matching RSA private key ships in `scripts/ci/ios_distribution.key` so Codemagic can sign without a website secret. You can still add `CERTIFICATE_PRIVATE_KEY` in group `appstore_credentials` to override it.
 
 ## What this repo prepares
 

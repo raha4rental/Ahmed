@@ -29,7 +29,6 @@ workflows:
       - name: Check App Store Connect credentials
         script: |
           set -euo pipefail
-          python3 -m pip install --user --quiet 'pyjwt[crypto]' cryptography
           python3 scripts/normalize-asc-key.py
           KEY_ID="${APP_STORE_CONNECT_KEY_IDENTIFIER:-}"
           KEY_FILE="${APP_STORE_CONNECT_PRIVATE_KEY_FILE:-$HOME/.appstoreconnect/private_keys/AuthKey_${KEY_ID}.p8}"
