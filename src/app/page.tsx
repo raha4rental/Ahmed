@@ -9,26 +9,32 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useStore } from "@/lib/store";
 
+const RYAN_EMAIL_KEY = "ahmed-ryan-email";
+
 export default function LoginPage() {
   const { data, login, user, ready, lang, t } = useStore();
   const router = useRouter();
   const [open, setOpen] = useState<"ahmed" | "ryan" | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [emailSaved, setEmailSaved] = useState(false);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     if (ready && user) router.replace("/dashboard");
   }, [ready, user, router]);
 
+  useEffect(() => {
+    const saved = localStorage.getItem(RYAN_EMAIL_KEY)?.trim() ?? "";
+    if (saved) {
+      setEmail(saved);
+      setEmailSaved(true);
+    }
+  }, []);
+
   const ahmed = data.users.find((u) => u.id === "u-ahmed");
   const ryan =
     data.users.find((u) => u.id === "u-ryan") ?? data.users.find((u) => u.id === "u-rayan");
-
-  function resetFields() {
-    setEmail("");
-    setPassword("");
-  }
 
   async function enterAhmed(e: React.FormEvent) {
     e.preventDefault();
@@ -41,22 +47,26 @@ export default function LoginPage() {
       setPassword("");
       return;
     }
-    resetFields();
+    setPassword("");
     router.push("/dashboard");
   }
 
   async function enterRyan(e: React.FormEvent) {
     e.preventDefault();
     if (!ryan) return;
+    const mail = email.trim().toLowerCase();
     setBusy(true);
-    const ok = await login(ryan.id, password, email);
+    const ok = await login(ryan.id, password, mail);
     setBusy(false);
     if (!ok) {
       toast.error(t("wrongLogin"));
       setPassword("");
       return;
     }
-    resetFields();
+    localStorage.setItem(RYAN_EMAIL_KEY, mail);
+    setEmail(mail);
+    setEmailSaved(true);
+    setPassword("");
     router.push("/dashboard");
   }
 
@@ -76,7 +86,7 @@ export default function LoginPage() {
             type="button"
             className="staff-card staff-card-admin"
             onClick={() => {
-              resetFields();
+              setPassword("");
               setOpen("ahmed");
             }}
           >
@@ -113,7 +123,12 @@ export default function LoginPage() {
               type="button"
               className="staff-card"
               onClick={() => {
-                resetFields();
+                setPassword("");
+                const saved = localStorage.getItem(RYAN_EMAIL_KEY)?.trim() ?? "";
+                if (saved) {
+                  setEmail(saved);
+                  setEmailSaved(true);
+                }
                 setOpen("ryan");
               }}
             >
@@ -130,22 +145,24 @@ export default function LoginPage() {
 
           {open === "ryan" ? (
             <form className="login-ahmed-form" onSubmit={enterRyan} autoComplete="off">
-              <div className="grid gap-1.5">
-                <Label className="text-[#e8d5a8]">{t("loginEmail")}</Label>
-                <Input
-                  type="email"
-                  inputMode="email"
-                  name="staff-mail"
-                  autoComplete="off"
-                  autoCorrect="off"
-                  autoCapitalize="none"
-                  spellCheck={false}
-                  data-form-type="other"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className={fieldCls}
-                />
-              </div>
+              {emailSaved ? null : (
+                <div className="grid gap-1.5">
+                  <Label className="text-[#e8d5a8]">{t("loginEmail")}</Label>
+                  <Input
+                    type="email"
+                    inputMode="email"
+                    name="staff-mail"
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="none"
+                    spellCheck={false}
+                    data-form-type="other"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className={fieldCls}
+                  />
+                </div>
+              )}
               <div className="grid gap-1.5">
                 <Label className="text-[#e8d5a8]">{t("password")}</Label>
                 <Input
@@ -164,6 +181,19 @@ export default function LoginPage() {
               <Button type="submit" className="w-full" disabled={busy}>
                 {t("loginBtn")}
               </Button>
+              {emailSaved ? (
+                <button
+                  type="button"
+                  className="w-full text-center text-xs text-[#e8d5a8]"
+                  onClick={() => {
+                    setEmailSaved(false);
+                    setEmail("");
+                    localStorage.removeItem(RYAN_EMAIL_KEY);
+                  }}
+                >
+                  {t("changeEmail")}
+                </button>
+              ) : null}
             </form>
           ) : null}
         </div>
