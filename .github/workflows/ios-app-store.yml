@@ -62,7 +62,7 @@ jobs:
         run: |
           keychain initialize
           bash scripts/ci/import-ios-signing.sh
-          xcode-project use-profiles
+          security find-identity -v -p codesigning
 
       - name: Build number
         run: |

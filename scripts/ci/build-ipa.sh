@@ -3,45 +3,44 @@
 set -euo pipefail
 
 ROOT="${CM_BUILD_DIR:-$(cd "$(dirname "$0")/../.." && pwd)}"
-WS="$ROOT/ios/App/App.xcworkspace"
-PROJ="$ROOT/ios/App/App.xcodeproj"
+APP_DIR="$ROOT/ios/App"
+WS="$APP_DIR/App.xcworkspace"
+PROJ="$APP_DIR/App.xcodeproj"
 ARCHIVE="$ROOT/build/ios/xcarchive/App.xcarchive"
 IPA_DIR="$ROOT/build/ios/ipa"
 EXPORT="$ROOT/ios/ExportOptions.plist"
+SCHEME_SRC="$PROJ/xcshareddata/xcschemes/App.xcscheme"
+SCHEME_WS="$WS/xcshareddata/xcschemes/App.xcscheme"
 
-mkdir -p "$(dirname "$ARCHIVE")" "$IPA_DIR"
-
-echo "=== schemes ==="
-if [ -f "$WS/contents.xcworkspacedata" ]; then
-  xcodebuild -workspace "$WS" -list || true
-else
-  echo "Workspace data missing at $WS"
+mkdir -p "$(dirname "$ARCHIVE")" "$IPA_DIR" "$(dirname "$SCHEME_WS")"
+if [ -f "$SCHEME_SRC" ]; then
+  cp "$SCHEME_SRC" "$SCHEME_WS"
 fi
-xcodebuild -project "$PROJ" -list || true
-ls -la "$PROJ/xcshareddata/xcschemes" || true
-ls -la "$WS" || true
+
+cd "$APP_DIR"
+
+echo "Xcode $(xcodebuild -version | tr '\n' ' ')"
+echo "Working directory: $PWD"
+ls -la App.xcworkspace App.xcodeproj/xcshareddata/xcschemes App.xcworkspace/xcshareddata/xcschemes 2>/dev/null || true
+echo "--- identities ---"
 security find-identity -v -p codesigning || true
+echo "--- schemes ---"
+xcodebuild -workspace App.xcworkspace -list || xcodebuild -project App.xcodeproj -list
 
-ARCHIVE_ARGS=(
-  -scheme App
-  -configuration Release
-  -destination "generic/platform=iOS"
-  -archivePath "$ARCHIVE"
-  COMPILER_INDEX_STORE_ENABLE=NO
-  DEVELOPMENT_TEAM=VPT9SWM94A
-  CODE_SIGN_STYLE=Manual
-  CODE_SIGN_IDENTITY="Apple Distribution"
-  "CODE_SIGN_IDENTITY[sdk=iphoneos*]=Apple Distribution"
-  PROVISIONING_PROFILE_SPECIFIER="Ahmed App Store Codemagic"
-)
-
-if [ -f "$WS/contents.xcworkspacedata" ] && [ -d "$ROOT/ios/App/Pods" ]; then
-  echo "Archiving workspace $WS"
-  xcodebuild -workspace "$WS" "${ARCHIVE_ARGS[@]}" archive
-else
-  echo "Archiving project $PROJ"
-  xcodebuild -project "$PROJ" "${ARCHIVE_ARGS[@]}" archive
-fi
+echo "Archiving App (Release) for iOS"
+xcodebuild \
+  -workspace App.xcworkspace \
+  -scheme App \
+  -configuration Release \
+  -sdk iphoneos \
+  -destination "generic/platform=iOS" \
+  -archivePath "$ARCHIVE" \
+  DEVELOPMENT_TEAM=VPT9SWM94A \
+  CODE_SIGN_STYLE=Manual \
+  CODE_SIGN_IDENTITY="Apple Distribution" \
+  PROVISIONING_PROFILE_SPECIFIER="Ahmed App Store Codemagic" \
+  COMPILER_INDEX_STORE_ENABLE=NO \
+  archive
 
 echo "Exporting IPA"
 xcodebuild -exportArchive \
