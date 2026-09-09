@@ -5,7 +5,7 @@
   "appleId": "6810042737",
   "appStoreName": "السعدي",
   "primaryLocale": "ar-SA",
-  "codemagicIntegration": "Ahmed",
+  "codemagicIntegration": "ahmed",
   "issuerId": "c46c0b74-7d00-42b2-9786-333b76dacf91",
   "keyId": "R46D76UXCH",
   "teamId": "VPT9SWM94A",
@@ -13,5 +13,5 @@
   "distributionCertificateId": "JRU86YL2BU",
   "appStoreProfileId": "S9V76LJWYB",
   "appStoreProfileName": "Ahmed App Store Codemagic",
-  "note": "com.ahmed.app is not available on Apple globally. Registered com.darraha.ahmed instead. App record still must be created in the App Store Connect website."
+  "note": "App Store Connect app السعدي exists as 6810042737. First TestFlight build is still pending from Codemagic."
 }
