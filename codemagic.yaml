@@ -8,7 +8,7 @@
 # Distribution cert: JRU86YL2BU
 # Apple auth: scripts/ci/AuthKey_8LM6C7D787.key (no Codemagic UI integration required)
 # Info: store/codemagic.json  ·  store/github-codemagic.md
-# Push to main → iPhone IPA → TestFlight → App Store review (after Apple processes the build)
+# Push to main → iPhone IPA → upload to App Store Connect / TestFlight
 
 workflows:
   ios-app-store:
@@ -51,6 +51,7 @@ workflows:
       - name: Link App Store Connect
         script: |
           set -euo pipefail
+          python3 -m pip install --user --quiet 'PyJWT[crypto]' || true
           python3 scripts/normalize-asc-key.py
           KEY_ID="${APP_STORE_CONNECT_KEY_IDENTIFIER:-}"
           KEY_FILE="${APP_STORE_CONNECT_PRIVATE_KEY_FILE:-$HOME/.appstoreconnect/private_keys/AuthKey_${KEY_ID}.p8}"
@@ -59,6 +60,7 @@ workflows:
             exit 1
           fi
           echo "Using $KEY_FILE"
+          python3 "$CM_BUILD_DIR/scripts/ci/verify-apple-link.py"
       - name: Install JS
         script: |
           npm ci
@@ -93,6 +95,11 @@ workflows:
             BUILD_NUMBER=$((LATEST + 1))
           fi
           agvtool new-version -all "$BUILD_NUMBER" || true
+          echo "CFBundleVersion=$BUILD_NUMBER"
+      - name: Export options for this Xcode
+        script: |
+          set -euo pipefail
+          bash "$CM_BUILD_DIR/scripts/ci/write-export-options.sh" "$CM_BUILD_DIR/ios/ExportOptions.plist"
       - name: Build ipa
         script: |
           set -euo pipefail
@@ -106,6 +113,10 @@ workflows:
               tail -n 200 /tmp/xcodebuild_logs/*.log 2>/dev/null || true
               exit 65
             }
+      - name: Upload IPA to App Store Connect
+        script: |
+          set -euo pipefail
+          bash "$CM_BUILD_DIR/scripts/ci/publish-ipa.sh"
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
@@ -115,7 +126,6 @@ workflows:
         key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
         issuer_id: $APP_STORE_CONNECT_ISSUER_ID
         submit_to_testflight: true
-        submit_to_app_store: true
-        cancel_previous_submissions: true
-        release_type: AFTER_APPROVAL
+        submit_to_app_store: false
+        cancel_previous_submissions: false
         copyright: 2026 Ahmed Al Saadi Real Estate & Investments

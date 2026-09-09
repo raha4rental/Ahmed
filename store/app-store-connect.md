@@ -17,6 +17,11 @@ Use this key only. Do not use `R46D76UXCH`.
 
 Codemagic is linked in `codemagic.yaml` with `api_key` / `key_id` / `issuer_id`. A Developer Portal integration in the Codemagic website is optional.
 
+The IPA is uploaded by `scripts/ci/publish-ipa.sh`. After Apple processes it, open:
+
+- https://appstoreconnect.apple.com/apps/6810042737/testflight/ios
+- https://appstoreconnect.apple.com/apps/6810042737/appstore/ios/version/inflight
+
 ## في Codemagic / In Codemagic
 
-No website step is required. Push to `main` runs **Ahmed iOS — App Store**, which authenticates to Apple as key **`8LM6C7D787`**.
+No website step is required. Push to `main` runs **Ahmed iOS — App Store**, which authenticates to Apple as key **`8LM6C7D787`** and uploads the IPA to TestFlight.

@@ -12,9 +12,15 @@ Codemagic talks to Apple with API key **`8LM6C7D787`**. That key is in this repo
 | Issuer ID | `c46c0b74-7d00-42b2-9786-333b76dacf91` |
 | Key file | `scripts/ci/AuthKey_8LM6C7D787.key` |
 | Publishing | `api_key` + `key_id` + `issuer_id` in `codemagic.yaml` |
+| Upload | `scripts/ci/publish-ipa.sh` → App Store Connect / TestFlight |
 | Do not use | `R46D76UXCH` |
 
 A Codemagic UI integration named **Ahmed** is optional. The workflow no longer uses `auth: integration`.
+
+Where to see the build after a green run (wait until Apple shows **Processed**, often 5–20 minutes):
+
+- TestFlight iOS: https://appstoreconnect.apple.com/apps/6810042737/testflight/ios
+- Version 1.0.1: https://appstoreconnect.apple.com/apps/6810042737/appstore/ios/version/inflight
 
 ## App
 
@@ -36,9 +42,9 @@ A Codemagic UI integration named **Ahmed** is optional. The workflow no longer u
 
 | Workflow ID | Name | When | Result |
 | --- | --- | --- | --- |
-| `ios-app-store` | **Ahmed iOS — App Store** | Push to `main` | iPhone IPA → TestFlight → App Store (`AFTER_APPROVAL`) |
+| `ios-app-store` | **Ahmed iOS — App Store** | Push to `main` | iPhone IPA uploaded to App Store Connect / TestFlight |
 
-The iOS IPA is a normal App Store build (`testFlightInternalTestingOnly` is off).
+The iOS IPA is a normal App Store build (`testFlightInternalTestingOnly` is off). The workflow does **not** auto-submit **Add for Review** until App Privacy and screenshots are done.
 
 ## Environment variables (`codemagic.yaml`)
 
@@ -65,7 +71,10 @@ Group **`appstore_credentials`** is not required. Apple auth is in `codemagic.ya
 
 | File | Role |
 | --- | --- |
-| `scripts/ci/import-ios-signing.sh` | Builds a `.p12` and imports Apple Distribution into the Codemagic keychain |
+| `scripts/ci/import-ios-signing.sh` | Builds a `.p12` and imports Apple Distribution into the Codemagic keychain (`--allow-all-applications`) |
+| `scripts/ci/write-export-options.sh` | Writes ExportOptions for the Xcode on the Mac (`app-store-connect` on Xcode 15+) |
+| `scripts/ci/publish-ipa.sh` | Uploads the IPA to App Store Connect |
+| `scripts/ci/verify-apple-link.py` | Confirms API key `8LM6C7D787` can see السعدي |
 | `scripts/ci/AuthKey_8LM6C7D787.key` | App Store Connect API key (`8LM6C7D787`) |
 | `scripts/ci/ios_distribution.key` | Apple Distribution private key (cert `JRU86YL2BU`) |
 | `scripts/ci/ios_distribution.cer` | Apple Distribution public cert |
@@ -74,16 +83,15 @@ Group **`appstore_credentials`** is not required. Apple auth is in `codemagic.ya
 ## Publishing
 
 - Auth: API key **`8LM6C7D787`** (issuer `c46c0b74-7d00-42b2-9786-333b76dacf91`)
-- `submit_to_testflight: true`
-- `submit_to_app_store: true`
-- `cancel_previous_submissions: true`
-- `release_type: AFTER_APPROVAL`
+- Script upload: `app-store-connect publish --path <ipa>`
+- `submit_to_testflight: true` (Codemagic Magic Actions after Apple processes the build)
+- `submit_to_app_store: false` (do not Add for Review until App Privacy + screenshots)
 - Copyright: `2026 Ahmed Al Saadi Real Estate & Investments`
 
 ## What the iOS workflow does
 
-1. Load the App Store Connect API key (yaml + `scripts/ci/AuthKey_8LM6C7D787.key`)
+1. Load the App Store Connect API key (yaml + `scripts/ci/AuthKey_8LM6C7D787.key`) and confirm it can see **السعدي**
 2. Import Apple Distribution (`.p12` from cert + key) and the App Store profile
 3. Build the IPA for App Store
-4. Publish to TestFlight
-5. Submit version **1.0.1** to App Store review after Apple processes the build
+4. Upload the IPA to App Store Connect
+5. After Apple processing, the build appears in TestFlight → iOS

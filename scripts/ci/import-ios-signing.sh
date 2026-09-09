@@ -74,7 +74,10 @@ cp "$P12" "$CERT_DIR/ios_distribution.p12"
 imported=0
 for candidate in "$P12" "$WORK/ios_distribution-legacy.p12"; do
   [ -f "$candidate" ] || continue
-  if keychain add-certificates --certificate "$candidate" --certificate-password "$PASS"; then
+  if keychain add-certificates \
+      --certificate "$candidate" \
+      --certificate-password "$PASS" \
+      --allow-all-applications; then
     echo "Imported signing identity from $candidate"
     imported=1
     break

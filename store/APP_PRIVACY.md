@@ -23,7 +23,7 @@ https://github.com/raha4rental/Ahmed/blob/main/store/PRIVACY.md
 
 ## Build / البناء
 
-You must also choose a build. App Store Connect currently has **0** iPhone builds. After Codemagic finishes **Ahmed iOS — App Store**, wait until the build is **Processed**, then:
+You must also choose a build. After Codemagic finishes **Ahmed iOS — App Store**, wait until the build is **Processed** (https://appstoreconnect.apple.com/apps/6810042737/testflight/ios), then:
 
 1. Version **1.0.1** → Build → select the new IPA
 2. Add for Review
