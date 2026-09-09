@@ -73,16 +73,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div dir={dir} className="app-device">
       <header className="app-topbar">
         <div className="app-topbar-brand">
-          <button type="button" className="app-topbar-action" onClick={goBack}>
+          <button type="button" className="app-topbar-action" onClick={goBack} aria-label={t("back")}>
             <BackIcon className="size-5" />
-            <span>{t("back")}</span>
           </button>
-          <img src="/logo.png" alt="" className="app-topbar-logo" />
-          <button type="button" className="app-topbar-action app-topbar-logout" onClick={signOut}>
+          <img src="/logo.png" alt="Ahmed" className="app-topbar-logo" />
+          <button type="button" className="app-topbar-action app-topbar-logout" onClick={signOut} aria-label={t("logout")}>
             <LogOut className="size-4" />
-            <span>{t("logout")}</span>
           </button>
         </div>
+        <svg className="app-topbar-flow" viewBox="0 0 430 20" preserveAspectRatio="none" aria-hidden>
+          <path d="M0 20V8C72 20 140 2 215 8C290 14 358 2 430 12V20Z" fill="#fbf6ec" />
+          <path
+            d="M0 8C72 20 140 2 215 8C290 14 358 2 430 12"
+            fill="none"
+            stroke="#c4a574"
+            strokeWidth="1.4"
+            opacity="0.7"
+          />
+        </svg>
       </header>
       <main className="app-scroll">{children}</main>
       <nav className="app-tabbar">
