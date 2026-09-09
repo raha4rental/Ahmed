@@ -15,6 +15,7 @@ import { activeStay, currentBooking, guestName, remaining, statusLabel, userName
 import type { ApartmentStatus, ChecklistItem, Lang } from "@/lib/types";
 import { hotelReady, hotelZones, zoneProgress } from "@/lib/hotel-checklist";
 import { handoverPath } from "@/lib/handover-checklist";
+import { ApartmentPhotoPicker } from "@/components/apartment-photos";
 
 export default function ApartmentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -68,11 +69,26 @@ export default function ApartmentDetailPage({ params }: { params: Promise<{ id: 
         }
       />
 
-      <div className="grid gap-2 sm:grid-cols-3">
-        {apt.photos.map((src) => (
-          <img key={src} src={src} alt="" className="h-44 w-full rounded-2xl object-cover" />
-        ))}
-      </div>
+      {can.addApartment(user.role) ? (
+        <section className="raha-card p-4">
+          <ApartmentPhotoPicker
+            photos={apt.photos}
+            onChange={(photos) => updateApartment(apt.id, { photos })}
+          />
+        </section>
+      ) : (
+        <div className="grid grid-cols-2 gap-2">
+          {apt.photos.length ? (
+            apt.photos.map((src, i) => (
+              <img key={`${i}-${src.slice(0, 18)}`} src={src} alt="" className="h-36 w-full rounded-2xl object-cover" />
+            ))
+          ) : (
+            <div className="col-span-2 flex h-36 items-center justify-center rounded-2xl bg-[#ece4d4] text-sm text-muted-foreground">
+              {t("photos")}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-2">
         {booking && booking.status === "booked" && can.checkInOut(user.role) ? (

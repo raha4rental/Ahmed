@@ -79,8 +79,10 @@ export default function ApartmentsPage() {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {list.map((a) => (
           <Link key={a.id} href={`/apartments/${a.id}`} className="raha-card group overflow-hidden">
-            <div className="relative h-40 overflow-hidden">
-              <img src={a.photos[0]} alt="" className="size-full object-cover transition duration-500 group-hover:scale-105" />
+            <div className="relative h-40 overflow-hidden bg-[#ece4d4]">
+              {a.photos[0] ? (
+                <img src={a.photos[0]} alt="" className="size-full object-cover transition duration-500 group-hover:scale-105" />
+              ) : null}
               <div className="absolute start-3 top-3">
                 <AptStatus status={a.status} label={statusLabel(a.status, t)} />
               </div>

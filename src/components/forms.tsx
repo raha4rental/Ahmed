@@ -19,6 +19,7 @@ import { can } from "@/lib/permissions";
 import type { ExpenseCategory, MaintenancePriority, PaymentMethod } from "@/lib/types";
 import { TODAY } from "@/lib/format";
 import { readImageFile } from "@/lib/image";
+import { ApartmentPhotoPicker } from "@/components/apartment-photos";
 
 const field = "grid gap-1.5";
 const selectCls =
@@ -43,6 +44,7 @@ export function AddApartmentDialog({
   const [cleaningFee, setCleaningFee] = useState(95);
   const [deposit, setDeposit] = useState(300);
   const [description, setDescription] = useState("");
+  const [photos, setPhotos] = useState<string[]>([]);
 
   function save() {
     if (!number.trim()) return;
@@ -54,9 +56,7 @@ export function AddApartmentDialog({
       bathrooms,
       description: description || `Unit ${number} in ${city}.`,
       descriptionAr: description || `شقة ${number} في ${city}.`,
-      photos: [
-        "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1400&q=80",
-      ],
+      photos,
       status: "ready",
       pricing: {
         base,
@@ -75,6 +75,7 @@ export function AddApartmentDialog({
     toast.success(t("created"));
     onOpenChange(false);
     setNumber("");
+    setPhotos([]);
   }
 
   return (
@@ -131,6 +132,9 @@ export function AddApartmentDialog({
           <div className={`${field} sm:col-span-2`}>
             <Label>{t("description")}</Label>
             <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} />
+          </div>
+          <div className="sm:col-span-2">
+            <ApartmentPhotoPicker photos={photos} onChange={setPhotos} />
           </div>
         </div>
         <DialogFooter>
