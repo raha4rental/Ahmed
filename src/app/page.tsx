@@ -104,29 +104,36 @@ export default function LoginPage() {
       <img src="/login-buildings.jpg" alt="" className="login-photo" />
       <div className="login-veil" />
 
-      <div className="login-inner">
-        <div className="login-lang" ref={langRef}>
-          <button
-            type="button"
-            className="login-lang-btn"
-            onClick={() => setLangOpen((v) => !v)}
-            aria-expanded={langOpen}
-          >
-            <Globe className="size-3.5" />
-            <span>{lang === "ar" ? t("langArabic") : t("langEnglish")}</span>
-            <ChevronDown className="size-3.5" />
-          </button>
-          {langOpen ? (
-            <div className="login-lang-menu">
-              <button type="button" onClick={() => pickLang("ar")}>
-                {t("langArabic")}
-              </button>
-              <button type="button" onClick={() => pickLang("en")}>
-                {t("langEnglish")}
-              </button>
-            </div>
-          ) : null}
+      <header className="app-topbar">
+        <div className="app-topbar-inner" ref={langRef}>
+          <span />
+          <span className="app-topbar-word">{t("appName")}</span>
+          <div className="login-lang app-topbar-logout">
+            <button
+              type="button"
+              className="login-lang-btn"
+              onClick={() => setLangOpen((v) => !v)}
+              aria-expanded={langOpen}
+            >
+              <Globe className="size-3.5" />
+              <span>{lang === "ar" ? t("langArabic") : t("langEnglish")}</span>
+              <ChevronDown className="size-3.5" />
+            </button>
+            {langOpen ? (
+              <div className="login-lang-menu">
+                <button type="button" onClick={() => pickLang("ar")}>
+                  {t("langArabic")}
+                </button>
+                <button type="button" onClick={() => pickLang("en")}>
+                  {t("langEnglish")}
+                </button>
+              </div>
+            ) : null}
+          </div>
         </div>
+      </header>
+
+      <div className="login-inner">
 
         <header className="login-brand">
           <img src="/logo.png" alt="Ahmed Al Saadi" className="login-logo" />
