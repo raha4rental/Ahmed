@@ -21,16 +21,16 @@ npm run dev
 
 Open `http://127.0.0.1:4721`.
 
-## Native app (iPhone first)
+## Native app (iPhone only)
 
-iOS is the primary app. Android is secondary.
+The native app is **iPhone only** — not iPad, not Android, not Mac.
 
 ```bash
 npm run build:native
 npx cap open ios
 ```
 
-Then in Xcode: select your iPhone or a simulator → Run.
+Then in Xcode: select an iPhone or iPhone simulator → Run.
 
 The iPhone build:
 
@@ -38,6 +38,7 @@ The iPhone build:
 - Asks for camera + photo library for apartment photos, guest ID, and cleaning photos
 - Fills the screen under the notch / Dynamic Island
 - Is portrait-only
+- Device family: iPhone (`TARGETED_DEVICE_FAMILY = 1`)
 
 Bundle ID `com.darraha.ahmed`. App Store record **السعدي** (Apple ID `6810042737`). Codemagic uses App Store Connect key **`8LM6C7D787`**. Details: `store/github-codemagic.md`
 
@@ -48,11 +49,10 @@ Every push to `main` runs **Ahmed iOS — App Store** → TestFlight → App Sto
 Repo: `https://github.com/raha4rental/Ahmed`
 
 1. Codemagic app **Ahmed** is linked to Apple with key **`8LM6C7D787`** in `codemagic.yaml` (no website integration required)
-2. Workflows in `codemagic.yaml`:
-   - **Ahmed iOS — App Store** → TestFlight + App Store (on push to `main`)
-   - **Ahmed Android** → APK (manual)
+2. Workflow in `codemagic.yaml`:
+   - **Ahmed iOS — App Store** → iPhone IPA → TestFlight + App Store (on push to `main`)
 3. Full Codemagic info: `store/codemagic.json` and `store/github-codemagic.md`
 
 ## Database
 
-SQLite at `prisma/raha.db`. The web preview uses `/api/state`. The iOS/Android build uses the on-device store (no server required).
+SQLite at `prisma/raha.db`. The web preview uses `/api/state`. The iPhone build uses the on-device store (no server required).

@@ -36,8 +36,7 @@ A Codemagic UI integration named **Ahmed** is optional. The workflow no longer u
 
 | Workflow ID | Name | When | Result |
 | --- | --- | --- | --- |
-| `ios-app-store` | **Ahmed iOS — App Store** | Push to `main` | IPA → TestFlight → App Store (`AFTER_APPROVAL`) |
-| `android-internal` | **Ahmed Android** | Manual | Debug APK |
+| `ios-app-store` | **Ahmed iOS — App Store** | Push to `main` | iPhone IPA → TestFlight → App Store (`AFTER_APPROVAL`) |
 
 The iOS IPA is a normal App Store build (`testFlightInternalTestingOnly` is off).
 

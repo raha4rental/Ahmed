@@ -8,7 +8,7 @@
 # Distribution cert: JRU86YL2BU
 # Apple auth: scripts/ci/AuthKey_8LM6C7D787.key (no Codemagic UI integration required)
 # Info: store/codemagic.json  ·  store/github-codemagic.md
-# Push to main → IPA → TestFlight → App Store review (after Apple processes the build)
+# Push to main → iPhone IPA → TestFlight → App Store review (after Apple processes the build)
 
 workflows:
   ios-app-store:
@@ -141,24 +141,3 @@ workflows:
         cancel_previous_submissions: true
         release_type: AFTER_APPROVAL
         copyright: 2026 Ahmed Al Saadi Real Estate & Investments
-
-  android-internal:
-    name: Ahmed Android
-    instance_type: linux
-    max_build_duration: 60
-    environment:
-      java: 17
-      node: 22
-    scripts:
-      - name: Install
-        script: |
-          npm ci
-          npx prisma generate
-          npm run build:native
-      - name: Assemble debug APK
-        script: |
-          cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug
-    artifacts:
-      - android/app/build/outputs/apk/debug/*.apk

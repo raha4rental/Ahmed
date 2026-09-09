@@ -24,6 +24,13 @@ Codemagic signs and publishes with:
 
 Arabic + English copy, privacy URL, Business category, and review notes are set on App Store Connect for version **1.0.1**.
 
+## Before Add for Review
+
+1. **Build:** App Store Connect has no IPA until Codemagic uploads one. After it is **Processed**, choose that build on version 1.0.1.
+2. **App Privacy:** an Admin must publish answers. Steps: `store/APP_PRIVACY.md`  
+   https://appstoreconnect.apple.com/apps/6810042737/appPrivacy  
+   Choose **No, we do not collect data from this app** → Save → Publish.
+
 ## Codemagic
 
 See `store/codemagic.json` and `store/github-codemagic.md`. Push to `main` runs **Ahmed iOS — App Store** → TestFlight → App Store review after Apple processes the build.

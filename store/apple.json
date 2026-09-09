@@ -5,6 +5,7 @@
   "appleId": "6810042737",
   "appStoreName": "السعدي",
   "version": "1.0.1",
+  "deviceFamily": "iPhone",
   "primaryLocale": "ar-SA",
   "secondaryLocale": "en-US",
   "category": "BUSINESS",

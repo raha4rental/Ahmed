@@ -9,16 +9,12 @@
       "name": "Ahmed iOS — App Store",
       "instance": "mac_mini_m2",
       "trigger": "push to main",
+      "deviceFamily": "iPhone",
       "submitToTestFlight": true,
       "submitToAppStore": true,
       "releaseType": "AFTER_APPROVAL",
       "testFlightInternalTestingOnly": false,
       "appleAuth": "api_key"
-    },
-    "android-internal": {
-      "name": "Ahmed Android",
-      "instance": "linux",
-      "trigger": "manual"
     }
   },
   "bundleId": "com.darraha.ahmed",

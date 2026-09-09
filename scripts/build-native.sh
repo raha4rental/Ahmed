@@ -27,6 +27,6 @@ if [ -f out/index.html ]; then
   cp out/index.html out/404.html
 fi
 
-npx cap sync
+npx cap sync ios
 restore_api
 trap - EXIT

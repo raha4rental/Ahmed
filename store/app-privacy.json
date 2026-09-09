@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "appId": "6810042737",
+  "privacyPolicyUrl": "https://github.com/raha4rental/Ahmed/blob/main/store/PRIVACY.md",
+  "dataUsages": [
+    {
+      "dataProtections": ["DATA_NOT_COLLECTED"]
+    }
+  ],
+  "note": "On-device staff app. No analytics, ads, tracking, or server collection. An App Store Connect Admin must publish this in App Privacy: No, we do not collect data from this app."
+}
