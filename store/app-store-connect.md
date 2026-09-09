@@ -26,4 +26,6 @@ Ahmed is a private internal property management and operations app. Ahmed Al-Saa
 
 ## Codemagic
 
-Connect this GitHub repository in Codemagic, add the App Store Connect API key, then run the `Ahmed iOS — App Store` workflow in `codemagic.yaml`.
+Full GitHub + Codemagic steps: `store/github-codemagic.md`
+
+Connect the **Ahmed** GitHub repository in Codemagic, add the App Store Connect API key named **Ahmed**, then run `Ahmed iOS — App Store`.

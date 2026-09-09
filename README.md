@@ -1,6 +1,6 @@
 # Ahmed
 
-تطبيق جوال داخلي لإدارة وتشغيل الشقق.
+تطبيق جوال داخلي لإدارة وتشغيل الشقق — ليس موقعًا.
 
 **App name:** Ahmed  
 **Ahmed Al-Saadi** — Super Admin / Management  
@@ -8,7 +8,9 @@
 
 Private staff app. No guest login. No customer booking.
 
-## Run
+Bundle ID: `com.ahmed.app`
+
+## Run (phone preview)
 
 ```bash
 npm install
@@ -17,17 +19,27 @@ npm run db:seed
 npm run dev
 ```
 
-Open `http://127.0.0.1:4721`. On a phone, Add to Home Screen.
+Open `http://127.0.0.1:4721`.
+
+## Native app (iOS / Android)
+
+```bash
+npm run build:native
+npx cap open ios
+npx cap open android
+```
+
+## GitHub + Codemagic
+
+This agent cannot sign in to GitHub or Codemagic. Publish steps: `store/github-codemagic.md`
+
+1. Click **Create repo** in Cursor and name it **Ahmed** — or create `https://github.com/raha4rental/Ahmed`
+2. Sign in to [Codemagic](https://codemagic.io) with that GitHub account and add the **Ahmed** app
+3. Workflows in `codemagic.yaml`:
+   - **Ahmed iOS — App Store** → TestFlight
+   - **Ahmed Android** → APK
+4. App Store Connect: `store/app-store-connect.md`
 
 ## Database
 
-SQLite at `prisma/raha.db` (created on first push). The app reads and writes the live snapshot through `/api/state`. Switch to Postgres later with `DATABASE_URL`.
-
-## GitHub → Codemagic → App Store Connect
-
-1. Create a GitHub repository named **Ahmed** and push this project.
-2. In [Codemagic](https://codemagic.io) connect that GitHub repo. The workflow is `codemagic.yaml` (`Ahmed iOS — App Store`).
-3. In [App Store Connect](https://appstoreconnect.apple.com) create the iOS app **Ahmed**, bundle ID `com.ahmed.app`. Steps: `store/app-store-connect.md`.
-4. Add the App Store Connect API key to Codemagic, then run the iOS workflow to TestFlight.
-
-Capacitor app id: `com.ahmed.app`.
+SQLite at `prisma/raha.db`. The web preview uses `/api/state`. The iOS/Android build uses the on-device store (no server required).

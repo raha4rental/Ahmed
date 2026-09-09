@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack --port 4721 --hostname 127.0.0.1",
     "build": "next build --turbopack",
+    "build:native": "bash scripts/build-native.sh",
     "start": "next start",
     "lint": "eslint",
     "db:generate": "prisma generate",

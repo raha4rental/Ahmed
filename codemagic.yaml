@@ -13,22 +13,22 @@ workflows:
         XCODE_SCHEME: App
         APP_STORE_APPLE_ID: "REPLACE_AFTER_CONNECT"
       node: 22
+      cocoapods: default
     scripts:
-      - name: Install
+      - name: Install JS
         script: |
           npm ci
           npx prisma generate
-          npx prisma db push
-          npm run db:seed
-      - name: Web build
-        script: npm run build
-      - name: Sync Capacitor iOS
-        script: npx cap sync ios
+      - name: Native web + Capacitor iOS
+        script: |
+          npm run build:native
+          cd ios/App
+          pod install
       - name: Build ipa
         script: |
           xcode-project use-profiles
           xcode-project build-ipa \
-            --project "$XCODE_PROJECT" \
+            --workspace ios/App/App.xcworkspace \
             --scheme "$XCODE_SCHEME"
     artifacts:
       - build/ios/ipa/*.ipa
@@ -47,12 +47,14 @@ workflows:
       node: 22
     scripts:
       - name: Install
-        script: npm ci && npx prisma generate && npm run build
-      - name: Sync Capacitor
-        script: npx cap sync android
-      - name: Assemble
+        script: |
+          npm ci
+          npx prisma generate
+          npm run build:native
+      - name: Assemble debug APK
         script: |
           cd android
-          ./gradlew assembleRelease
+          chmod +x gradlew
+          ./gradlew assembleDebug
     artifacts:
-      - android/app/build/outputs/**/*.apk
+      - android/app/build/outputs/apk/debug/*.apk
