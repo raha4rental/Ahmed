@@ -24,15 +24,42 @@ workflows:
       node: 22
       cocoapods: default
     scripts:
+      - name: Check App Store Connect credentials
+        script: |
+          set -euo pipefail
+          if [ -z "${APP_STORE_CONNECT_PRIVATE_KEY:-}" ]; then
+            echo "App Store Connect .p8 is missing in this build."
+            echo "Codemagic → Team integrations → Developer Portal: key name must be exactly: ahmed"
+            echo "Or add secret APP_STORE_CONNECT_PRIVATE_KEY on the Ahmed app."
+            exit 1
+          fi
+          echo "Issuer: ${APP_STORE_CONNECT_ISSUER_ID:-missing}"
+          echo "Key ID: ${APP_STORE_CONNECT_KEY_IDENTIFIER:-missing}"
+          echo "Private key: present"
+          mkdir -p "$HOME/.appstoreconnect/private_keys" "$HOME/private_keys"
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          raw = os.environ["APP_STORE_CONNECT_PRIVATE_KEY"].replace("\\n", "\n").strip()
+          if "BEGIN" not in raw:
+              raise SystemExit("APP_STORE_CONNECT_PRIVATE_KEY is not a PEM .p8 key")
+          text = raw + "\n"
+          kid = os.environ.get("APP_STORE_CONNECT_KEY_IDENTIFIER", "R46D76UXCH")
+          for folder in (
+              Path.home() / ".appstoreconnect/private_keys",
+              Path.home() / "private_keys",
+              Path("private_keys"),
+          ):
+              folder.mkdir(parents=True, exist_ok=True)
+              path = folder / f"AuthKey_{kid}.p8"
+              path.write_text(text)
+              path.chmod(0o600)
+              print(f"wrote {path}")
+          PY
       - name: Install JS
         script: |
           npm ci
           npx prisma generate
-      - name: Register bundle ID on Apple
-        script: |
-          app-store-connect bundle-ids create "$BUNDLE_ID" \
-            --name "Ahmed" \
-            --platform IOS || true
       - name: Native web + Capacitor iOS
         script: |
           npm run build:native
@@ -44,7 +71,10 @@ workflows:
         script: |
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
             --type IOS_APP_STORE \
-            --create
+            --create \
+            --issuer-id @env:APP_STORE_CONNECT_ISSUER_ID \
+            --key-id @env:APP_STORE_CONNECT_KEY_IDENTIFIER \
+            --private-key @env:APP_STORE_CONNECT_PRIVATE_KEY
       - name: Add certificates to keychain
         script: keychain add-certificates
       - name: Set up code signing
@@ -55,7 +85,11 @@ workflows:
         script: |
           cd "$CM_BUILD_DIR/ios/App"
           BUILD_NUMBER="${CM_BUILD_NUMBER:-$(date +%Y%m%d%H%M)}"
-          LATEST=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APPLE_ID" 2>/dev/null || true)
+          LATEST=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APPLE_ID" \
+            --issuer-id @env:APP_STORE_CONNECT_ISSUER_ID \
+            --key-id @env:APP_STORE_CONNECT_KEY_IDENTIFIER \
+            --private-key @env:APP_STORE_CONNECT_PRIVATE_KEY \
+            2>/dev/null || true)
           if [ -n "$LATEST" ] && [ "$LATEST" -eq "$LATEST" ] 2>/dev/null; then
             BUILD_NUMBER=$((LATEST + 1))
           fi
@@ -70,8 +104,10 @@ workflows:
       - /tmp/xcodebuild_logs/*.log
     publishing:
       app_store_connect:
-        auth: integration
-        submit_to_testflight: true 
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: R46D76UXCH
+        issuer_id: c46c0b74-7d00-42b2-9786-333b76dacf91
+        submit_to_testflight: true
 
   android-internal:
     name: Ahmed Android

@@ -1,46 +1,21 @@
 # ربط أحمد بـ App Store Connect / Connect Ahmed to App Store Connect
 
-## Status
+التطبيق على آبل: **السعدي** (`com.darraha.ahmed`, Apple ID `6810042737`).
 
-Connected with API key `R46D76UXCH` (Issuer `c46c0b74-7d00-42b2-9786-333b76dacf91`).
+The app on Apple is **السعدي**.
 
-تم تسجيل المعرّف والملف الشخصي على آبل. Apple refused `com.ahmed.app` (already taken worldwide), so Ahmed uses **`com.darraha.ahmed`**.
+## خطأ التوكن / Bearer token error
 
-The `.p8` is not in git. Apple still blocks creating the **app record** via API — that one click is left.
+Codemagic must have the `.p8` file, not only the Issuer ID. The key name must be exactly **`ahmed`**.
 
-| Item | Value |
-| --- | --- |
-| App name | Ahmed |
-| Bundle ID | `com.darraha.ahmed` |
-| Team | `VPT9SWM94A` |
-| SKU | `ahmed-property-ops` |
-| Profile | Ahmed App Store (`358JN62MY3`) |
-| Codemagic key name | **Ahmed** |
+في Codemagic:
 
-Existing apps on this Apple team: **DAR RAHA** (`com.darraha.rahaApp`), **voya** (`com.laffa.laffa`).
+1. Team settings → Team integrations → **Developer Portal**
+2. Key name: **`ahmed`** (كل الحروف صغيرة / all lowercase)
+3. Issuer ID: `c46c0b74-7d00-42b2-9786-333b76dacf91`
+4. Key ID: `R46D76UXCH`
+5. Upload the file `AuthKey_R46D76UXCH.p8` (the download from Apple — not a screenshot, not the YAML)
 
----
+Then start **Ahmed iOS — App Store**.
 
-## Remaining click / الخطوة المتبقية
-
-1. Open [New App](https://appstoreconnect.apple.com/apps)
-   - iOS · Name `Ahmed` · Arabic · Bundle ID **`com.darraha.ahmed`** · SKU `ahmed-property-ops`
-2. Codemagic → Team integrations → Developer Portal → key name **Ahmed**
-   - Issuer ID `c46c0b74-7d00-42b2-9786-333b76dacf91`
-   - Key ID `R46D76UXCH`
-   - Upload the same `.p8`
-3. Codemagic → App **Ahmed** → Environment variables → add **secret** `CERTIFICATE_PRIVATE_KEY` (the iOS distribution RSA key — not the `.p8`)
-4. Start **Ahmed iOS — App Store**
-
-Add Ahmed Al-Saadi and Ryan in TestFlight → Internal Testing.
-
----
-
-## Listing copy
-
-**Subtitle:** إدارة وتشغيل الشقق
-
-**Description:**  
-تطبيق أحمد الداخلي لإدارة وتشغيل الشقق. أحمد السعدي — إدارة كاملة. رايان — تشغيل يومي.
-
-Ahmed is a private internal property management and operations app. Ahmed Al-Saadi has full management access. Ryan handles daily operations.
+If the name in Codemagic is `Ahmed` with a capital A, rename it to `ahmed` or the token will fail.
