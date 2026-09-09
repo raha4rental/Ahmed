@@ -11,7 +11,7 @@ workflows:
           include: true
           source: true
     integrations:
-      app_store_connect: Ahmed
+      app_store_connect: ahmed
     environment:
       vars:
         BUNDLE_ID: com.darraha.ahmed
