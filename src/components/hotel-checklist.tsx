@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { Camera, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { ChecklistItem, Lang } from "@/lib/types";
 import { hotelReady, hotelZones, zoneProgress } from "@/lib/hotel-checklist";
 import { cn } from "@/lib/utils";
+import { pickImage } from "@/lib/native";
 
 export function HotelChecklist({
   list,
@@ -115,7 +116,6 @@ function CheckRow({
   onToggleNote: () => void;
   onPatch: (u: Partial<ChecklistItem>) => void;
 }) {
-  const fileRef = useRef<HTMLInputElement>(null);
   const title = lang === "ar" ? item.labelAr : item.label;
   const done = item.passed === true || (item.kind === "photo" && !!item.photo);
   const problem = item.passed === false;
@@ -158,7 +158,14 @@ function CheckRow({
         >
           ❌ {labels.problem}
         </Button>
-        <Button size="xs" variant={item.photo ? "default" : "outline"} onClick={() => fileRef.current?.click()}>
+        <Button
+          size="xs"
+          variant={item.photo ? "default" : "outline"}
+          onClick={async () => {
+            const src = await pickImage(1200);
+            if (src) onPatch({ photo: src, passed: true });
+          }}
+        >
           <Camera className="size-3" />
           {labels.photo}
         </Button>
@@ -166,20 +173,6 @@ function CheckRow({
           <MessageSquare className="size-3" />
           {labels.note}
         </Button>
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = () => onPatch({ photo: String(reader.result), passed: true });
-            reader.readAsDataURL(file);
-          }}
-        />
       </div>
       {item.photo ? (
         <img src={item.photo.startsWith("data:") || item.photo.startsWith("http") ? item.photo : ""} alt="" className="mt-2 h-16 w-24 rounded-lg object-cover" />

@@ -19,6 +19,7 @@ import { useStore } from "@/lib/store";
 import { bottomNav } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
 import type { CopyKey } from "@/lib/i18n";
+import { appPath } from "@/lib/paths";
 
 const icons: Record<string, React.ComponentType<{ className?: string }>> = {
   home: Home,
@@ -49,7 +50,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   const items = bottomNav(user.role);
   const dir = lang === "ar" ? "rtl" : "ltr";
-  const atHome = pathname === "/dashboard";
+  const path = appPath(pathname);
+  const atHome = path === "/dashboard";
   const BackIcon = lang === "ar" ? ChevronRight : ChevronLeft;
 
   function goBack() {
@@ -86,8 +88,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             const Icon = icons[item.icon] ?? Home;
             const active =
               item.href === "/more"
-                ? pathname === "/more"
-                : pathname === item.href || pathname.startsWith(item.href + "/");
+                ? path === "/more"
+                : path === item.href || path.startsWith(item.href + "/");
             return (
               <Link
                 key={item.href}

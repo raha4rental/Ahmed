@@ -15,7 +15,7 @@ Or: [github.com/new](https://github.com/new) → `raha4rental` / `Ahmed` → Pri
 3. Apps → **Add application** → GitHub → **Ahmed**
 4. Start workflow **Ahmed Android**
 
-The APK appears under that build’s artifacts.
+The APK appears under that build’s artifacts. Android does **not** auto-run on push; iOS is the triggered workflow.
 
 ## 3. iOS TestFlight (priority)
 

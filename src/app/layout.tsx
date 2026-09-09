@@ -3,6 +3,7 @@ import { IBM_Plex_Sans_Arabic, Fraunces } from "next/font/google";
 import { StoreProvider } from "@/lib/store";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { NativeInit } from "@/components/native-init";
 import "./globals.css";
 
 const sans = IBM_Plex_Sans_Arabic({
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
     title: "Ahmed",
     statusBarStyle: "black-translucent",
   },
-  icons: { icon: "/logo.png", apple: "/logo.png" },
+  icons: { icon: "/logo.png", apple: "/apple-touch-icon.png" },
   manifest: "/manifest.json",
 };
 
@@ -44,6 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="font-sans">
         <TooltipProvider>
           <StoreProvider>
+            <NativeInit />
             {children}
             <Toaster />
           </StoreProvider>

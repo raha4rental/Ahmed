@@ -58,6 +58,7 @@ export function SignaturePad({
   }
 
   function start(e: React.PointerEvent<HTMLCanvasElement>) {
+    e.preventDefault();
     const ctx = canvasRef.current?.getContext("2d");
     if (!ctx) return;
     drawing.current = true;
@@ -93,6 +94,7 @@ export function SignaturePad({
           onPointerDown={start}
           onPointerMove={move}
           onPointerUp={end}
+          onPointerCancel={end}
           onPointerLeave={end}
         />
       </div>

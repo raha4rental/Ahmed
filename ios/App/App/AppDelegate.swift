@@ -7,7 +7,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        window?.backgroundColor = UIColor(red: 14.0 / 255.0, green: 28.0 / 255.0, blue: 24.0 / 255.0, alpha: 1)
+        UIScrollView.appearance().keyboardDismissMode = .interactive
         return true
     }
 

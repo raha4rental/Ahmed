@@ -21,15 +21,27 @@ npm run dev
 
 Open `http://127.0.0.1:4721`.
 
-## Native app (iOS / Android)
+## Native app (iPhone first)
+
+iOS is the primary app. Android is secondary.
 
 ```bash
 npm run build:native
 npx cap open ios
-npx cap open android
 ```
 
-iPhone needs camera and photo-library permission in Xcode / Info.plist (already included). Codemagic still needs your App Store Connect key named **Ahmed** and the App Store certificate + profile for `com.ahmed.app`.
+Then in Xcode: select your iPhone or a simulator → Run.
+
+The iPhone build:
+
+- Uses the on-device store (no server)
+- Asks for camera + photo library for apartment photos, guest ID, and cleaning photos
+- Fills the screen under the notch / Dynamic Island
+- Is portrait-only
+
+Codemagic still needs your App Store Connect key named **Ahmed** and the App Store certificate + profile for `com.ahmed.app`. After that, every push to `main` builds TestFlight.
+
+See `store/github-codemagic.md` and `store/app-store-connect.md`.
 
 ## GitHub + Codemagic
 

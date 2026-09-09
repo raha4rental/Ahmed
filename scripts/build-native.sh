@@ -21,6 +21,12 @@ fi
 
 export NATIVE=1
 npx next build
+
+# iPhone WKWebView: keep a root fallback if a static file is missing.
+if [ -f out/index.html ]; then
+  cp out/index.html out/404.html
+fi
+
 npx cap sync
 restore_api
 trap - EXIT

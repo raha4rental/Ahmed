@@ -1,10 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Camera, X } from "lucide-react";
 import { toast } from "sonner";
 import { useStore } from "@/lib/store";
-import { readImageFile } from "@/lib/image";
+import { pickImage } from "@/lib/native";
 
 export const MAX_APARTMENT_PHOTOS = 10;
 
@@ -16,30 +16,23 @@ export function ApartmentPhotoPicker({
   onChange: (next: string[]) => void;
 }) {
   const { t } = useStore();
-  const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const left = MAX_APARTMENT_PHOTOS - photos.length;
 
-  async function addFiles(files: FileList | File[]) {
-    const room = MAX_APARTMENT_PHOTOS - photos.length;
-    if (room <= 0) {
+  async function addPhoto() {
+    if (left <= 0) {
       toast.error(t("maxPhotos"));
       return;
     }
-    const picked = Array.from(files).filter((f) => f.type.startsWith("image/")).slice(0, room);
-    if (!picked.length) return;
     setBusy(true);
     try {
-      const next = [...photos];
-      for (const file of picked) {
-        next.push(await readImageFile(file, 1200));
-      }
-      onChange(next);
+      const src = await pickImage(1200);
+      if (!src) return;
+      onChange([...photos, src]);
     } catch {
       toast.error(t("addPhotos"));
     } finally {
       setBusy(false);
-      if (fileRef.current) fileRef.current.value = "";
     }
   }
 
@@ -70,23 +63,13 @@ export function ApartmentPhotoPicker({
             type="button"
             disabled={busy}
             className="flex aspect-square flex-col items-center justify-center gap-1 rounded-2xl border border-dashed border-[#c4a574] bg-[#fffdf8] text-[#1b3d34]"
-            onClick={() => fileRef.current?.click()}
+            onClick={() => void addPhoto()}
           >
             <Camera className="size-6" />
             <span className="px-1 text-[11px] leading-tight">{t("addPhotos")}</span>
           </button>
         ) : null}
       </div>
-      <input
-        ref={fileRef}
-        type="file"
-        accept="image/*"
-        multiple
-        className="hidden"
-        onChange={(e) => {
-          if (e.target.files?.length) void addFiles(e.target.files);
-        }}
-      />
     </div>
   );
 }

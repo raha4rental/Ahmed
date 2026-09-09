@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Camera } from "lucide-react";
@@ -19,9 +19,9 @@ import { useStore } from "@/lib/store";
 import { can } from "@/lib/permissions";
 import type { ExpenseCategory, MaintenancePriority, PaymentMethod } from "@/lib/types";
 import { TODAY } from "@/lib/format";
-import { readImageFile } from "@/lib/image";
 import { ApartmentPhotoPicker } from "@/components/apartment-photos";
 import { apartmentPath } from "@/lib/paths";
+import { pickImage } from "@/lib/native";
 
 const field = "grid gap-1.5";
 const selectCls =
@@ -641,7 +641,6 @@ export function GuestDialog({
   onOpenChange: (v: boolean) => void;
 }) {
   const { addGuest, t } = useStore();
-  const fileRef = useRef<HTMLInputElement>(null);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
@@ -654,7 +653,18 @@ export function GuestDialog({
     setAddress("");
     setIdPhoto("");
     setBusyPhoto(false);
-    if (fileRef.current) fileRef.current.value = "";
+  }
+
+  async function captureId() {
+    setBusyPhoto(true);
+    try {
+      const src = await pickImage(1400);
+      if (src) setIdPhoto(src);
+    } catch {
+      toast.error(t("uploadIdPhoto"));
+    } finally {
+      setBusyPhoto(false);
+    }
   }
 
   return (
@@ -687,7 +697,7 @@ export function GuestDialog({
             <button
               type="button"
               className="flex min-h-36 w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl border border-dashed border-[#c4a574] bg-[#fffdf8] p-3 text-center"
-              onClick={() => fileRef.current?.click()}
+              onClick={() => void captureId()}
               disabled={busyPhoto}
             >
               {idPhoto ? (
@@ -700,30 +710,10 @@ export function GuestDialog({
               )}
             </button>
             {idPhoto ? (
-              <Button type="button" variant="outline" onClick={() => fileRef.current?.click()}>
+              <Button type="button" variant="outline" onClick={() => void captureId()}>
                 {t("changeIdPhoto")}
               </Button>
             ) : null}
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              capture="environment"
-              className="hidden"
-              onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                setBusyPhoto(true);
-                try {
-                  setIdPhoto(await readImageFile(file));
-                } catch {
-                  toast.error(t("uploadIdPhoto"));
-                } finally {
-                  setBusyPhoto(false);
-                  e.target.value = "";
-                }
-              }}
-            />
           </div>
         </div>
         <DialogFooter>
