@@ -44,6 +44,7 @@ type Store = {
   login: (userId: string, password?: string, email?: string) => Promise<boolean>;
   logout: () => void;
   toggleLang: () => void;
+  setLang: (lang: Lang) => void;
   reset: () => void;
   addBuilding: (b: Omit<Building, "id">) => void;
   addApartment: (a: Omit<Apartment, "id">) => string;
@@ -204,6 +205,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(() => {
     setUser(null);
     localStorage.removeItem(SESSION);
+  }, []);
+
+  const applyLang = useCallback((next: Lang) => {
+    localStorage.setItem("ahmed-lang", next);
+    setLang(next);
   }, []);
 
   const toggleLang = useCallback(() => {
@@ -648,6 +654,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       login,
       logout,
       toggleLang,
+      setLang: applyLang,
       reset,
       addBuilding,
       addApartment,
@@ -681,6 +688,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       login,
       logout,
       toggleLang,
+      applyLang,
       reset,
       addBuilding,
       addApartment,

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Sans_Arabic, Fraunces } from "next/font/google";
+import { IBM_Plex_Sans_Arabic, Fraunces, Amiri } from "next/font/google";
 import { StoreProvider } from "@/lib/store";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,6 +15,12 @@ const sans = IBM_Plex_Sans_Arabic({
 const display = Fraunces({
   subsets: ["latin"],
   variable: "--font-display",
+});
+
+const amiri = Amiri({
+  subsets: ["arabic", "latin"],
+  weight: ["400", "700"],
+  variable: "--font-amiri",
 });
 
 export const metadata: Metadata = {
@@ -41,7 +47,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ar" className={`${sans.variable} ${display.variable}`}>
+    <html lang="ar" className={`${sans.variable} ${display.variable} ${amiri.variable}`}>
       <body className="font-sans">
         <TooltipProvider>
           <StoreProvider>
