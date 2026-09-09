@@ -61,7 +61,7 @@ export async function showDeviceNotification(notice: AppNotification, lang: Lang
             title,
             body,
             extra: { href: notice.href },
-            schedule: { at: new Date(Date.now() + 400) },
+            sound: "default",
           },
         ],
       });
