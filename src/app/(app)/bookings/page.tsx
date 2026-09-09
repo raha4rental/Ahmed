@@ -10,6 +10,7 @@ import { can } from "@/lib/permissions";
 import { fmtDateTime, money, TODAY } from "@/lib/format";
 import { aptName, guestName, remaining } from "@/lib/lookups";
 import { handoverPath } from "@/lib/handover-checklist";
+import { apartmentPath, guestPath } from "@/lib/paths";
 
 export default function BookingsPage() {
   const { data, user, t, lang } = useStore();
@@ -48,7 +49,7 @@ export default function BookingsPage() {
             {rows.map((b) => (
               <tr key={b.id} className="border-t border-border">
                 <td className="px-4 py-3">
-                  <Link href={`/guests/${b.guestId}`} className="font-medium hover:underline">{guestName(data, b.guestId)}</Link>
+                  <Link href={guestPath(b.guestId)} className="font-medium hover:underline">{guestName(data, b.guestId)}</Link>
                   {b.checkIn === TODAY && b.status === "booked" ? (
                     <div className="text-xs text-sky-700">{t("checkinsToday")}</div>
                   ) : null}
@@ -57,7 +58,7 @@ export default function BookingsPage() {
                   ) : null}
                 </td>
                 <td className="px-4 py-3">
-                  <Link href={`/apartments/${b.apartmentId}`} className="hover:underline">{aptName(data, b.apartmentId)}</Link>
+                  <Link href={apartmentPath(b.apartmentId)} className="hover:underline">{aptName(data, b.apartmentId)}</Link>
                 </td>
                 <td className="px-4 py-3">{fmtDateTime(b.checkIn, b.checkInTime, lang)}</td>
                 <td className="px-4 py-3">{b.checkOut}</td>

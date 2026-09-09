@@ -15,6 +15,7 @@ import { can } from "@/lib/permissions";
 import { money, TODAY, inThisMonth } from "@/lib/format";
 import { aptName, guestName, remaining, statusLabel } from "@/lib/lookups";
 import { handoverPath } from "@/lib/handover-checklist";
+import { apartmentPath } from "@/lib/paths";
 
 export default function DashboardPage() {
   const { data, user, t, lang } = useStore();
@@ -142,7 +143,7 @@ export default function DashboardPage() {
           const a = data.apartments.find((x) => x.id === id);
           if (!a) return null;
           return (
-            <Link key={id} href={`/apartments/${id}`} className="flex items-center justify-between py-2.5">
+            <Link key={id} href={apartmentPath(id)} className="flex items-center justify-between py-2.5">
               <span className="text-sm font-medium">{aptName(data, id)}</span>
               <AptStatus status={a.status} label={statusLabel(a.status, t)} />
             </Link>

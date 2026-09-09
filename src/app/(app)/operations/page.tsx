@@ -13,6 +13,7 @@ import { TODAY } from "@/lib/format";
 import { aptName, guestName } from "@/lib/lookups";
 import { hotelReady } from "@/lib/hotel-checklist";
 import { handoverPath } from "@/lib/handover-checklist";
+import { apartmentPath } from "@/lib/paths";
 import type { Booking, HandoverKind, OpsTask } from "@/lib/types";
 
 export default function OperationsPage() {
@@ -91,7 +92,7 @@ export default function OperationsPage() {
         <section className="raha-card p-4">
           <div className="mb-3 flex items-start justify-between gap-3">
             <div>
-              <Link href={`/apartments/${current.apartmentId}`} className="text-lg font-medium hover:underline">
+              <Link href={apartmentPath(current.apartmentId)} className="text-lg font-medium hover:underline">
                 {aptName(data, current.apartmentId)}
               </Link>
               <p className="text-xs text-muted-foreground">

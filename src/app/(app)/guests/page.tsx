@@ -11,6 +11,7 @@ import { useStore } from "@/lib/store";
 import { can } from "@/lib/permissions";
 import { money } from "@/lib/format";
 import { aptName, remaining } from "@/lib/lookups";
+import { guestPath } from "@/lib/paths";
 
 export default function GuestsPage() {
   const { data, user, t, lang } = useStore();
@@ -43,7 +44,7 @@ export default function GuestsPage() {
           {list.map((g) => {
             const latest = [...data.bookings].reverse().find((b) => b.guestId === g.id);
             return (
-              <Link key={g.id} href={`/guests/${g.id}`} className="raha-card flex items-center gap-3 p-3">
+              <Link key={g.id} href={guestPath(g.id)} className="raha-card flex items-center gap-3 p-3">
                 {g.idPhoto ? (
                   <img src={g.idPhoto} alt="" className="size-16 shrink-0 rounded-xl object-cover" />
                 ) : (

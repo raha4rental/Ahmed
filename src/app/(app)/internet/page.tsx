@@ -9,6 +9,7 @@ import { useStore } from "@/lib/store";
 import { can } from "@/lib/permissions";
 import { money } from "@/lib/format";
 import { aptName } from "@/lib/lookups";
+import { apartmentPath } from "@/lib/paths";
 
 export default function InternetPage() {
   const { data, user, t, lang, markUtilityPaid } = useStore();
@@ -46,7 +47,7 @@ export default function InternetPage() {
             {bills.map((b) => (
               <tr key={b.apartmentId} className="border-t border-border">
                 <td className="px-4 py-3">
-                  <Link href={`/apartments/${b.apartmentId}`} className="font-medium hover:underline">
+                  <Link href={apartmentPath(b.apartmentId)} className="font-medium hover:underline">
                     {aptName(data, b.apartmentId)}
                   </Link>
                 </td>

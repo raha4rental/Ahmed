@@ -29,6 +29,8 @@ npx cap open ios
 npx cap open android
 ```
 
+iPhone needs camera and photo-library permission in Xcode / Info.plist (already included). Codemagic still needs your App Store Connect key named **Ahmed** and the App Store certificate + profile for `com.ahmed.app`.
+
 ## GitHub + Codemagic
 
 This agent cannot sign in to GitHub or Codemagic. Publish steps: `store/github-codemagic.md`

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ import type { ExpenseCategory, MaintenancePriority, PaymentMethod } from "@/lib/
 import { TODAY } from "@/lib/format";
 import { readImageFile } from "@/lib/image";
 import { ApartmentPhotoPicker } from "@/components/apartment-photos";
+import { apartmentPath } from "@/lib/paths";
 
 const field = "grid gap-1.5";
 const selectCls =
@@ -33,6 +35,7 @@ export function AddApartmentDialog({
   onOpenChange: (v: boolean) => void;
 }) {
   const { data, addApartment, t } = useStore();
+  const router = useRouter();
   const [buildingId, setBuildingId] = useState(data.buildings[0]?.id ?? "");
   const [number, setNumber] = useState("");
   const [city, setCity] = useState("Cleveland");
@@ -48,7 +51,7 @@ export function AddApartmentDialog({
 
   function save() {
     if (!number.trim()) return;
-    addApartment({
+    const id = addApartment({
       buildingId,
       number: number.trim(),
       city,
@@ -76,6 +79,7 @@ export function AddApartmentDialog({
     onOpenChange(false);
     setNumber("");
     setPhotos([]);
+    router.push(apartmentPath(id));
   }
 
   return (

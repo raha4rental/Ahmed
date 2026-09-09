@@ -11,6 +11,7 @@ import { useStore } from "@/lib/store";
 import { can } from "@/lib/permissions";
 import { money } from "@/lib/format";
 import { aptName, userName } from "@/lib/lookups";
+import { apartmentPath } from "@/lib/paths";
 import type { MaintenanceStatus } from "@/lib/types";
 
 export default function MaintenancePage() {
@@ -44,7 +45,7 @@ export default function MaintenancePage() {
           <article key={m.id} className="raha-card p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <Link href={`/apartments/${m.apartmentId}`} className="text-sm text-[#8a7048] hover:underline">
+                <Link href={apartmentPath(m.apartmentId)} className="text-sm text-[#8a7048] hover:underline">
                   {aptName(data, m.apartmentId)}
                 </Link>
                 <h3 className="text-lg font-medium">{m.title}</h3>

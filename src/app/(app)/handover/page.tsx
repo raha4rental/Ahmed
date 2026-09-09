@@ -16,6 +16,7 @@ import { can } from "@/lib/permissions";
 import { TODAY, uid } from "@/lib/format";
 import { aptName } from "@/lib/lookups";
 import { generateHandoverChecklist, handoverReady } from "@/lib/handover-checklist";
+import { apartmentPath } from "@/lib/paths";
 import type { HandoverKind, HandoverRecord } from "@/lib/types";
 
 export default function HandoverPage() {
@@ -185,7 +186,7 @@ function HandoverInner() {
             <Button className="w-full" onClick={finish}>
               {title}
             </Button>
-            <Link href={`/apartments/${apt.id}`} className="block text-center text-xs text-[#8a7048]">
+            <Link href={apartmentPath(apt.id)} className="block text-center text-xs text-[#8a7048]">
               {t("seeApartment")}
             </Link>
           </section>

@@ -8,8 +8,9 @@ const config: CapacitorConfig = {
     androidScheme: "https",
   },
   ios: {
-    contentInset: "automatic",
+    contentInset: "never",
     preferredContentMode: "mobile",
+    scheme: "Ahmed",
   },
   plugins: {
     SplashScreen: {
