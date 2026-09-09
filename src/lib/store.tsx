@@ -29,7 +29,7 @@ import { TODAY, uid } from "./format";
 import { copy, type CopyKey } from "./i18n";
 import { can } from "./permissions";
 
-const KEY = "ahmed-app-v4";
+const KEY = "ahmed-app-v5";
 const SESSION = "ahmed-session-v3";
 
 type Store = {
@@ -60,6 +60,7 @@ type Store = {
   addMaintenance: (m: Omit<MaintenanceRequest, "id">) => string;
   updateMaintenance: (id: string, patch: Partial<MaintenanceRequest>) => void;
   addExpense: (e: Omit<Expense, "id">) => string;
+  markExpensePaid: (id: string) => boolean;
   deleteExpense: (id: string) => boolean;
   markUtilityPaid: (kind: "electricity" | "internet" | "water", apartmentId: string) => boolean;
   updateInventory: (id: string, actual: number) => void;
@@ -106,8 +107,21 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     if (lg === "ar" || lg === "en") setLang(lg);
 
     const apply = (next: AppData) => {
+      const seed = createSeed();
+      const expenses = (next.expenses ?? []).map((e) => ({
+        ...e,
+        dueDate: e.dueDate ?? e.date,
+        paid: e.paid !== undefined ? e.paid : true,
+      }));
+      const hasRent = expenses.some((e) => e.category === "rent");
       const migrated: AppData = {
         ...next,
+        expenses: hasRent
+          ? expenses
+          : [
+              ...seed.expenses.filter((e) => e.category === "rent" || e.category === "emergency"),
+              ...expenses,
+            ],
         tasks: next.tasks.map((task) => {
           const apt = next.apartments.find((a) => a.id === task.apartmentId);
           if (!apt || !task.checklist.length) return task;
@@ -441,6 +455,18 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     [commit]
   );
 
+  const markExpensePaid = useCallback(
+    (id: string) => {
+      if (!user || !can.payBills(user.role)) return false;
+      commit((d) => ({
+        ...d,
+        expenses: d.expenses.map((e) => (e.id === id ? { ...e, paid: true } : e)),
+      }));
+      return true;
+    },
+    [commit, user]
+  );
+
   const deleteExpense = useCallback(
     (id: string) => {
       if (!user || !can.deleteExpense(user.role)) return false;
@@ -515,6 +541,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       addMaintenance,
       updateMaintenance,
       addExpense,
+      markExpensePaid,
       deleteExpense,
       markUtilityPaid,
       updateInventory,
@@ -545,6 +572,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       addMaintenance,
       updateMaintenance,
       addExpense,
+      markExpensePaid,
       deleteExpense,
       markUtilityPaid,
       updateInventory,

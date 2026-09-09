@@ -16,6 +16,7 @@ export type MaintenancePriority = "urgent" | "normal" | "low";
 export type MaintenanceStatus = "new" | "assigned" | "in_progress" | "completed";
 export type UtilityStatus = "paid" | "unpaid" | "due_soon";
 export type ExpenseCategory =
+  | "rent"
   | "electricity"
   | "internet"
   | "water"
@@ -24,6 +25,7 @@ export type ExpenseCategory =
   | "supplies"
   | "furniture"
   | "repairs"
+  | "emergency"
   | "other";
 export type TaskType = "turnover" | "cleaning" | "inspection" | "final_inspection" | "restock";
 export type TaskStatus = "pending" | "in_progress" | "failed" | "completed";
@@ -182,6 +184,8 @@ export interface Expense {
   date: string;
   description: string;
   receipt: string | null;
+  dueDate?: string;
+  paid?: boolean;
 }
 
 export interface InventoryItem {

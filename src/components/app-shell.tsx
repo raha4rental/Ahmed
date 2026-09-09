@@ -49,26 +49,32 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div dir={dir} className="app-device">
+      <header className="app-topbar">
+        <div className="app-topbar-brand">
+          <span className="app-topbar-mark">أ</span>
+          <span>Ahmed</span>
+        </div>
+        <nav className="app-tabbar">
+          {items.map((item) => {
+            const Icon = icons[item.icon] ?? Home;
+            const active =
+              item.href === "/more"
+                ? pathname === "/more"
+                : pathname === item.href || pathname.startsWith(item.href + "/");
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn("app-tab", active && "app-tab-active")}
+              >
+                <Icon className="size-4" />
+                <span>{t(item.key as CopyKey)}</span>
+              </Link>
+            );
+          })}
+        </nav>
+      </header>
       <main className="app-scroll">{children}</main>
-      <nav className="app-tabbar">
-        {items.map((item) => {
-          const Icon = icons[item.icon] ?? Home;
-          const active =
-            item.href === "/more"
-              ? pathname === "/more"
-              : pathname === item.href || pathname.startsWith(item.href + "/");
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn("app-tab", active && "app-tab-active")}
-            >
-              <Icon className="size-5" />
-              <span>{t(item.key as CopyKey)}</span>
-            </Link>
-          );
-        })}
-      </nav>
     </div>
   );
 }

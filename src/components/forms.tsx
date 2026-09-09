@@ -519,10 +519,14 @@ export function ExpenseDialog({
   onOpenChange: (v: boolean) => void;
 }) {
   const { data, addExpense, t } = useStore();
-  const [apartmentId, setApartmentId] = useState(data.apartments[0]?.id ?? "");
-  const [category, setCategory] = useState<ExpenseCategory>("supplies");
+  const [buildingId, setBuildingId] = useState(data.buildings[0]?.id ?? "");
+  const [apartmentId, setApartmentId] = useState("");
+  const [category, setCategory] = useState<ExpenseCategory>("rent");
   const [amount, setAmount] = useState(50);
+  const [dueDate, setDueDate] = useState(TODAY);
+  const [paid, setPaid] = useState(false);
   const [description, setDescription] = useState("");
+  const units = data.apartments.filter((a) => a.buildingId === buildingId);
   const apt = data.apartments.find((a) => a.id === apartmentId);
 
   return (
@@ -533,48 +537,77 @@ export function ExpenseDialog({
         </DialogHeader>
         <div className="grid gap-3">
           <div className={field}>
-            <Label>{t("apartment")}</Label>
-            <select className={selectCls} value={apartmentId} onChange={(e) => setApartmentId(e.target.value)}>
-              {data.apartments.map((a) => {
-                const b = data.buildings.find((x) => x.id === a.buildingId);
-                return <option key={a.id} value={a.id}>{b?.name} {a.number}</option>;
-              })}
-            </select>
-          </div>
-          <div className={field}>
             <Label>{t("category")}</Label>
             <select className={selectCls} value={category} onChange={(e) => setCategory(e.target.value as ExpenseCategory)}>
+              <option value="rent">🏠 {t("rent")}</option>
               <option value="electricity">⚡ {t("electricity")}</option>
+              <option value="emergency">🚨 {t("emergency")}</option>
+              <option value="supplies">🧴 {t("supplies")}</option>
               <option value="internet">🌐 {t("internet")}</option>
               <option value="water">💧 {t("water")}</option>
               <option value="maintenance">🔧 {t("maintenance")}</option>
               <option value="cleaning">🧹 {t("cleaning")}</option>
-              <option value="supplies">🧴 {t("supplies")}</option>
               <option value="furniture">🛋️ {t("furniture")}</option>
-              <option value="repairs"> {t("repairs")}</option>
+              <option value="repairs">{t("repairs")}</option>
               <option value="other">{t("other")}</option>
             </select>
           </div>
+          <div className={field}>
+            <Label>{t("building")}</Label>
+            <select
+              className={selectCls}
+              value={buildingId}
+              onChange={(e) => {
+                setBuildingId(e.target.value);
+                setApartmentId("");
+              }}
+            >
+              {data.buildings.map((b) => (
+                <option key={b.id} value={b.id}>{b.name}</option>
+              ))}
+            </select>
+          </div>
+          {category !== "rent" ? (
+            <div className={field}>
+              <Label>{t("apartment")}</Label>
+              <select className={selectCls} value={apartmentId} onChange={(e) => setApartmentId(e.target.value)}>
+                <option value="">{t("wholeBuilding")}</option>
+                {units.map((a) => (
+                  <option key={a.id} value={a.id}>{a.number}</option>
+                ))}
+              </select>
+            </div>
+          ) : null}
           <div className={field}>
             <Label>{t("amount")}</Label>
             <Input type="number" value={amount} onChange={(e) => setAmount(+e.target.value)} />
           </div>
           <div className={field}>
+            <Label>{t("dueDate")}</Label>
+            <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+          </div>
+          <div className={field}>
             <Label>{t("description")}</Label>
             <Input value={description} onChange={(e) => setDescription(e.target.value)} />
           </div>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={paid} onChange={(e) => setPaid(e.target.checked)} />
+            {t("billPaid")}
+          </label>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>{t("cancel")}</Button>
           <Button
             onClick={() => {
-              if (!apt) return;
+              if (!buildingId || !amount) return;
               addExpense({
-                buildingId: apt.buildingId,
-                apartmentId,
+                buildingId,
+                apartmentId: category === "rent" ? "" : apartmentId || apt?.id || "",
                 category,
                 amount,
                 date: TODAY,
+                dueDate,
+                paid,
                 description,
                 receipt: null,
               });

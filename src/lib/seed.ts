@@ -248,6 +248,8 @@ export function createSeed(): AppData {
       date: "2026-09-01",
       description: "September electricity",
       receipt: null,
+      dueDate: electricity[i].dueDate,
+      paid: electricity[i].status === "paid",
     });
     expenses.push({
       id: `ex-i-${a.id}`,
@@ -314,6 +316,68 @@ export function createSeed(): AppData {
     description: "Replacement sofa pillows + lamp",
     receipt: null,
   });
+  expenses.push(
+    {
+      id: "ex-rent-aster",
+      buildingId: "b-aster",
+      apartmentId: "",
+      category: "rent",
+      amount: 8400,
+      date: "2026-09-01",
+      dueDate: "2026-09-01",
+      paid: true,
+      description: "Aster building rent — September",
+      receipt: "RENT-AST-09",
+    },
+    {
+      id: "ex-rent-vantage",
+      buildingId: "b-vantage",
+      apartmentId: "",
+      category: "rent",
+      amount: 9200,
+      date: "2026-09-01",
+      dueDate: "2026-09-01",
+      paid: false,
+      description: "Vantage building rent — September",
+      receipt: null,
+    },
+    {
+      id: "ex-rent-lumos",
+      buildingId: "b-lumos",
+      apartmentId: "",
+      category: "rent",
+      amount: 7800,
+      date: "2026-09-01",
+      dueDate: "2026-09-05",
+      paid: false,
+      description: "Lumos building rent — September",
+      receipt: null,
+    },
+    {
+      id: "ex-em-1",
+      buildingId: "b-aster",
+      apartmentId: "apt-aster-405",
+      category: "emergency",
+      amount: 340,
+      date: "2026-09-07",
+      dueDate: "2026-09-08",
+      paid: true,
+      description: "Emergency AC after-hours call",
+      receipt: "EM-901",
+    },
+    {
+      id: "ex-em-2",
+      buildingId: "b-lumos",
+      apartmentId: "apt-lumos-506",
+      category: "emergency",
+      amount: 215,
+      date: "2026-09-08",
+      dueDate: "2026-09-10",
+      paid: false,
+      description: "Lockout + lock replacement",
+      receipt: null,
+    }
+  );
 
   const stock = [
     { name: "Bath towels", nameAr: "مناشف حمام", expected: 6 },

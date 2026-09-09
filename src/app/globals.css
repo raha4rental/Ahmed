@@ -140,14 +140,42 @@
   padding-bottom: 8px;
 }
 
+.app-topbar {
+  background: #14241f;
+  padding-top: env(safe-area-inset-top);
+  border-bottom: 1px solid #c4a57444;
+}
+
+.app-topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px 4px;
+  color: #e8d5a8;
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+}
+
+.app-topbar-mark {
+  display: flex;
+  width: 26px;
+  height: 26px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #e4c892, #c4a574);
+  color: #14241f;
+  font-size: 15px;
+}
+
 .app-tabbar {
   display: flex;
   align-items: stretch;
   justify-content: space-around;
   gap: 2px;
-  padding: 6px 8px calc(10px + env(safe-area-inset-bottom));
-  background: #fffdf8;
-  border-top: 1px solid var(--border);
+  padding: 4px 8px 10px;
+  background: #14241f;
 }
 
 .app-tab {
@@ -160,13 +188,13 @@
   min-width: 0;
   padding: 6px 2px;
   font-size: 10px;
-  color: #7a7368;
+  color: #b9aa8d;
   border-radius: 12px;
 }
 
 .app-tab-active {
-  color: #1b3d34;
-  background: #ece4d4;
+  color: #f3e6c8;
+  background: #c4a57428;
   font-weight: 600;
 }
 

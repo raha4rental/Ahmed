@@ -1,134 +1,256 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { PageHeader, StatCard } from "@/components/page-header";
+import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { ExpenseDialog } from "@/components/forms";
 import { useStore } from "@/lib/store";
 import { can } from "@/lib/permissions";
-import { money, inThisMonth } from "@/lib/format";
-import { aptName, buildingName } from "@/lib/lookups";
-import type { ExpenseCategory } from "@/lib/types";
+import { fmtDate, money, inThisMonth, TODAY } from "@/lib/format";
+import { buildingName, remaining } from "@/lib/lookups";
+import type { Expense, ExpenseCategory } from "@/lib/types";
 
-const cats: ExpenseCategory[] = [
-  "electricity",
-  "internet",
-  "water",
-  "maintenance",
-  "cleaning",
-  "supplies",
-  "furniture",
-  "repairs",
-  "other",
-];
+type Filter = "all" | "rent" | "electricity" | "emergency" | "supplies";
 
-const icons: Record<ExpenseCategory, string> = {
+const icons: Record<string, string> = {
+  rent: "🏠",
   electricity: "⚡",
+  emergency: "🚨",
+  supplies: "🧴",
   internet: "🌐",
   water: "💧",
   maintenance: "🔧",
   cleaning: "🧹",
-  supplies: "🧴",
   furniture: "🛋️",
   repairs: "🛠️",
   other: "•",
 };
 
+function payState(e: Expense) {
+  if (e.paid === true) return "paid";
+  const due = e.dueDate ?? e.date;
+  if (due > TODAY) return "due_soon";
+  return "unpaid";
+}
+
 export default function ExpensesPage() {
-  const { data, user, t, lang, deleteExpense } = useStore();
+  const { data, user, t, lang, deleteExpense, markExpensePaid } = useStore();
   const [open, setOpen] = useState(false);
-  const [buildingId, setBuildingId] = useState("all");
+  const [filter, setFilter] = useState<Filter>("all");
 
   const month = useMemo(
-    () => data.expenses.filter((e) => inThisMonth(e.date) && (buildingId === "all" || e.buildingId === buildingId)),
-    [data.expenses, buildingId]
+    () =>
+      data.expenses.filter((e) => inThisMonth(e.date) || (e.dueDate ? inThisMonth(e.dueDate) : false)),
+    [data.expenses]
   );
-  const total = month.reduce((s, e) => s + e.amount, 0);
-  const byCat = useMemo(() => {
-    const map = Object.fromEntries(cats.map((c) => [c, 0])) as Record<ExpenseCategory, number>;
-    month.forEach((e) => {
-      map[e.category] += e.amount;
-    });
-    return map;
-  }, [month]);
+
+  const revenue = data.bookings
+    .filter((b) => inThisMonth(b.checkIn) || inThisMonth(b.checkOut) || b.status === "checked_in")
+    .reduce((s, b) => s + b.paidAmount, 0);
+  const totalExp = month.reduce((s, e) => s + e.amount, 0);
+  const profit = revenue - totalExp;
+  const outstanding = data.bookings.filter((b) => b.status !== "cancelled").reduce((s, b) => s + remaining(b), 0);
+
+  const rent = month.filter((e) => e.category === "rent");
+  const elec = month.filter((e) => e.category === "electricity");
+  const emergency = month.filter((e) => e.category === "emergency");
+  const supplies = month.filter((e) => e.category === "supplies");
+
+  const rows = useMemo(() => {
+    const src =
+      filter === "rent"
+        ? rent
+        : filter === "electricity"
+          ? elec
+          : filter === "emergency"
+            ? emergency
+            : filter === "supplies"
+              ? supplies
+              : month;
+    return [...src].sort((a, b) => (a.dueDate ?? a.date).localeCompare(b.dueDate ?? b.date));
+  }, [filter, month, rent, elec, emergency, supplies]);
+
+  const rentSchedule = useMemo(
+    () => [...rent].sort((a, b) => (a.dueDate ?? a.date).localeCompare(b.dueDate ?? b.date)),
+    [rent]
+  );
 
   if (!user) return null;
   if (!can.viewExpenses(user.role)) return <p className="raha-card p-8">{t("denied")}</p>;
 
-  const byBuilding = data.buildings.map((b) => ({
-    ...b,
-    total: data.expenses.filter((e) => e.buildingId === b.id && inThisMonth(e.date)).reduce((s, e) => s + e.amount, 0),
-  }));
+  const tabs: { id: Filter; label: string; count: number }[] = [
+    { id: "all", label: t("all"), count: month.length },
+    { id: "rent", label: `🏠 ${t("rent")}`, count: rent.length },
+    { id: "electricity", label: `⚡ ${t("electricity")}`, count: elec.length },
+    { id: "emergency", label: `🚨 ${t("emergency")}`, count: emergency.length },
+    { id: "supplies", label: `🧴 ${t("supplies")}`, count: supplies.length },
+  ];
 
   return (
     <div>
       <PageHeader
         title={t("expenses")}
-        subtitle="Building → Apartment → Expense"
+        subtitle={t("rentSchedule")}
         action={<Button onClick={() => setOpen(true)}>{t("addExpense")}</Button>}
       />
 
-      <div className="mb-5">
-        <select
-          className="h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm"
-          value={buildingId}
-          onChange={(e) => setBuildingId(e.target.value)}
-        >
-          <option value="all">{t("allBuildings")}</option>
-          {data.buildings.map((b) => (
-            <option key={b.id} value={b.id}>{b.name}</option>
-          ))}
-        </select>
+      <div className="mb-3 grid grid-cols-2 gap-2">
+        <Money label={t("revenueMonth")} value={money(revenue, lang)} tone="up" />
+        <Money label={t("expensesMonth")} value={money(totalExp, lang)} tone="down" />
+        <Money label={t("profit")} value={money(profit, lang)} tone={profit >= 0 ? "up" : "down"} />
+        <Money label={t("outstanding")} value={money(outstanding, lang)} tone="warn" />
       </div>
 
-      <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label={t("monthlyExpenses")} value={money(total, lang)} tone="gold" />
-        {(["electricity", "internet", "maintenance", "cleaning", "supplies"] as const).map((c) => (
-          <StatCard key={c} label={`${icons[c]} ${t(c === "cleaning" ? "cleaning" : c === "maintenance" ? "maintenance" : c === "supplies" ? "supplies" : c)}`} value={money(byCat[c], lang)} />
-        ))}
+      <section className="raha-card mb-3 p-3">
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <h2 className="text-sm font-semibold text-[#1b3d34]">🏠 {t("rentSchedule")}</h2>
+          <span className="text-[11px] text-muted-foreground">{t("nextDue")}</span>
+        </div>
+        <div className="grid gap-2">
+          {rentSchedule.map((e) => {
+            const st = payState(e);
+            return (
+              <div key={e.id} className="flex items-center justify-between gap-2 rounded-xl bg-[#f7f0e4] px-3 py-2.5">
+                <div className="min-w-0">
+                  <div className="font-medium text-[#1b3d34]">{buildingName(data, e.buildingId)}</div>
+                  <div className="text-[11px] text-muted-foreground">
+                    {t("dueDate")}: {fmtDate(e.dueDate ?? e.date, lang)}
+                  </div>
+                </div>
+                <div className="text-end">
+                  <div className="font-semibold text-[#1b3d34]">{money(e.amount, lang)}</div>
+                  <PayBadge status={st} paid={t("billPaid")} unpaid={t("unpaid")} soon={t("dueSoon")} />
+                </div>
+              </div>
+            );
+          })}
+          {rentSchedule.length === 0 ? <p className="text-sm text-muted-foreground">{t("empty")}</p> : null}
+        </div>
+      </section>
+
+      <div className="mb-3 grid grid-cols-2 gap-2">
+        <Money label={`🏠 ${t("rent")}`} value={money(sum(rent), lang)} />
+        <Money label={`⚡ ${t("electricity")}`} value={money(sum(elec), lang)} />
+        <Money label={`🚨 ${t("emergency")}`} value={money(sum(emergency), lang)} />
+        <Money label={`🧴 ${t("supplies")}`} value={money(sum(supplies), lang)} />
       </div>
 
-      <div className="mb-6 grid gap-3 md:grid-cols-3">
-        {byBuilding.map((b) => (
-          <button key={b.id} onClick={() => setBuildingId(b.id)} className="raha-card p-4 text-start">
-            <div className="text-sm text-muted-foreground">{b.name}</div>
-            <div className="font-[family-name:var(--font-display)] text-2xl text-[#1b3d34]">{money(b.total, lang)}</div>
-            <div className="text-xs text-muted-foreground">{t("monthlyExpenses")}</div>
+      <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => setFilter(tab.id)}
+            className={`shrink-0 rounded-full px-3 py-1.5 text-xs ${filter === tab.id ? "bg-[#1b3d34] text-[#f3e6c8]" : "bg-muted"}`}
+          >
+            {tab.label} {tab.count}
           </button>
         ))}
       </div>
 
-      <div className="overflow-x-auto raha-card">
-        <table className="w-full min-w-[720px] text-sm">
-          <thead className="bg-muted/50 text-muted-foreground">
+      <div className="overflow-x-auto raha-card p-0">
+        <table className="w-full min-w-[620px] text-sm">
+          <thead className="bg-[#14241f] text-[#e8d5a8]">
             <tr>
-              <th className="px-4 py-2 text-start font-medium">{t("building")}</th>
-              <th className="px-4 py-2 text-start font-medium">{t("apartment")}</th>
-              <th className="px-4 py-2 text-start font-medium">{t("category")}</th>
-              <th className="px-4 py-2 text-start font-medium">{t("amount")}</th>
-              <th className="px-4 py-2 text-start font-medium">{t("description")}</th>
-              <th className="px-4 py-2" />
+              <th className="px-3 py-2 text-start font-medium">{t("dueDate")}</th>
+              <th className="px-3 py-2 text-start font-medium">{t("building")}</th>
+              <th className="px-3 py-2 text-start font-medium">{t("apartment")}</th>
+              <th className="px-3 py-2 text-start font-medium">{t("category")}</th>
+              <th className="px-3 py-2 text-start font-medium">{t("amount")}</th>
+              <th className="px-3 py-2 text-start font-medium">{t("paidStatus")}</th>
+              <th className="px-3 py-2" />
             </tr>
           </thead>
           <tbody>
-            {month.map((e) => (
-              <tr key={e.id} className="border-t border-border">
-                <td className="px-4 py-3">{buildingName(data, e.buildingId)}</td>
-                <td className="px-4 py-3">{aptName(data, e.apartmentId)}</td>
-                <td className="px-4 py-3">{icons[e.category]} {e.category}</td>
-                <td className="px-4 py-3">{money(e.amount, lang)}</td>
-                <td className="px-4 py-3 text-muted-foreground">{e.description}</td>
-                <td className="px-4 py-3">
-                  {can.deleteExpense(user.role) ? (
-                    <Button size="sm" variant="ghost" onClick={() => deleteExpense(e.id)}>{t("delete")}</Button>
-                  ) : null}
-                </td>
-              </tr>
-            ))}
+            {rows.map((e) => {
+              const st = payState(e);
+              const unit = data.apartments.find((a) => a.id === e.apartmentId);
+              return (
+                <tr key={e.id} className="border-t border-border">
+                  <td className="px-3 py-2.5 whitespace-nowrap">{fmtDate(e.dueDate ?? e.date, lang)}</td>
+                  <td className="px-3 py-2.5">{buildingName(data, e.buildingId)}</td>
+                  <td className="px-3 py-2.5">{unit ? unit.number : t("wholeBuilding")}</td>
+                  <td className="px-3 py-2.5 whitespace-nowrap">
+                    {icons[e.category] ?? "•"} {labelCat(e.category, t)}
+                    {e.description ? (
+                      <div className="text-[11px] text-muted-foreground">{e.description}</div>
+                    ) : null}
+                  </td>
+                  <td className="px-3 py-2.5 font-medium">{money(e.amount, lang)}</td>
+                  <td className="px-3 py-2.5">
+                    <PayBadge status={st} paid={t("billPaid")} unpaid={t("unpaid")} soon={t("dueSoon")} />
+                  </td>
+                  <td className="px-3 py-2.5 whitespace-nowrap">
+                    {st !== "paid" && can.payBills(user.role) ? (
+                      <Button size="sm" variant="outline" onClick={() => markExpensePaid(e.id)}>
+                        {t("markPaid")}
+                      </Button>
+                    ) : null}
+                    {can.deleteExpense(user.role) ? (
+                      <Button size="sm" variant="ghost" onClick={() => deleteExpense(e.id)}>
+                        {t("delete")}
+                      </Button>
+                    ) : null}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
+        {rows.length === 0 ? <p className="p-6 text-sm text-muted-foreground">{t("empty")}</p> : null}
       </div>
       <ExpenseDialog open={open} onOpenChange={setOpen} />
     </div>
   );
+}
+
+function sum(list: Expense[]) {
+  return list.reduce((s, e) => s + e.amount, 0);
+}
+
+function labelCat(
+  c: ExpenseCategory,
+  t: (
+    k:
+      | "rent"
+      | "electricity"
+      | "emergency"
+      | "supplies"
+      | "internet"
+      | "water"
+      | "maintenance"
+      | "cleaning"
+      | "furniture"
+      | "repairs"
+      | "other"
+  ) => string
+) {
+  if (c === "rent") return t("rent");
+  if (c === "emergency") return t("emergency");
+  if (c === "electricity") return t("electricity");
+  if (c === "supplies") return t("supplies");
+  if (c === "internet") return t("internet");
+  if (c === "water") return t("water");
+  if (c === "maintenance") return t("maintenance");
+  if (c === "cleaning") return t("cleaning");
+  if (c === "furniture") return t("furniture");
+  if (c === "repairs") return t("repairs");
+  return t("other");
+}
+
+function Money({ label, value, tone }: { label: string; value: string; tone?: "up" | "down" | "warn" }) {
+  const color =
+    tone === "up" ? "text-emerald-700" : tone === "down" ? "text-rose-700" : tone === "warn" ? "text-amber-700" : "text-[#1b3d34]";
+  return (
+    <div className="raha-card px-3 py-3">
+      <div className="text-[11px] text-muted-foreground">{label}</div>
+      <div className={`text-lg font-semibold ${color}`}>{value}</div>
+    </div>
+  );
+}
+
+function PayBadge({ status, paid, unpaid, soon }: { status: string; paid: string; unpaid: string; soon: string }) {
+  if (status === "paid") return <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs text-emerald-800">🟢 {paid}</span>;
+  if (status === "due_soon") return <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-900">🟡 {soon}</span>;
+  return <span className="rounded-full bg-rose-100 px-2 py-0.5 text-xs text-rose-800">🔴 {unpaid}</span>;
 }
