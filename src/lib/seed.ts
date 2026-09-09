@@ -124,7 +124,14 @@ function hotelList(beds: number, baths: number, mode: "empty" | "pass" | "failKi
   });
 }
 
+let seedCache: AppData | null = null;
+
 export function createSeed(): AppData {
+  if (seedCache) return seedCache;
+  return buildSeed();
+}
+
+function buildSeed(): AppData {
   const apartments: Apartment[] = UNITS.map((u, i) => ({
     id: aptId(u.buildingId, u.number),
     buildingId: u.buildingId,
@@ -408,7 +415,7 @@ export function createSeed(): AppData {
 
   void categories;
 
-  return {
+  const data: AppData = {
     users: [
       { id: "u-ahmed", name: "Ahmed Al-Saadi", nameAr: "أحمد السعدي", email: "ahmed@ahmed.app", phone: "+1 216 555 0100", role: "SUPER_ADMIN", title: "Management", titleAr: "إدارة" },
       { id: "u-ryan", name: "Ryan", nameAr: "رايان", email: "ryan@ahmed.app", phone: "+1 216 555 0101", role: "EMPLOYEE", title: "Operations", titleAr: "تشغيل" },
@@ -446,4 +453,6 @@ export function createSeed(): AppData {
     expenses,
     inventory,
   };
+  seedCache = data;
+  return data;
 }

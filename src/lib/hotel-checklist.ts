@@ -587,6 +587,13 @@ export function ensureHotelChecklist(
   list: ChecklistItem[],
   apt: Pick<Apartment, "bedrooms" | "bathrooms">
 ): ChecklistItem[] {
+  if (
+    list.length >= 40 &&
+    list.some((i) => i.zone === "storage") &&
+    list.some((i) => i.id.includes(".cabinets."))
+  ) {
+    return list;
+  }
   const next = generateHotelChecklist(apt);
   if (!list.length) return next;
 

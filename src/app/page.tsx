@@ -13,8 +13,18 @@ export default function LoginPage() {
     if (ready && user) router.replace("/dashboard");
   }, [ready, user, router]);
 
-  const ahmed = data.users.find((u) => u.id === "u-ahmed");
-  const ryan = data.users.find((u) => u.id === "u-ryan") ?? data.users.find((u) => u.id === "u-rayan");
+  const ahmed = data.users.find((u) => u.id === "u-ahmed") ?? {
+    id: "u-ahmed",
+    name: "Ahmed Al-Saadi",
+    nameAr: "أحمد السعدي",
+  };
+  const ryan =
+    data.users.find((u) => u.id === "u-ryan") ??
+    data.users.find((u) => u.id === "u-rayan") ?? {
+      id: "u-ryan",
+      name: "Ryan",
+      nameAr: "رايان",
+    };
 
   function enter(id: string) {
     login(id);
@@ -40,8 +50,7 @@ export default function LoginPage() {
         </header>
 
         <div className="login-options">
-          {ahmed ? (
-            <button type="button" className="staff-card staff-card-admin" onClick={() => enter(ahmed.id)}>
+          <button type="button" className="staff-card staff-card-admin" onClick={() => enter(ahmed.id)}>
               <span className="staff-icon">
                 <Crown className="size-6" />
               </span>
@@ -51,10 +60,8 @@ export default function LoginPage() {
                 <span className="staff-role">Super Admin • Management</span>
               </span>
             </button>
-          ) : null}
 
-          {ryan ? (
-            <button type="button" className="staff-card" onClick={() => enter(ryan.id)}>
+          <button type="button" className="staff-card" onClick={() => enter(ryan.id)}>
               <span className="staff-icon">
                 <UserRound className="size-6" />
               </span>
@@ -64,7 +71,6 @@ export default function LoginPage() {
                 <span className="staff-role">Operations</span>
               </span>
             </button>
-          ) : null}
         </div>
 
         <footer className="login-foot">

@@ -129,7 +129,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         }),
       };
       setData(migrated);
-      persist(migrated);
+      if (!hasRent) persist(migrated);
       let sid = localStorage.getItem(SESSION);
       if (sid === "u-rayan") sid = "u-ryan";
       if (sid) setUser(migrated.users.find((x) => x.id === sid) ?? null);
