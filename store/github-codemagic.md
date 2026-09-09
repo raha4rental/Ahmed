@@ -17,9 +17,18 @@ Or: [github.com/new](https://github.com/new) → `raha4rental` / `Ahmed` → Pri
 
 The APK appears under that build’s artifacts.
 
-## 3. iOS TestFlight (after Android works)
+## 3. iOS TestFlight (priority)
+
+`codemagic.yaml` now uses App Store signing:
+
+```yaml
+ios_signing:
+  distribution_type: app_store
+  bundle_identifier: com.ahmed.app
+```
 
 1. Apple Developer: bundle ID `com.ahmed.app`
 2. App Store Connect: app name **Ahmed** — see `store/app-store-connect.md`
 3. Codemagic → Team integrations → App Store Connect API key named **Ahmed**
-4. Start **Ahmed iOS — App Store**
+4. Codemagic → Ahmed → iOS code signing: upload the App Store certificate + profile for `com.ahmed.app`
+5. Start **Ahmed iOS — App Store** (also runs on every push to `main`)

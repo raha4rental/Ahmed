@@ -1,8 +1,8 @@
 workflows:
-  android-internal:
-    name: Ahmed Android
-    instance_type: linux
-    max_build_duration: 60
+  ios-app-store:
+    name: Ahmed iOS — App Store
+    instance_type: mac_mini_m2
+    max_build_duration: 120
     triggering:
       events:
         - push
@@ -10,6 +10,53 @@ workflows:
         - pattern: main
           include: true
           source: true
+    integrations:
+      app_store_connect: Ahmed
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.ahmed.app
+      vars:
+        BUNDLE_ID: com.ahmed.app
+        XCODE_WORKSPACE: ios/App/App.xcworkspace
+        XCODE_SCHEME: App
+      xcode: latest
+      node: 22
+      cocoapods: default
+    scripts:
+      - name: Install JS
+        script: |
+          npm ci
+          npx prisma generate
+      - name: Native web + Capacitor iOS
+        script: |
+          npm run build:native
+          cd ios/App
+          pod install
+      - name: Set up code signing
+        script: xcode-project use-profiles
+      - name: Increment build number
+        script: |
+          cd "$CM_BUILD_DIR/ios/App"
+          BUILD_NUMBER="${CM_BUILD_NUMBER:-$(date +%Y%m%d%H%M)}"
+          agvtool new-version -all "$BUILD_NUMBER" || true
+      - name: Build ipa
+        script: |
+          xcode-project build-ipa \
+            --workspace "$CM_BUILD_DIR/$XCODE_WORKSPACE" \
+            --scheme "$XCODE_SCHEME"
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+
+  android-internal:
+    name: Ahmed Android
+    instance_type: linux
+    max_build_duration: 60
     environment:
       java: 17
       node: 22
@@ -26,40 +73,3 @@ workflows:
           ./gradlew assembleDebug
     artifacts:
       - android/app/build/outputs/apk/debug/*.apk
-
-  ios-app-store:
-    name: Ahmed iOS — App Store
-    instance_type: mac_mini_m2
-    max_build_duration: 120
-    integrations:
-      app_store_connect: Ahmed
-    environment:
-      ios_signing:
-        bundle_identifier: com.ahmed.app
-      vars:
-        XCODE_SCHEME: App
-      node: 22
-      cocoapods: default
-    scripts:
-      - name: Install JS
-        script: |
-          npm ci
-          npx prisma generate
-      - name: Native web + Capacitor iOS
-        script: |
-          npm run build:native
-          cd ios/App
-          pod install
-      - name: Build ipa
-        script: |
-          xcode-project use-profiles
-          xcode-project build-ipa \
-            --workspace ios/App/App.xcworkspace \
-            --scheme "$XCODE_SCHEME"
-    artifacts:
-      - build/ios/ipa/*.ipa
-      - /tmp/xcodebuild_logs/*.log
-    publishing:
-      app_store_connect:
-        auth: integration
-        submit_to_testflight: true
