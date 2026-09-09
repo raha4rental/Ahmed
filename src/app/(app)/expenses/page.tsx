@@ -48,6 +48,7 @@ export default function ExpensesPage() {
     .filter((b) => inThisMonth(b.checkIn) || inThisMonth(b.checkOut) || b.status === "checked_in")
     .reduce((s, b) => s + b.paidAmount, 0);
   const totalExp = month.reduce((s, e) => s + e.amount, 0);
+  const unpaidExp = month.filter((e) => e.paid !== true).reduce((s, e) => s + e.amount, 0);
   const profit = revenue - totalExp;
   const outstanding = data.bookings.filter((b) => b.status !== "cancelled").reduce((s, b) => s + remaining(b), 0);
 
@@ -93,6 +94,15 @@ export default function ExpensesPage() {
         subtitle={t("rentSchedule")}
         action={<Button onClick={() => setOpen(true)}>{t("addExpense")}</Button>}
       />
+
+      <section className="mb-3 rounded-2xl bg-[#14241f] px-4 py-4 text-[#f3e6c8]">
+        <div className="text-xs text-[#c4a574]">{t("expenseTotal")}</div>
+        <div className="mt-1 text-3xl font-semibold">{money(totalExp, lang)}</div>
+        <div className="mt-2 flex justify-between gap-3 text-xs">
+          <span>{t("unpaidTotal")}: {money(unpaidExp, lang)}</span>
+          <span>{t("profit")}: {money(profit, lang)}</span>
+        </div>
+      </section>
 
       <div className="mb-3 grid grid-cols-2 gap-2">
         <Money label={t("revenueMonth")} value={money(revenue, lang)} tone="up" />

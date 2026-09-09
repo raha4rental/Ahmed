@@ -32,7 +32,10 @@ export default function DashboardPage() {
     (b) => inThisMonth(b.checkIn) || inThisMonth(b.checkOut) || b.status === "checked_in"
   );
   const revenue = monthBookings.reduce((s, b) => s + b.paidAmount, 0);
-  const expenses = data.expenses.filter((e) => inThisMonth(e.date)).reduce((s, e) => s + e.amount, 0);
+  const expenses = data.expenses
+    .filter((e) => inThisMonth(e.date) || (e.dueDate ? inThisMonth(e.dueDate) : false))
+    .reduce((s, e) => s + e.amount, 0);
+  const profit = revenue - expenses;
   const outstanding = data.bookings.filter((b) => b.status !== "cancelled").reduce((s, b) => s + remaining(b), 0);
   const todayTasks = data.tasks.filter((x) => x.date === TODAY && x.status !== "completed");
   const checkinsToday = data.bookings.filter((b) => b.checkIn === TODAY && b.status === "booked");
@@ -62,8 +65,12 @@ export default function DashboardPage() {
 
       {can.viewFinancials(user.role) ? (
         <div className="mb-4 grid grid-cols-2 gap-2">
+          <div className="col-span-2 rounded-2xl bg-[#14241f] px-4 py-4 text-[#f3e6c8]">
+            <div className="text-xs text-[#c4a574]">{t("expenseTotal")}</div>
+            <div className="mt-1 text-3xl font-semibold">{money(expenses, lang)}</div>
+          </div>
           <MoneyCard label={t("revenueMonth")} value={money(revenue, lang)} tone="up" />
-          <MoneyCard label={t("expensesMonth")} value={money(expenses, lang)} tone="down" />
+          <MoneyCard label={t("profit")} value={money(profit, lang)} tone={profit >= 0 ? "up" : "down"} />
           <MoneyCard label={t("outstanding")} value={money(outstanding, lang)} tone="warn" wide />
         </div>
       ) : (
