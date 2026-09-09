@@ -27,7 +27,7 @@ Arabic + English copy, privacy URL, Business category, and review notes are set 
 
 ## Before Add for Review
 
-1. **Build:** **1.0.1 (8)** is **VALID** and attached to the iOS version. It includes Ahmed/Ryan alerts. Run it on iPhone via TestFlight (not the public App Store):
+1. **Build:** **1.0.1 (9)** is **VALID** and attached to the iOS version. It includes Ahmed/Ryan alerts. Run it on iPhone via TestFlight (not the public App Store):
 
    - Internal now: iPhone → TestFlight → sign in as `allaasheikh@icloud.com` → **السعدي** → Install
    - Public TestFlight link (after Beta Review): https://testflight.apple.com/join/j1NHueWR

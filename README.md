@@ -12,7 +12,7 @@ Bundle ID: `com.darraha.ahmed`
 
 ## Install on iPhone (TestFlight)
 
-The iPhone app is **السعدي 1.0.1 (8)** on Apple. It is not in the public App Store yet.
+The iPhone app is **السعدي 1.0.1 (9)** on Apple. It is not in the public App Store yet.
 
 **Internal (works now):** on the iPhone, install [TestFlight](https://apps.apple.com/app/testflight/id899247664), sign in as **allaasheikh@icloud.com**, open **السعدي**, tap **Install**. On the first screen tap **Ahmed Al-Saadi** and enter the staff password.
 
