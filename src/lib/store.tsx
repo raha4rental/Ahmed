@@ -28,7 +28,7 @@ import { createSeed } from "./seed";
 import { TODAY, uid } from "./format";
 import { copy, type CopyKey } from "./i18n";
 import { can } from "./permissions";
-import { AHMED_EMAIL, AHMED_PASSWORD_SHA256, sha256Hex } from "./auth";
+import { AHMED_PASSWORD_SHA256, sha256Hex } from "./auth";
 
 const KEY = "ahmed-app-v5";
 const SESSION = "ahmed-session-v4";
@@ -119,7 +119,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         ...next,
         users: (next.users?.length ? next.users : seed.users).map((u) =>
           u.id === "u-ahmed"
-            ? { ...u, email: AHMED_EMAIL, passwordHash: AHMED_PASSWORD_SHA256 }
+            ? { ...u, email: "", passwordHash: AHMED_PASSWORD_SHA256 }
             : u
         ),
         expenses: hasRent

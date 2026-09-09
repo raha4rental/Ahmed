@@ -252,7 +252,28 @@
 
 .login-brand {
   text-align: center;
-  padding-top: 8px;
+  padding-top: 4px;
+}
+
+.login-logo {
+  display: block;
+  width: min(280px, 82%);
+  margin: 0 auto;
+  border-radius: 24px;
+}
+
+.login-sub {
+  margin: 10px 0 0;
+  color: #d8c7a4;
+  font-size: 14px;
+}
+
+.app-topbar-logo {
+  height: 28px;
+  width: auto;
+  max-width: 120px;
+  object-fit: contain;
+  border-radius: 6px;
 }
 
 .login-mark {

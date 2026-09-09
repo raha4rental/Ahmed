@@ -41,8 +41,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   if (!ready || !user) {
     return (
-      <div className="app-device flex items-center justify-center bg-[#14241f] text-[#c4a574]">
-        أحمد
+      <div className="app-device flex items-center justify-center bg-[#0e1c18]">
+        <img src="/logo.png" alt="Ahmed" className="w-44 rounded-2xl" />
       </div>
     );
   }
@@ -75,8 +75,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <BackIcon className="size-5" />
             <span>{t("back")}</span>
           </button>
-          <span className="app-topbar-mark">أ</span>
-          <span>Ahmed</span>
+          <img src="/logo.png" alt="" className="app-topbar-logo" />
           <button type="button" className="app-topbar-action app-topbar-logout" onClick={signOut}>
             <LogOut className="size-4" />
             <span>{t("logout")}</span>

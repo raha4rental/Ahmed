@@ -1,4 +1,3 @@
-export const AHMED_EMAIL = "sabaphone@gmail.com";
 export const AHMED_PASSWORD_SHA256 =
   "e0fdc0f005292f654eeda7e993ea818f03b8a9fd6649076e921e4e1a552bdeb0";
 
@@ -7,8 +6,4 @@ export async function sha256Hex(value: string) {
   return Array.from(new Uint8Array(buf))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
-}
-
-export function isAhmedLogin(email: string) {
-  return email.trim().toLowerCase() === AHMED_EMAIL;
 }

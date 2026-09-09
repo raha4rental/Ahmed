@@ -33,7 +33,7 @@ export default function UsersPage() {
           <article key={u.id} className="raha-card p-5">
             <div className="text-xs uppercase tracking-wide text-[#8a7048]">{u.role.replace("_", " ")}</div>
             <h3 className="mt-1 text-xl font-medium">{lang === "ar" ? u.nameAr : u.name}</h3>
-            <p className="text-sm text-muted-foreground">{u.email}</p>
+            {u.email ? <p className="text-sm text-muted-foreground">{u.email}</p> : null}
             <ul className="mt-4 space-y-1 text-sm">
               {limits[u.role].map((line) => (
                 <li key={line}>· {line}</li>

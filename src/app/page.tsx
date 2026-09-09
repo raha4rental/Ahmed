@@ -8,13 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useStore } from "@/lib/store";
-import { AHMED_EMAIL } from "@/lib/auth";
 
 export default function LoginPage() {
   const { data, login, user, ready, lang, t } = useStore();
   const router = useRouter();
   const [ahmedOpen, setAhmedOpen] = useState(false);
-  const [email, setEmail] = useState(AHMED_EMAIL);
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -35,13 +33,10 @@ export default function LoginPage() {
   async function enterAhmed(e: React.FormEvent) {
     e.preventDefault();
     if (!ahmed) return;
-    if (email.trim().toLowerCase() !== AHMED_EMAIL) {
-      toast.error(t("wrongPassword"));
-      return;
-    }
     setBusy(true);
     const ok = await login(ahmed.id, password);
     setBusy(false);
+    setPassword("");
     if (!ok) {
       toast.error(t("wrongPassword"));
       return;
@@ -54,14 +49,7 @@ export default function LoginPage() {
       <div className="login-glow" />
       <div className="login-inner">
         <header className="login-brand">
-          <div className="login-mark" aria-hidden>
-            أ
-          </div>
-          <img src="/ahmed-logo.svg" alt="Ahmed" className="login-wordmark" />
-          <p className="login-kicker">Property Management</p>
-          <h1 className="login-title">
-            {lang === "ar" ? "إدارة وتشغيل الشقق" : "Apartment Management & Operations"}
-          </h1>
+          <img src="/logo.png" alt="Ahmed Al Saadi" className="login-logo" />
           <p className="login-sub">{t("loginAs")}</p>
         </header>
 
@@ -77,27 +65,17 @@ export default function LoginPage() {
             <span className="staff-copy">
               <span className="staff-name">Ahmed Al-Saadi</span>
               <span className="staff-name-ar">أحمد السعدي</span>
-              <span className="staff-role">Super Admin • {AHMED_EMAIL}</span>
+              <span className="staff-role">Super Admin • Management</span>
             </span>
           </button>
 
           {ahmedOpen ? (
-            <form className="login-ahmed-form" onSubmit={enterAhmed}>
-              <div className="grid gap-1.5">
-                <Label className="text-[#e8d5a8]">{t("loginEmail")}</Label>
-                <Input
-                  type="email"
-                  autoComplete="username"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="bg-[#1a2c26] text-[#fffdf8] border-[#c4a57466]"
-                />
-              </div>
+            <form className="login-ahmed-form" onSubmit={enterAhmed} autoComplete="off">
               <div className="grid gap-1.5">
                 <Label className="text-[#e8d5a8]">{t("password")}</Label>
                 <Input
                   type="password"
-                  autoComplete="current-password"
+                  autoComplete="off"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="bg-[#1a2c26] text-[#fffdf8] border-[#c4a57466]"
@@ -122,11 +100,6 @@ export default function LoginPage() {
             </button>
           ) : null}
         </div>
-
-        <footer className="login-foot">
-          <div>Ahmed Property Management</div>
-          <div>Smarter Management • Better Stays</div>
-        </footer>
       </div>
     </div>
   );

@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     title: "Ahmed",
     statusBarStyle: "black-translucent",
   },
-  icons: { icon: "/icon.svg", apple: "/icon.svg" },
+  icons: { icon: "/logo.png", apple: "/logo.png" },
   manifest: "/manifest.json",
 };
 
