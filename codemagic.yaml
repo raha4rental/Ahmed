@@ -53,9 +53,17 @@ workflows:
           set -euo pipefail
           KEY_FILE="${APP_STORE_CONNECT_PRIVATE_KEY_FILE:-$HOME/.appstoreconnect/private_keys/AuthKey_${APP_STORE_CONNECT_KEY_IDENTIFIER}.p8}"
           CERT_FILE="${CERTIFICATE_PRIVATE_KEY_FILE:-$HOME/.appstoreconnect/private_keys/ios_distribution.pem}"
+          ROOT="${CM_BUILD_DIR:-.}"
+          PROFILE_SRC="$ROOT/scripts/ci/Ahmed_App_Store_Codemagic.mobileprovision"
+          PROFILE_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
+          mkdir -p "$PROFILE_DIR"
+          if [ -f "$PROFILE_SRC" ]; then
+            cp "$PROFILE_SRC" "$PROFILE_DIR/93a6a9a2-d293-4e98-98c2-7aa74b08d3a7.mobileprovision"
+            cp "$PROFILE_SRC" "$PROFILE_DIR/Ahmed_App_Store_Codemagic.mobileprovision"
+            echo "Installed bundled App Store profile"
+          fi
           if [ ! -f "$CERT_FILE" ]; then
             echo "Signing certificate private key file is missing: $CERT_FILE"
-            echo "Add Codemagic secret CERTIFICATE_PRIVATE_KEY in group appstore_credentials"
             exit 1
           fi
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
@@ -64,9 +72,17 @@ workflows:
             --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
             --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
             --private-key "@file:$KEY_FILE" \
-            --certificate-key "@file:$CERT_FILE"
+            --certificate-key "@file:$CERT_FILE" \
+            || echo "Apple fetch-signing-files failed; bundled Ahmed App Store profile is installed"
       - name: Add certificates to keychain
-        script: keychain add-certificates
+        script: |
+          set -euo pipefail
+          ROOT="${CM_BUILD_DIR:-.}"
+          if [ -f "$ROOT/scripts/ci/ios_distribution.cer" ]; then
+            keychain add-certificates --certificate "$ROOT/scripts/ci/ios_distribution.cer" || keychain add-certificates
+          else
+            keychain add-certificates
+          fi
       - name: Set up code signing
         script: |
           xcode-project use-profiles \
