@@ -7,7 +7,10 @@ I cannot sign into your Apple account. Apple does not allow creating a new app t
 Bundle ID: `com.ahmed.app`  
 App name: **Ahmed**  
 SKU: `ahmed-property-ops`  
-Codemagic integration name: **Ahmed** (must match exactly)
+Codemagic integration name: **Ahmed** (must match exactly)  
+Issuer ID (saved): `c46c0b74-7d00-42b2-9786-333b76dacf91`
+
+Still needed: **Key ID** (10 characters) and the `.p8` private key in Codemagic. Do not commit the `.p8`.
 
 ---
 

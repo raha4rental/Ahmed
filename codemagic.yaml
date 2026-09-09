@@ -21,6 +21,7 @@ workflows:
         XCODE_WORKSPACE: ios/App/App.xcworkspace
         XCODE_SCHEME: App
         APP_STORE_APPLE_ID: com.ahmed.app
+        APP_STORE_CONNECT_ISSUER_ID: c46c0b74-7d00-42b2-9786-333b76dacf91
       xcode: latest
       node: 22
       cocoapods: default
