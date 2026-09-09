@@ -19,6 +19,7 @@ workflows:
         XCODE_SCHEME: App
         APP_STORE_APPLE_ID: 6810042737
         APP_STORE_CONNECT_ISSUER_ID: c46c0b74-7d00-42b2-9786-333b76dacf91
+        APP_STORE_CONNECT_KEY_IDENTIFIER: 8LM6C7D787
       xcode: latest
       node: 22
       cocoapods: default
