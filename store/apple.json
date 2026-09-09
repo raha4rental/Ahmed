@@ -1,7 +1,9 @@
 {
   "appName": "Ahmed",
   "bundleId": "com.darraha.ahmed",
-  "sku": "ahmed-property-ops",
+  "sku": "ahmed-property-ops.",
+  "appleId": "6810042737",
+  "appStoreName": "السعدي",
   "primaryLocale": "ar-SA",
   "codemagicIntegration": "Ahmed",
   "issuerId": "c46c0b74-7d00-42b2-9786-333b76dacf91",

@@ -17,6 +17,7 @@ workflows:
         BUNDLE_ID: com.darraha.ahmed
         XCODE_WORKSPACE: ios/App/App.xcworkspace
         XCODE_SCHEME: App
+        APP_STORE_APPLE_ID: 6810042737
         APP_STORE_CONNECT_ISSUER_ID: c46c0b74-7d00-42b2-9786-333b76dacf91
         APP_STORE_CONNECT_KEY_IDENTIFIER: R46D76UXCH
       xcode: latest
@@ -54,6 +55,10 @@ workflows:
         script: |
           cd "$CM_BUILD_DIR/ios/App"
           BUILD_NUMBER="${CM_BUILD_NUMBER:-$(date +%Y%m%d%H%M)}"
+          LATEST=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APPLE_ID" 2>/dev/null || true)
+          if [ -n "$LATEST" ] && [ "$LATEST" -eq "$LATEST" ] 2>/dev/null; then
+            BUILD_NUMBER=$((LATEST + 1))
+          fi
           agvtool new-version -all "$BUILD_NUMBER" || true
       - name: Build ipa
         script: |
