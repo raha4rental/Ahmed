@@ -34,7 +34,8 @@ Then in Xcode: select an iPhone or iPhone simulator → Run.
 
 The iPhone build:
 
-- Uses the on-device store (no server)
+- Uses the on-device store (no server). Data stays after you close the app and open it later.
+- Removed only if you delete the app from the iPhone
 - Asks for camera + photo library for apartment photos, guest ID, and cleaning photos
 - Fills the screen under the notch / Dynamic Island
 - Is portrait-only

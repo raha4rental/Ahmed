@@ -10,9 +10,10 @@
 
 - حسابات الموظفين (أحمد / رايان) لتسجيل الدخول.
 - بيانات التشغيل: الشقق، الضيوف، الحجوزات، الصيانة، الفواتير، والصور التي يلتقطها الموظف أثناء العمل.
-- على الآيفون تُحفظ البيانات على الجهاز. المعاينة على الويب قد تستخدم مخزنًا محليًا أو نسخة تشغيل داخلية.
+- على الآيفون تُحفظ البيانات على الجهاز في ملف التطبيق. تبقى بعد إغلاق التطبيق وإعادة فتحه. تُحذف فقط إذا حُذف التطبيق.
+- المعاينة على الويب قد تستخدم مخزن المتصفح أو SQLite محلي `prisma/raha.db`.
 
-Staff accounts (Ahmed / Ryan) for sign-in. Operations data: apartments, guests, bookings, maintenance, bills, and photos the staff member captures on the job. On iPhone the data stays on device. The web preview may use local storage or an internal operations store.
+On iPhone the data is stored in the app’s private files. It remains after you close and reopen the app. It is removed only if the app is deleted. The web preview may use browser storage or local SQLite `prisma/raha.db`.
 
 ## الكاميرا والصور / Camera and photos
 

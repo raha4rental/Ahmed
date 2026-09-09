@@ -31,9 +31,16 @@ import { TODAY, uid } from "./format";
 import { copy, type CopyKey } from "./i18n";
 import { can } from "./permissions";
 import { AHMED_PASSWORD_SHA256, RYAN_EMAIL_SHA256, RYAN_PASSWORD_SHA256, sha256Hex } from "./auth";
-
-const KEY = "ahmed-app-v5";
-const SESSION = "ahmed-session-v5";
+import {
+  APP_DATA_KEY,
+  LANG_KEY,
+  SESSION_KEY,
+  loadAppData,
+  loadSetting,
+  persistAppData,
+  saveSetting,
+  clearSetting,
+} from "./persist";
 
 type Store = {
   ready: boolean;
@@ -78,7 +85,7 @@ const Ctx = createContext<Store | null>(null);
 function loadData(): AppData {
   if (typeof window === "undefined") return createSeed();
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(APP_DATA_KEY);
     if (!raw) return createSeed();
     return JSON.parse(raw) as AppData;
   } catch {
@@ -87,12 +94,7 @@ function loadData(): AppData {
 }
 
 function persist(data: AppData) {
-  localStorage.setItem(KEY, JSON.stringify(data));
-  void fetch("/api/state", {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  }).catch(() => undefined);
+  persistAppData(data);
 }
 
 function setStatus(data: AppData, apartmentId: string, status: ApartmentStatus): AppData {
@@ -109,8 +111,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLang] = useState<Lang>("ar");
 
   useEffect(() => {
-    const lg = localStorage.getItem("ahmed-lang") as Lang | null;
-    if (lg === "ar" || lg === "en") setLang(lg);
+    let cancelled = false;
 
     const apply = (next: AppData) => {
       const seed = createSeed();
@@ -159,16 +160,28 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       };
       setData(migrated);
       persist(migrated);
-      let sid = localStorage.getItem(SESSION);
-      if (sid === "u-rayan") sid = "u-ryan";
-      if (sid) setUser(migrated.users.find((x) => x.id === sid) ?? null);
+      return migrated;
     };
 
-    fetch("/api/state")
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("db"))))
-      .then((next: AppData) => apply(next))
-      .catch(() => apply(loadData()))
-      .finally(() => setReady(true));
+    void (async () => {
+      const lg = await loadSetting(LANG_KEY);
+      if (!cancelled && (lg === "ar" || lg === "en")) setLang(lg);
+
+      const next = (await loadAppData()) ?? loadData();
+      if (cancelled) return;
+      const migrated = apply(next);
+
+      let sid = await loadSetting(SESSION_KEY);
+      if (sid === "u-rayan") sid = "u-ryan";
+      if (sid && !cancelled) {
+        setUser(migrated.users.find((x) => x.id === sid) ?? null);
+      }
+      if (!cancelled) setReady(true);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const commit = useCallback((updater: (d: AppData) => AppData) => {
@@ -196,7 +209,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         if (hex !== u.passwordHash) return false;
       }
       setUser(u);
-      localStorage.setItem(SESSION, u.id);
+      void saveSetting(SESSION_KEY, u.id);
       return true;
     },
     [data.users]
@@ -204,18 +217,18 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(() => {
     setUser(null);
-    localStorage.removeItem(SESSION);
+    void clearSetting(SESSION_KEY);
   }, []);
 
   const applyLang = useCallback((next: Lang) => {
-    localStorage.setItem("ahmed-lang", next);
+    void saveSetting(LANG_KEY, next);
     setLang(next);
   }, []);
 
   const toggleLang = useCallback(() => {
     setLang((prev) => {
       const next = prev === "ar" ? "en" : "ar";
-      localStorage.setItem("ahmed-lang", next);
+      void saveSetting(LANG_KEY, next);
       return next;
     });
   }, []);

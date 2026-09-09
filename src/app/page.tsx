@@ -17,8 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useStore } from "@/lib/store";
 import type { Lang } from "@/lib/types";
-
-const RYAN_EMAIL_KEY = "ahmed-ryan-email";
+import { RYAN_EMAIL_KEY, clearSetting, loadSetting, saveSetting } from "@/lib/persist";
 
 export default function LoginPage() {
   const { data, login, user, ready, lang, t, setLang } = useStore();
@@ -34,11 +33,13 @@ export default function LoginPage() {
   }, [ready, user, router]);
 
   useEffect(() => {
-    const saved = localStorage.getItem(RYAN_EMAIL_KEY)?.trim() ?? "";
-    if (saved) {
-      setEmail(saved);
-      setEmailSaved(true);
-    }
+    void loadSetting(RYAN_EMAIL_KEY).then((saved) => {
+      const value = saved?.trim() ?? "";
+      if (value) {
+        setEmail(value);
+        setEmailSaved(true);
+      }
+    });
   }, []);
 
   const ahmed = data.users.find((u) => u.id === "u-ahmed");
@@ -73,7 +74,7 @@ export default function LoginPage() {
       setPassword("");
       return;
     }
-    localStorage.setItem(RYAN_EMAIL_KEY, mail);
+    void saveSetting(RYAN_EMAIL_KEY, mail);
     setEmail(mail);
     setEmailSaved(true);
     setPassword("");
@@ -164,11 +165,13 @@ export default function LoginPage() {
               className="staff-card"
               onClick={() => {
                 setPassword("");
-                const saved = localStorage.getItem(RYAN_EMAIL_KEY)?.trim() ?? "";
-                if (saved) {
-                  setEmail(saved);
-                  setEmailSaved(true);
-                }
+                void loadSetting(RYAN_EMAIL_KEY).then((value) => {
+                  const saved = value?.trim() ?? "";
+                  if (saved) {
+                    setEmail(saved);
+                    setEmailSaved(true);
+                  }
+                });
                 setOpen("ryan");
               }}
             >
@@ -229,7 +232,7 @@ export default function LoginPage() {
                   onClick={() => {
                     setEmailSaved(false);
                     setEmail("");
-                    localStorage.removeItem(RYAN_EMAIL_KEY);
+                    void clearSetting(RYAN_EMAIL_KEY);
                   }}
                 >
                   {t("changeEmail")}
