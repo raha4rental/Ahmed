@@ -19,7 +19,6 @@ workflows:
         XCODE_SCHEME: App
         APP_STORE_APPLE_ID: 6810042737
         APP_STORE_CONNECT_ISSUER_ID: c46c0b74-7d00-42b2-9786-333b76dacf91
-        APP_STORE_CONNECT_KEY_IDENTIFIER: 8LM6C7D787
       xcode: latest
       node: 22
       cocoapods: default
@@ -27,35 +26,14 @@ workflows:
       - name: Check App Store Connect credentials
         script: |
           set -euo pipefail
-          if [ -z "${APP_STORE_CONNECT_PRIVATE_KEY:-}" ]; then
-            echo "App Store Connect .p8 is missing in this build."
-            echo "Codemagic → Team integrations → Developer Portal: key name must be exactly: ahmed"
-            echo "Or add secret APP_STORE_CONNECT_PRIVATE_KEY on the Ahmed app."
+          python3 scripts/normalize-asc-key.py
+          KEY_ID="${APP_STORE_CONNECT_KEY_IDENTIFIER:-}"
+          KEY_FILE="${APP_STORE_CONNECT_PRIVATE_KEY_FILE:-$HOME/.appstoreconnect/private_keys/AuthKey_${KEY_ID}.p8}"
+          if [ ! -f "$KEY_FILE" ]; then
+            echo "Normalized .p8 was not written to $KEY_FILE"
             exit 1
           fi
-          echo "Issuer: ${APP_STORE_CONNECT_ISSUER_ID:-missing}"
-          echo "Key ID: ${APP_STORE_CONNECT_KEY_IDENTIFIER:-missing}"
-          echo "Private key: present"
-          mkdir -p "$HOME/.appstoreconnect/private_keys" "$HOME/private_keys"
-          python3 - <<'PY'
-          import os
-          from pathlib import Path
-          raw = os.environ["APP_STORE_CONNECT_PRIVATE_KEY"].replace("\\n", "\n").strip()
-          if "BEGIN" not in raw:
-              raise SystemExit("APP_STORE_CONNECT_PRIVATE_KEY is not a PEM .p8 key")
-          text = raw + "\n"
-          kid = os.environ.get("APP_STORE_CONNECT_KEY_IDENTIFIER", "8LM6C7D787")
-          for folder in (
-              Path.home() / ".appstoreconnect/private_keys",
-              Path.home() / "private_keys",
-              Path("private_keys"),
-          ):
-              folder.mkdir(parents=True, exist_ok=True)
-              path = folder / f"AuthKey_{kid}.p8"
-              path.write_text(text)
-              path.chmod(0o600)
-              print(f"wrote {path}")
-          PY
+          echo "Using $KEY_FILE"
       - name: Install JS
         script: |
           npm ci
@@ -69,12 +47,14 @@ workflows:
         script: keychain initialize
       - name: Fetch signing files from App Store Connect
         script: |
+          set -euo pipefail
+          KEY_FILE="${APP_STORE_CONNECT_PRIVATE_KEY_FILE:-$HOME/.appstoreconnect/private_keys/AuthKey_${APP_STORE_CONNECT_KEY_IDENTIFIER}.p8}"
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
             --type IOS_APP_STORE \
             --create \
-            --issuer-id @env:APP_STORE_CONNECT_ISSUER_ID \
-            --key-id @env:APP_STORE_CONNECT_KEY_IDENTIFIER \
-            --private-key @env:APP_STORE_CONNECT_PRIVATE_KEY
+            --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
+            --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
+            --private-key "@file:$KEY_FILE"
       - name: Add certificates to keychain
         script: keychain add-certificates
       - name: Set up code signing
@@ -83,12 +63,14 @@ workflows:
             --custom-export-options='{"testFlightInternalTestingOnly": true}'
       - name: Increment build number
         script: |
+          set -euo pipefail
           cd "$CM_BUILD_DIR/ios/App"
           BUILD_NUMBER="${CM_BUILD_NUMBER:-$(date +%Y%m%d%H%M)}"
+          KEY_FILE="${APP_STORE_CONNECT_PRIVATE_KEY_FILE:-$HOME/.appstoreconnect/private_keys/AuthKey_${APP_STORE_CONNECT_KEY_IDENTIFIER}.p8}"
           LATEST=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APPLE_ID" \
-            --issuer-id @env:APP_STORE_CONNECT_ISSUER_ID \
-            --key-id @env:APP_STORE_CONNECT_KEY_IDENTIFIER \
-            --private-key @env:APP_STORE_CONNECT_PRIVATE_KEY \
+            --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
+            --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
+            --private-key "@file:$KEY_FILE" \
             2>/dev/null || true)
           if [ -n "$LATEST" ] && [ "$LATEST" -eq "$LATEST" ] 2>/dev/null; then
             BUILD_NUMBER=$((LATEST + 1))
@@ -104,9 +86,8 @@ workflows:
       - /tmp/xcodebuild_logs/*.log
     publishing:
       app_store_connect:
-        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
-        key_id: 8LM6C7D787
-        issuer_id: c46c0b74-7d00-42b2-9786-333b76dacf91
+        # Use the Developer Portal key named Ahmed (Key ID comes from the integration).
+        auth: integration
         submit_to_testflight: true
 
   android-internal:
