@@ -29,4 +29,6 @@ Do not commit the `.p8` file. Paste or upload it only in Codemagic.
 2. Issuer ID: `c46c0b74-7d00-42b2-9786-333b76dacf91`
 3. Key ID: **`8LM6C7D787`** (replace `R46D76UXCH`)
 4. Upload **`AuthKey_8LM6C7D787.p8`**, or paste the full PEM including `BEGIN` / `END`
-5. Save → Start **Ahmed iOS — App Store**
+5. App → **Environment variables** → group name **`appstore_credentials`**
+6. Add secret **`CERTIFICATE_PRIVATE_KEY`**: paste the full RSA PEM from `ios_distribution.pem` (`-----BEGIN PRIVATE KEY-----` … `-----END PRIVATE KEY-----`)
+7. Save → Start **Ahmed iOS — App Store**

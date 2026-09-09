@@ -71,7 +71,7 @@ def _wrap_body(body: str) -> str:
     )
 
 
-def load_key_material(raw: str) -> str:
+def load_key_material(raw: str, *, allow_existing_asc: bool = True) -> str:
     raw = raw.strip().strip("\ufeff").strip('"').strip("'")
     raw = raw.replace("\r\n", "\n").replace("\\n", "\n").replace("\\r", "")
 
@@ -104,20 +104,21 @@ def load_key_material(raw: str) -> str:
         _log("private key format: PEM body without headers")
         return _wrap_body(compact)
 
-    key_id = os.environ.get("APP_STORE_CONNECT_KEY_IDENTIFIER", "").strip()
-    for folder in (
-        Path.home() / ".appstoreconnect/private_keys",
-        Path.home() / "private_keys",
-        Path("private_keys"),
-    ):
-        if not key_id:
-            break
-        existing = folder / f"AuthKey_{key_id}.p8"
-        if existing.is_file() and existing.stat().st_size > 0:
-            text = existing.read_text()
-            if "BEGIN" in text:
-                _log(f"private key source: existing {existing}")
-                return text if text.endswith("\n") else text + "\n"
+    if allow_existing_asc:
+        key_id = os.environ.get("APP_STORE_CONNECT_KEY_IDENTIFIER", "").strip()
+        for folder in (
+            Path.home() / ".appstoreconnect/private_keys",
+            Path.home() / "private_keys",
+            Path("private_keys"),
+        ):
+            if not key_id:
+                break
+            existing = folder / f"AuthKey_{key_id}.p8"
+            if existing.is_file() and existing.stat().st_size > 0:
+                text = existing.read_text()
+                if "BEGIN" in text:
+                    _log(f"private key source: existing {existing}")
+                    return text if text.endswith("\n") else text + "\n"
 
     _log(f"private key length: {len(raw)}")
     _log(f"private key prefix: {_safe_prefix(raw)}")
@@ -147,16 +148,34 @@ def write_key_files(pem: str, key_id: str) -> Path:
     return primary
 
 
-def persist_env(pem: str, key_file: Path) -> None:
+def persist_env(asc_file: Path, cert_file: Path | None) -> None:
     cm_env = os.environ.get("CM_ENV")
     if not cm_env:
         return
-    # Later CLI steps read this file. Do not rewrite APP_STORE_CONNECT_PRIVATE_KEY
-    # here — Codemagic may have injected a path or base64, and publishing uses
-    # `auth: integration`.
     with open(cm_env, "a", encoding="utf-8") as handle:
-        handle.write(f"APP_STORE_CONNECT_PRIVATE_KEY_FILE={key_file}\n")
+        handle.write(f"APP_STORE_CONNECT_PRIVATE_KEY_FILE={asc_file}\n")
+        if cert_file is not None:
+            handle.write(f"CERTIFICATE_PRIVATE_KEY_FILE={cert_file}\n")
     _log(f"persisted key file path to {cm_env}")
+
+
+def write_named(pem: str, filename: str) -> Path:
+    folders = (
+        Path.home() / ".appstoreconnect/private_keys",
+        Path.home() / "private_keys",
+        Path("private_keys"),
+    )
+    primary: Path | None = None
+    for folder in folders:
+        folder.mkdir(parents=True, exist_ok=True)
+        path = folder / filename
+        path.write_text(pem)
+        path.chmod(0o600)
+        _log(f"wrote {path}")
+        if primary is None:
+            primary = path
+    assert primary is not None
+    return primary
 
 
 def main() -> int:
@@ -173,11 +192,24 @@ def main() -> int:
     _log("Private key: present")
 
     pem = load_key_material(raw)
-    if "BEGIN PRIVATE KEY" not in pem:
-        raise SystemExit("normalized key is still not a PKCS#8 PEM")
+    if "BEGIN" not in pem:
+        raise SystemExit("normalized App Store Connect key is still not PEM")
     key_file = write_key_files(pem, key_id)
-    persist_env(pem, key_file)
-    _log("App Store Connect credentials look usable")
+
+    cert_raw = os.environ.get("CERTIFICATE_PRIVATE_KEY", "").strip()
+    if not cert_raw:
+        _log("CERTIFICATE_PRIVATE_KEY is missing.")
+        _log("Codemagic → Ahmed → Environment variables → add secret CERTIFICATE_PRIVATE_KEY")
+        _log("Paste the full RSA PEM (ios_distribution.pem), including BEGIN and END lines.")
+        return 1
+
+    _log("Certificate private key: present")
+    cert_pem = load_key_material(cert_raw, allow_existing_asc=False)
+    if "BEGIN" not in cert_pem:
+        raise SystemExit("normalized CERTIFICATE_PRIVATE_KEY is still not PEM")
+    cert_file = write_named(cert_pem, "ios_distribution.pem")
+    persist_env(key_file, cert_file)
+    _log("App Store Connect and signing certificate keys look usable")
     return 0
 
 

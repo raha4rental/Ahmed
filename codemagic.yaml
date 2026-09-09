@@ -20,6 +20,8 @@ workflows:
         APP_STORE_APPLE_ID: 6810042737
         APP_STORE_CONNECT_ISSUER_ID: c46c0b74-7d00-42b2-9786-333b76dacf91
         APP_STORE_CONNECT_KEY_IDENTIFIER: 8LM6C7D787
+      groups:
+        - appstore_credentials
       xcode: latest
       node: 22
       cocoapods: default
@@ -50,12 +52,19 @@ workflows:
         script: |
           set -euo pipefail
           KEY_FILE="${APP_STORE_CONNECT_PRIVATE_KEY_FILE:-$HOME/.appstoreconnect/private_keys/AuthKey_${APP_STORE_CONNECT_KEY_IDENTIFIER}.p8}"
+          CERT_FILE="${CERTIFICATE_PRIVATE_KEY_FILE:-$HOME/.appstoreconnect/private_keys/ios_distribution.pem}"
+          if [ ! -f "$CERT_FILE" ]; then
+            echo "Signing certificate private key file is missing: $CERT_FILE"
+            echo "Add Codemagic secret CERTIFICATE_PRIVATE_KEY in group appstore_credentials"
+            exit 1
+          fi
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
             --type IOS_APP_STORE \
             --create \
             --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
             --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
-            --private-key "@file:$KEY_FILE"
+            --private-key "@file:$KEY_FILE" \
+            --certificate-key "@file:$CERT_FILE"
       - name: Add certificates to keychain
         script: keychain add-certificates
       - name: Set up code signing
